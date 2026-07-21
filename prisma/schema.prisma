@@ -1,0 +1,485 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// GLOBAL SETTINGS & LANDING PAGE (SaaS LEVEL)
+// -----------------------------------------------------------------------------
+model SiteSettings {
+  id           String   @id @default(uuid())
+  tenant_id    String?  @unique
+  logoUrl      String?
+  logoUrlDark  String?
+  heroTitle    String?
+  heroSubtitle String?
+  heroImage    String?
+  features     Json?
+  pricing      Json?
+  testimonials Json?
+  tutorial     Json?
+  faq          Json?
+  howItWorks   Json?
+  footerText   String?
+  openaiApiKey String?
+  geminiApiKey String?
+  aiMasterPrompt String? @db.Text
+  
+  // Admin WA Notification
+  waAdminProvider String? @default("FONNTE")
+  waAdminApiKey   String?
+  waAdminWelcomeTemplate String? @db.Text
+  waAdminTemplate String? @db.Text
+  waAdminInvoiceTemplate String? @db.Text
+  waAdminTopupTemplate   String? @db.Text
+  waAdminExpired7DaysTemplate String? @db.Text
+  waAdminExpiredTodayTemplate String? @db.Text
+  bankInstructions Json?
+  qrisUrl          String?
+  
+  // System & Server Settings
+  faviconUrl        String?
+  maintenanceMode   Boolean @default(false)
+  maxUploadSizeMb   Int     @default(5)
+  sessionExpiryDays Int     @default(7)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// -----------------------------------------------------------------------------
+// TENANT & MULTI-TENANCY CORE
+// -----------------------------------------------------------------------------
+model Tenant {
+  id              String         @id @default(uuid())
+  name            String         // e.g., "RT 04 / RW 08"
+  slug            String         @unique
+  province        String?
+  city            String?
+  district        String?
+  village         String?
+  rt              String?
+  rw              String?
+  address         String?    // Alamat sekretariat
+  kodePos         String?    // Kode Pos
+  ketuaName       String?    // Nama Ketua RT untuk cetak surat
+  ketuaNik        String?    // NIK Ketua RT (opsional)
+  namaRw          String?    // Nama RW
+  noHpRt          String?    // Nomor HP RT
+  
+  // Integrations
+  whatsappGroupId String?
+  whatsappBotNo   String?
+  waDeviceId      String?
+  waDevice        WaDevice?      @relation(fields: [waDeviceId], references: [id])
+  waGroup         WaGroup?
+  
+  // Subscription / Billing Cache
+  subscriptionPlan String        @default("Free")
+  activeUntil      DateTime?
+  maxWarga         Int           @default(50)
+  
+  // Add-on Quotas
+  addonMaxSurat   Int            @default(0)
+  addonMaxAiToken Int            @default(0)
+  
+  // Customization
+  logoUrl         String?
+  signatureUrl    String?
+  stampUrl        String?
+  
+  status          String         @default("AKTIF") // AKTIF, NONAKTIF, PENDING
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  users           User[]
+  wargas          Warga[]
+  suratArsips     SuratArsip[]
+  suratTemplates  SuratTemplate[]
+  kasTransactions KasTransaction[]
+  subscriptions   Subscription[]
+  activityLogs    ActivityLog[]
+  invoices        Invoice[]
+  notulens        NotulenAi[]
+  pengumumans     Pengumuman[]
+  waSessions      WaSession[]
+
+  @@map("tenants")
+}
+
+// -----------------------------------------------------------------------------
+// AUTH & RBAC (ROLE-BASED ACCESS CONTROL)
+// -----------------------------------------------------------------------------
+enum Role {
+  SUPER_ADMIN
+  TENANT_ADMIN
+  TENANT_STAFF
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  plainPassword String?
+  name      String
+  image     String?
+  role      Role     @default(TENANT_ADMIN)
+  tenantId  String?  
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  // Relations
+  logs      ActivityLog[]
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// BILLING & SUBSCRIPTIONS (SaaS)
+// -----------------------------------------------------------------------------
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  price         Decimal  @db.Decimal(10, 2)
+  billingPeriod     String   // e.g., "MONTHLY", "YEARLY", "LIFETIME", "TRIAL"
+  type              String   @default("NEW") // NEW, UPGRADE, RENEW, ADDON
+  masaAktifBulan    Int      @default(1)
+  hargaPendaftaran  Decimal  @default(0) @db.Decimal(10, 2)
+  hargaPerpanjangan Decimal  @default(0) @db.Decimal(10, 2)
+  
+  // Limiters
+  maxWarga      Int      @default(0) // 0 = unlimited
+  maxSurat      Int      @default(0) // Kuota cetak per bulan
+  maxAiChat     Int      @default(0)
+  maxAiToken    Int      @default(2000)
+  
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscriptions Subscription[]
+  invoices      Invoice[]
+
+  @@map("products")
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Subscription {
+  id        String             @id @default(uuid())
+  tenantId  String
+  tenant    Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product            @relation(fields: [productId], references: [id])
+  
+  status    SubscriptionStatus @default(PENDING)
+  startsAt  DateTime           @default(now())
+  expiresAt DateTime?
+  
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([tenantId])
+  @@map("subscriptions")
+}
+
+// -----------------------------------------------------------------------------
+// INVOICES (BILLING)
+// -----------------------------------------------------------------------------
+model Invoice {
+  id            String   @id @default(uuid())
+  invoiceNumber String   @unique // e.g., INV/YYYYMMDD/HHMM
+  date          DateTime @default(now())
+  
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  
+  amount        Decimal  @db.Decimal(10, 2)
+  status        String   @default("PENDING") // PENDING, CANCELLED, COMPLETED
+  orderType     String   @default("NEW") // NEW, UPGRADE, RENEWAL
+  paymentMethod String   @default("transfer") // qris, transfer
+  
+  // Temporary storage during registration before ACC
+  customerEmail    String?
+  customerPassword String?
+  customerName     String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("invoices")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: DATA WARGA
+// -----------------------------------------------------------------------------
+enum WargaStatus {
+  AKTIF
+  PINDAH
+  MENINGGAL
+}
+
+enum Gender {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+model Warga {
+  id             String      @id @default(uuid())
+  tenantId       String
+  tenant         Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  nik            String      @db.VarChar(16)
+  noKk           String      @db.VarChar(16)
+  namaLengkap    String
+  namaPanggilan  String?
+  tempatLahir    String?
+  tanggalLahir   DateTime?   @db.Date
+  jenisKelamin   Gender      @default(LAKI_LAKI)
+  agama          String?
+  alamat         String?     @db.Text
+  statusNikah    String?
+  pekerjaan      String?
+  pendidikan     String?
+  golonganDarah  String?
+  noHp           String?
+  email          String?
+  
+  statusWarga    WargaStatus @default(AKTIF)
+  tanggalMasuk   DateTime?   @default(now()) @db.Date
+  
+  // Dynamic fields for extra info
+  meta           Json?
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  suratArsips    SuratArsip[]
+
+  @@unique([tenantId, nik])
+  @@index([tenantId])
+  @@map("wargas")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: SURAT & ADMINISTRASI
+// -----------------------------------------------------------------------------
+model SuratTemplate {
+  id          String   @id @default(uuid())
+  tenantId    String?  // Null means global template for all tenants
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  name        String   // e.g., "Surat Keterangan Domisili"
+  code        String   // e.g., "SKD"
+  contentHtml String?  @db.LongText // Optional for legacy templates
+  fileUrl     String?  // Path to uploaded .docx template
+  
+  paperSize   String   @default("A4") // "A4" or "FOLIO"
+  marginTop   Float    @default(2.54) // in cm
+  marginBottom Float   @default(2.54)
+  marginLeft  Float    @default(2.54)
+  marginRight Float    @default(2.54)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  arsips      SuratArsip[]
+
+  @@index([tenantId])
+  @@map("surat_templates")
+}
+
+model SuratArsip {
+  id          String         @id @default(uuid())
+  tenantId    String
+  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  templateId  String
+  template    SuratTemplate  @relation(fields: [templateId], references: [id])
+  wargaId     String?
+  warga       Warga?         @relation(fields: [wargaId], references: [id], onDelete: SetNull)
+  
+  nomorSurat  String
+  kodeSurat   String?
+  pdfUrl      String?
+  customData  Json?
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([tenantId])
+  @@index([wargaId])
+  @@map("surat_arsips")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: KEUANGAN (KAS RT)
+// -----------------------------------------------------------------------------
+enum TransactionType {
+  PEMASUKAN
+  PENGELUARAN
+}
+
+model KasTransaction {
+  id          String          @id @default(uuid())
+  tenantId    String
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  type        TransactionType
+  amount      Decimal         @db.Decimal(12, 2)
+  category    String          // e.g., "Iuran Bulanan", "Sumbangan", "Perbaikan"
+  description String?
+  date        DateTime        @db.Date
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([tenantId])
+  @@map("kas_transactions")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: NOTULEN AI
+// -----------------------------------------------------------------------------
+model NotulenAi {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  judulRapat      String
+  tanggalRapat    DateTime @db.Date
+  peserta         String?  @db.Text  // Daftar peserta (dari transkripsi / manual)
+  agendaRapat     String?  @db.Text  // Poin-poin agenda
+  hasilRapat      String?  @db.Text  // Keputusan & kesepakatan
+  tindakLanjut    String?  @db.Text  // Action items
+  fullNotulen     String   @db.LongText // Full structured output dari AI
+  
+  rawTranskrip    String?  @db.LongText // Transkripsi mentah audio (opsional, disimpan untuk referensi)
+  tokenUsed       Int      @default(0)  // Token yg dipakai untuk generate ini
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("notulen_ai")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: SYSTEM & AUDIT LOGS
+// -----------------------------------------------------------------------------
+model ActivityLog {
+  id          String   @id @default(uuid())
+  tenantId    String?  
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  action      String   // e.g., "SURAT_CREATED", "WARGA_DELETED"
+  description String?  @db.Text
+  
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId])
+  @@map("activity_logs")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: PENGUMUMAN
+// -----------------------------------------------------------------------------
+model Pengumuman {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  title       String
+  content     String   @db.Text
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("pengumuman")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: INTEGRATIONS (WA & AI)
+// -----------------------------------------------------------------------------
+model WaDevice {
+  id          String   @id @default(uuid())
+  name        String   // e.g. "Bot Utama 1"
+  provider    String   // "FONNTE" or "APICOID"
+  apiKey      String
+  phoneNumber String?
+  status      String   @default("OFFLINE")
+  slotLimit       Int      @default(50)
+  
+  tenants         Tenant[]
+  groups          WaGroup[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("wa_devices")
+}
+
+model WaGroup {
+  id              String   @id @default(uuid())
+  waDeviceId      String
+  waDevice        WaDevice @relation(fields: [waDeviceId], references: [id], onDelete: Cascade)
+  
+  name            String
+  groupId         String
+  groupInviteLink String?
+  
+  tenantId        String?  @unique
+  tenant          Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime @default(now())
+
+  @@map("wa_groups")
+}
+
+// -----------------------------------------------------------------------------
+// WHATSAPP SESSION (STATE MACHINE)
+// -----------------------------------------------------------------------------
+model WaSession {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  senderNumber String  // Nomor WA pengirim
+  groupId      String? // ID Grup WA (jika dari grup)
+  
+  state       String   // e.g., "WAITING_FOR_NIK", "MENU_WARGA"
+  data        Json?    // Data sementara yang dikumpulkan selama sesi
+  expiresAt   DateTime // Waktu kadaluwarsa sesi (TTL)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([tenantId, senderNumber, groupId])
+  @@index([tenantId])
+  @@map("wa_sessions")
+}
