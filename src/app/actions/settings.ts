@@ -12,6 +12,7 @@ export async function updateSiteSettings(formData: FormData) {
 
   const logoUrl = formData.get("logoUrl") as string;
   const logoUrlDark = formData.get("logoUrlDark") as string;
+  const faviconUrl = formData.get("faviconUrl") as string;
   const heroTitle = formData.get("heroTitle") as string;
   const heroSubtitle = formData.get("heroSubtitle") as string;
   const heroImage = formData.get("heroImage") as string;
@@ -36,6 +37,7 @@ export async function updateSiteSettings(formData: FormData) {
   const dataToSave = {
     logoUrl,
     logoUrlDark,
+    faviconUrl,
     heroTitle,
     heroSubtitle,
     heroImage,
