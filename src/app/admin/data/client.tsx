@@ -169,7 +169,7 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
                 </div>
                 <div className="flex items-center gap-2">
                   <Label className="text-xs font-semibold text-slate-500 hidden sm:block">Paket:</Label>
-                  <Select value={filterPaket} onValueChange={(v) => { setFilterPaket(v); setCurrentTenantPage(1); }}>
+                  <Select value={filterPaket} onValueChange={(v) => { setFilterPaket(v || "SEMUA"); setCurrentTenantPage(1); }}>
                     <SelectTrigger className="w-[120px] sm:w-[140px] h-8 text-xs bg-slate-50 dark:bg-black/20">
                       <SelectValue placeholder="Pilih Paket" />
                     </SelectTrigger>
@@ -518,7 +518,7 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
                         <td className="px-6 py-4 font-semibold text-sm text-slate-900 dark:text-white">{w.namaLengkap}</td>
                         <td className="px-6 py-4 text-sm text-[#6419c1] dark:text-[#a064fa]">{w.tenant?.name || "Tidak Diketahui"}</td>
                         <td className="px-6 py-4">
-                          <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${w.statusWarga === 'AKTIF' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' : 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20'}`}>
+                          <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${w.statusWarga === 'TETAP' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' : 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20'}`}>
                             {w.statusWarga}
                           </span>
                         </td>
