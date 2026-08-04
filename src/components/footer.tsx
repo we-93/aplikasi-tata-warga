@@ -31,7 +31,7 @@ export function Footer({ footerText, logoUrl, logoUrlDark }: { footerText?: stri
               <li><Link href="/dashboard/rt" className="text-muted-foreground hover:text-primary transition-colors">Dashboard</Link></li>
               <li><Link href="/#fitur" className="text-muted-foreground hover:text-primary transition-colors">Fitur</Link></li>
               <li><Link href="/#harga" className="text-muted-foreground hover:text-primary transition-colors">Harga</Link></li>
-              <li><a href="https://docs.tatawarga.id" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Tutorial</a></li>
+              <li><a href="https://docs.tatawarga.net" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Tutorial</a></li>
             </ul>
           </div>
           <div>

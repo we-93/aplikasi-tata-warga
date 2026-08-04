@@ -23,7 +23,7 @@ export function Navbar({ logoUrl, logoUrlDark, menus, session }: { logoUrl?: str
     { name: "Beranda", href: "/#home" },
     { name: "Fitur", href: "/#fitur" },
     { name: "Harga", href: "/#harga" },
-    { name: "Tutorial", href: "https://docs.tatawarga.id" },
+    { name: "Tutorial", href: "https://docs.tatawarga.net" },
     { name: "Kontak", href: "/#kontak" },
   ];
 
