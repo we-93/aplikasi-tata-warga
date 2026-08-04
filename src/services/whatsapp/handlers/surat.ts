@@ -281,7 +281,7 @@ export const handleSuratState = async (
           }
         });
         
-        const downloadUrl = `http://localhost:3000/api/surat/${arsip.id}/pdf?download=1`;
+        const downloadUrl = `https://tatawarga.biz.id/api/surat/${arsip.id}/download?download=1`;
         
         await sendMessage(
           apiKey,
@@ -386,7 +386,7 @@ export const handleSuratState = async (
         }
       });
       
-      const downloadUrl = `http://localhost:3000/api/surat/${arsip.id}/pdf?download=1`;
+      const downloadUrl = `https://tatawarga.biz.id/api/surat/${arsip.id}/download?download=1`;
       const finalNomorStr = sessionData.kodeSurat ? `${sessionData.nomorSurat}/${sessionData.kodeSurat}` : sessionData.nomorSurat;
       
       await sendMessage(

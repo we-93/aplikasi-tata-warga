@@ -56,7 +56,7 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
       setIsPending(false);
     } else {
       toast.success("Login berhasil!");
-      router.push("/");
+      router.push("/dashboard/rt");
       router.refresh();
     }
   };

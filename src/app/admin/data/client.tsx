@@ -170,7 +170,7 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm font-medium text-[#6419c1] dark:text-[#a064fa]">
-                          {sub ? sub.product.name : "Trial"}
+                          {t.subscriptionPlan || "Free"}
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-xs space-y-1.5 text-slate-600 dark:text-white/70">

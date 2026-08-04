@@ -177,7 +177,7 @@ export async function createCheckoutInvoice(productId: string, orderType: "UPGRA
           invTemplate = invTemplate.replace(/{{email}}/gi, "-");
           invTemplate = invTemplate.replace(/{{password}}/gi, "-");
           invTemplate = invTemplate.replace(/{{bot_wa}}/gi, invoice.tenant.whatsappBotNo || "-");
-          invTemplate = invTemplate.replace(/{{link_login}}/gi, "http://localhost:3000/login");
+          invTemplate = invTemplate.replace(/{{link_login}}/gi, "https://tatawarga.biz.id/login");
           invTemplate = invTemplate.replace(/{{link_grup}}/gi, "-");
 
           const { sendMessage } = await import("@/lib/whatsapp");
@@ -334,7 +334,7 @@ export async function registerAndCheckout(data: any) {
         welcomeMessage = welcomeMessage.replace(/{{email}}/gi, email);
         welcomeMessage = welcomeMessage.replace(/{{password}}/gi, password);
         welcomeMessage = welcomeMessage.replace(/{{bot_wa}}/gi, "-");
-        welcomeMessage = welcomeMessage.replace(/{{link_login}}/gi, "http://localhost:3000/login");
+        welcomeMessage = welcomeMessage.replace(/{{link_login}}/gi, "https://tatawarga.biz.id/login");
         welcomeMessage = welcomeMessage.replace(/{{link_grup}}/gi, "-");
         // Asynchronously send the message (don't block the return)
         sendMessage(

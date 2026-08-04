@@ -311,6 +311,11 @@ export async function approveInvoice(id: string, waDeviceId: string, status: str
     if (invoice.product.type === "ADDON") {
       tenantUpdateData.addonMaxSurat = (invoice.tenant.addonMaxSurat || 0) + (invoice.product.maxSurat || 0);
       tenantUpdateData.addonMaxAiToken = (invoice.tenant.addonMaxAiToken || 0) + (invoice.product.maxAiToken || 0);
+      if (invoice.product.maxWarga === -1) {
+        tenantUpdateData.maxWarga = -1;
+      } else if (invoice.product.maxWarga > 0 && invoice.tenant.maxWarga !== -1) {
+        tenantUpdateData.maxWarga = (invoice.tenant.maxWarga || 0) + invoice.product.maxWarga;
+      }
     } else {
       tenantUpdateData.subscriptionPlan = invoice.product.name;
       tenantUpdateData.activeUntil = expiresAt;
@@ -391,7 +396,7 @@ export async function approveInvoice(id: string, waDeviceId: string, status: str
       template = template.replace(/{{email}}/gi, user?.email || "-");
       template = template.replace(/{{password}}/gi, user?.plainPassword || "-"); // Using plainPassword as requested
       template = template.replace(/{{bot_wa}}/gi, finalBotNo || "-");
-      template = template.replace(/{{link_login}}/gi, "http://localhost:3000/login");
+      template = template.replace(/{{link_login}}/gi, "https://tatawarga.biz.id/login");
       template = template.replace(/{{link_grup}}/gi, groupLink);
       
       // Additional variables for topup template
