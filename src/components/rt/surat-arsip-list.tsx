@@ -73,7 +73,7 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
           />
         </div>
         <div className="flex-none">
-          <Select value={filterTemplate} onValueChange={(v) => { setFilterTemplate(v); setCurrentPage(1); }}>
+          <Select value={filterTemplate} onValueChange={(v) => { setFilterTemplate(v || "SEMUA"); setCurrentPage(1); }}>
             <SelectTrigger className="w-full sm:w-[220px] h-[38px] bg-white dark:bg-[#141229] border-slate-200 dark:border-white/10 rounded-xl text-sm">
               <SelectValue placeholder="Jenis Surat" />
             </SelectTrigger>
