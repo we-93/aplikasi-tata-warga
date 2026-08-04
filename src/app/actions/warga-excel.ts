@@ -72,8 +72,9 @@ export async function importWargaBulk(data: any[]) {
       const agama = row.agama ? String(row.agama) : null;
       const noHp = row.noHp ? String(row.noHp) : null;
       
-      let statusWarga: "AKTIF" | "PINDAH" | "MENINGGAL" = "AKTIF";
+      let statusWarga: "TETAP" | "KONTRAK_KOST" | "PINDAH" | "MENINGGAL" = "TETAP";
       const rawStatus = String(row.statusWarga || "").toUpperCase();
+      if (rawStatus === "KONTRAK_KOST") statusWarga = "KONTRAK_KOST";
       if (rawStatus === "PINDAH") statusWarga = "PINDAH";
       if (rawStatus === "MENINGGAL") statusWarga = "MENINGGAL";
 
