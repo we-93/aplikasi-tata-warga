@@ -3,6 +3,12 @@ import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const { nextUrl } = req;
+  
+  // Force HTTPS in production to prevent HTTP redirect loops behind proxies
+  if (process.env.NODE_ENV === "production" || nextUrl.hostname !== "localhost") {
+    nextUrl.protocol = "https:";
+  }
+
   const isLoggedIn = !!req.auth;
   const role = (req.auth?.user as any)?.role;
 
