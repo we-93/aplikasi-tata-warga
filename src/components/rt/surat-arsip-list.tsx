@@ -4,8 +4,10 @@ import { useState } from "react";
 import { 
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
 } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Eye, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Download, Eye, Trash2, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { deleteSuratArsip } from "@/app/actions/surat";
 import { toast } from "sonner";
 
@@ -23,11 +25,25 @@ const getFullNomorSurat = (a: any) => {
 };
 
 export function SuratArsipList({ arsips }: { arsips: any[] }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterTemplate, setFilterTemplate] = useState("SEMUA");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const totalPages = Math.ceil(arsips.length / itemsPerPage);
-  const currentData = arsips.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const uniqueTemplates = Array.from(new Set(arsips.map(a => a.template?.name).filter(Boolean)));
+
+  const filteredArsips = arsips.filter(a => {
+    if (filterTemplate !== "SEMUA" && a.template?.name !== filterTemplate) return false;
+
+    const term = searchTerm.toLowerCase();
+    const namaWarga = a.warga?.namaLengkap?.toLowerCase() || "";
+    const nomor = a.nomorSurat?.toLowerCase() || "";
+    
+    return namaWarga.includes(term) || nomor.includes(term);
+  });
+
+  const totalPages = Math.ceil(filteredArsips.length / itemsPerPage);
+  const currentData = filteredArsips.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -45,11 +61,38 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
     }
   };
   return (
-    <div className="rounded-md border bg-card overflow-hidden">
-      <Table>
-        <TableHeader className="bg-muted/50">
-          <TableRow>
-            <TableHead>Nomor Surat</TableHead>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex items-center bg-white dark:bg-[#141229] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 shadow-sm w-full md:w-96 flex-1">
+          <Search className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
+          <Input 
+            placeholder="Cari nama warga atau nomor surat..." 
+            className="border-0 focus-visible:ring-0 p-0 h-auto bg-transparent text-sm"
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+          />
+        </div>
+        <div className="flex-none">
+          <Select value={filterTemplate} onValueChange={(v) => { setFilterTemplate(v); setCurrentPage(1); }}>
+            <SelectTrigger className="w-full sm:w-[220px] h-[38px] bg-white dark:bg-[#141229] border-slate-200 dark:border-white/10 rounded-xl text-sm">
+              <SelectValue placeholder="Jenis Surat" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="SEMUA">Semua Jenis Surat</SelectItem>
+              {uniqueTemplates.map((t: any) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="rounded-md border bg-card overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-12 text-center">NO</TableHead>
+              <TableHead>Nomor Surat</TableHead>
             <TableHead>Jenis Surat</TableHead>
             <TableHead>Nama Warga</TableHead>
             <TableHead>Tanggal Pembuatan</TableHead>
@@ -64,8 +107,11 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
               </TableCell>
             </TableRow>
           ) : (
-            currentData.map((a) => (
+            currentData.map((a, index) => (
               <TableRow key={a.id}>
+                <TableCell className="text-center text-sm font-medium text-muted-foreground">
+                  {(currentPage - 1) * itemsPerPage + index + 1}
+                </TableCell>
                 <TableCell className="font-medium">{getFullNomorSurat(a)}</TableCell>
                 <TableCell>{a.template?.name}</TableCell>
                 <TableCell>{a.warga?.namaLengkap || <span className="text-muted-foreground italic">Warga Dihapus</span>}</TableCell>
@@ -103,7 +149,7 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/10">
           <p className="text-xs text-muted-foreground font-medium">
-            Menampilkan <span className="text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-foreground">{Math.min(currentPage * itemsPerPage, arsips.length)}</span> dari <span className="text-foreground">{arsips.length}</span> surat
+            Menampilkan <span className="text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-foreground">{Math.min(currentPage * itemsPerPage, filteredArsips.length)}</span> dari <span className="text-foreground">{filteredArsips.length}</span> surat
           </p>
           <div className="flex items-center gap-1 bg-card border border-border p-1 rounded-xl shadow-sm">
             <Button
@@ -161,6 +207,7 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

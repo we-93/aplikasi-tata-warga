@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 interface DashboardData {
   totalTenant: number; totalTenantGrowth: number;
   rtAktif: number; rtAktifGrowth: number;
-  rtTrial: number; rtTrialGrowth: number;
+  totalTokensUsed: number;
   pendapatan: number; pendapatanGrowth: number;
   totalSurat: number; totalSuratGrowth: number;
   totalWarga: number; totalWargaGrowth: number;
@@ -124,7 +124,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       </div>
 
       {/* Statistical Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         
         {/* Card 1 */}
         <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
@@ -146,14 +146,14 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.rtAktif.toLocaleString("id-ID")}</h3>
         </div>
 
-        {/* Card 3 */}
+        {/* Card 3 (Token Usage) */}
         <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
           <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-400"><Clock className="w-5 h-5" /></div>
-            <GrowthBadge value={d.rtTrialGrowth} />
+            <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-400"><Bot className="w-5 h-5" /></div>
+            <span className="text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Global</span>
           </div>
-          <p className="text-slate-500 dark:text-white/60 text-sm font-medium">RT Trial</p>
-          <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.rtTrial.toLocaleString("id-ID")}</h3>
+          <p className="text-slate-500 dark:text-white/60 text-sm font-medium">Penggunaan Token</p>
+          <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.totalTokensUsed.toLocaleString("id-ID")}</h3>
         </div>
 
         {/* Card 4 */}

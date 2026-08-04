@@ -38,8 +38,8 @@ export function Footer({ footerText, logoUrl, logoUrlDark }: { footerText?: stri
             <h4 className="font-semibold mb-4 text-foreground">Hubungi Kami</h4>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:info@tatawarga.id" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
-                  <Mail className="w-4 h-4 shrink-0" /> info@tatawarga.id
+                <a href="mailto:info@tatawarga.net" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <Mail className="w-4 h-4 shrink-0" /> info@tatawarga.net
                 </a>
               </li>
               <li>

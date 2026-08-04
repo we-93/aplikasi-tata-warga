@@ -89,7 +89,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       'tw_kode_pos': tenant.kodePos || '-',
       'tw_logo_rt': logoB64 ? `<img src="${logoB64}" style="max-height: 80px; width: auto;" />` : '',
       'tw_ttd_rt': ttdB64 ? `<img src="${ttdB64}" style="max-height: 80px; width: auto;" />` : '',
-      'tw_stempel_rt': stampB64 ? `<img src="${stampB64}" style="max-height: 80px; width: auto; opacity: 0.8;" />` : '',
+      'tw_stempel_rt': stampB64 ? `<img src="${stampB64}" style="max-height: 80px; width: auto; opacity: 0.8; margin-left: -50px;" />` : '',
     };
 
     if (warga) {

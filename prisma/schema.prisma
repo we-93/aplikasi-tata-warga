@@ -28,7 +28,10 @@ model SiteSettings {
   openaiApiKey String?
   geminiApiKey String?
   aiMasterPrompt String? @db.Text
-  
+  chatApiUrl     String? @default("https://weizerouter.web.id/v1")
+  chatApiKey     String?
+  chatApiModel   String? @default("wz/gemini-3.5-flash-low")
+
   // Admin WA Notification
   waAdminProvider String? @default("FONNTE")
   waAdminApiKey   String?
@@ -237,7 +240,8 @@ model Invoice {
 // MODULE: DATA WARGA
 // -----------------------------------------------------------------------------
 enum WargaStatus {
-  AKTIF
+  TETAP
+  KONTRAK_KOST
   PINDAH
   MENINGGAL
 }
@@ -268,7 +272,7 @@ model Warga {
   noHp           String?
   email          String?
   
-  statusWarga    WargaStatus @default(AKTIF)
+  statusWarga    WargaStatus @default(TETAP)
   tanggalMasuk   DateTime?   @default(now()) @db.Date
   
   // Dynamic fields for extra info

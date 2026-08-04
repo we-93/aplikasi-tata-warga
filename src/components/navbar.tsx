@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogIn } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 import { ThemeToggle } from "./theme-toggle";
@@ -66,15 +66,17 @@ export function Navbar({ logoUrl, logoUrlDark, menus, session }: { logoUrl?: str
                 {session?.user ? (
                   <Link 
                     href="/admin" 
-                    className="inline-flex h-9 items-center justify-center rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#6419c1]"
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#6419c1]"
                   >
+                    <LayoutDashboard className="w-4 h-4" />
                     Dashboard
                   </Link>
                 ) : (
                   <Link 
                     href="/auth/login" 
-                    className="inline-flex h-9 items-center justify-center rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#6419c1]"
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#6419c1]"
                   >
+                    <LogIn className="w-4 h-4" />
                     Login
                   </Link>
                 )}
@@ -121,16 +123,18 @@ export function Navbar({ logoUrl, logoUrlDark, menus, session }: { logoUrl?: str
                 <Link 
                   href="/admin" 
                   onClick={() => setIsOpen(false)}
-                  className="flex w-full h-10 items-center justify-center rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4]"
+                  className="flex w-full h-10 items-center justify-center gap-2 rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4]"
                 >
+                  <LayoutDashboard className="w-4 h-4" />
                   Dashboard
                 </Link>
               ) : (
                 <Link 
                   href="/auth/login" 
                   onClick={() => setIsOpen(false)}
-                  className="flex w-full h-10 items-center justify-center rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4]"
+                  className="flex w-full h-10 items-center justify-center gap-2 rounded-lg bg-[#6419c1] px-4 py-2 text-sm font-medium text-white shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] transition-colors hover:bg-[#7735d4]"
                 >
+                  <LogIn className="w-4 h-4" />
                   Login
                 </Link>
               )}

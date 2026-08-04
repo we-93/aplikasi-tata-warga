@@ -10,7 +10,7 @@ export default auth((req) => {
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
   const isWebhookRoute = nextUrl.pathname.startsWith("/api/webhooks");
   const isAuthRoute = nextUrl.pathname.startsWith("/auth");
-  const isPublicRoute = nextUrl.pathname === "/";
+  const isPublicRoute = ["/", "/privacy", "/terms"].includes(nextUrl.pathname);
   const isCheckoutRoute = nextUrl.pathname.startsWith("/checkout");
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");

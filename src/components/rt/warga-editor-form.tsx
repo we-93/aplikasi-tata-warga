@@ -140,10 +140,11 @@ export function WargaEditorForm({ initialData }: { initialData?: any }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="statusWarga">Status Warga di RT</Label>
-            <Select name="statusWarga" defaultValue={initialData?.statusWarga || "AKTIF"}>
+            <Select name="statusWarga" defaultValue={initialData?.statusWarga || "TETAP"}>
               <SelectTrigger><SelectValue placeholder="Status Warga" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="AKTIF">Aktif</SelectItem>
+                <SelectItem value="TETAP">Tetap</SelectItem>
+                <SelectItem value="KONTRAK_KOST">Kontrak/Kost</SelectItem>
                 <SelectItem value="PINDAH">Pindah Domisili</SelectItem>
                 <SelectItem value="MENINGGAL">Meninggal Dunia</SelectItem>
               </SelectContent>

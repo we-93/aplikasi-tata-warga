@@ -16,9 +16,32 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
   const [activeTab, setActiveTab] = useState("tenants");
   const [currentTenantPage, setCurrentTenantPage] = useState(1);
   const itemsPerPage = 20;
+  const [filterPaket, setFilterPaket] = useState("SEMUA");
+  const [searchTenantQuery, setSearchTenantQuery] = useState("");
 
-  const totalTenantPages = Math.ceil(initialTenants.length / itemsPerPage);
-  const currentTenants = initialTenants.slice((currentTenantPage - 1) * itemsPerPage, currentTenantPage * itemsPerPage);
+  const filteredTenants = initialTenants.filter(t => {
+    if (filterPaket !== "SEMUA") {
+      const plan = (t.subscriptionPlan || "Trial").toUpperCase();
+      if (plan !== filterPaket.toUpperCase()) return false;
+    }
+    
+    if (searchTenantQuery) {
+      const q = searchTenantQuery.toLowerCase();
+      const namaRt = (t.name || "").toLowerCase();
+      const ketuaName = (t.ketuaName || "").toLowerCase();
+      const tenantAdmin = t.users?.find((u: any) => u.role === "TENANT_ADMIN");
+      const email = (tenantAdmin?.email || "").toLowerCase();
+      
+      if (!namaRt.includes(q) && !ketuaName.includes(q) && !email.includes(q)) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
+
+  const totalTenantPages = Math.ceil(filteredTenants.length / itemsPerPage);
+  const currentTenants = filteredTenants.slice((currentTenantPage - 1) * itemsPerPage, currentTenantPage * itemsPerPage);
 
   const handleTenantPageChange = (page: number) => {
     if (page >= 1 && page <= totalTenantPages) {
@@ -131,14 +154,42 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
         {/* TAB 1: DAFTAR RT */}
         <TabsContent value="tenants" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="bg-white dark:bg-[#141229] rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] overflow-hidden">
-            <div className="p-4 md:p-6 border-b border-slate-200 dark:border-white/5">
-              <h4 className="text-lg font-bold">Daftar RT (Tenant) Terdaftar</h4>
+            <div className="p-4 md:p-6 border-b border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h4 className="text-lg font-bold">Daftar RT</h4>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                <div className="relative group flex-1 sm:flex-none">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-white/40" />
+                  <input 
+                    className="w-full sm:w-[250px] pl-9 pr-4 py-1.5 h-8 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-lg text-xs focus:ring-1 focus:ring-[#6419c1] focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30" 
+                    placeholder="Cari RT / Admin / Email..." 
+                    type="text" 
+                    value={searchTenantQuery}
+                    onChange={(e) => { setSearchTenantQuery(e.target.value); setCurrentTenantPage(1); }}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs font-semibold text-slate-500 hidden sm:block">Paket:</Label>
+                  <Select value={filterPaket} onValueChange={(v) => { setFilterPaket(v); setCurrentTenantPage(1); }}>
+                    <SelectTrigger className="w-[120px] sm:w-[140px] h-8 text-xs bg-slate-50 dark:bg-black/20">
+                      <SelectValue placeholder="Pilih Paket" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SEMUA">Semua Paket</SelectItem>
+                      <SelectItem value="TRIAL">Trial</SelectItem>
+                      <SelectItem value="PREMIUM">Premium</SelectItem>
+                      <SelectItem value="PRO">Pro</SelectItem>
+                      <SelectItem value="PLATINUM">Platinum</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
             
             <div className="overflow-x-auto w-full pb-2">
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-black/20 border-b border-slate-200 dark:border-white/5">
+                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">NO</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">ADMIN / EMAIL</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">NAMA RT</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">PAKET</th>
@@ -154,12 +205,19 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
                         Belum ada RT yang mendaftar.
                       </td>
                     </tr>
-                  ) : currentTenants.map(t => {
+                  ) : currentTenants.map((t, index) => {
                     const sub = t.subscriptions?.[0];
+                    const tenantAdmin = t.users?.find((u: any) => u.role === "TENANT_ADMIN");
                     return (
                       <tr key={t.id} className="bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                        <td className="px-6 py-4 text-sm font-medium text-slate-500">
+                          {(currentTenantPage - 1) * itemsPerPage + index + 1}
+                        </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm font-semibold text-slate-900 dark:text-white">{t.ketuaName || "Belum diset"}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{t.ketuaName || "Belum diset"}</span>
+                            <span className="text-xs text-slate-500 dark:text-white/50">{tenantAdmin?.email || "Tidak ada email"}</span>
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -238,7 +296,7 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
           {totalTenantPages > 1 && (
             <div className="flex items-center justify-between px-2 pt-2">
               <p className="text-xs text-muted-foreground font-medium">
-                Menampilkan <span className="text-foreground">{(currentTenantPage - 1) * itemsPerPage + 1}</span> - <span className="text-foreground">{Math.min(currentTenantPage * itemsPerPage, initialTenants.length)}</span> dari <span className="text-foreground">{initialTenants.length}</span> RT
+                Menampilkan <span className="text-foreground">{(currentTenantPage - 1) * itemsPerPage + 1}</span> - <span className="text-foreground">{Math.min(currentTenantPage * itemsPerPage, filteredTenants.length)}</span> dari <span className="text-foreground">{filteredTenants.length}</span> RT
               </p>
               <div className="flex items-center gap-1 bg-card border border-border p-1 rounded-xl shadow-sm">
                 <Button

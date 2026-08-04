@@ -50,12 +50,14 @@ export function WargaList({ wargas }: { wargas: WargaData[] }) {
                     <Badge variant="outline">{w.tenant.name}</Badge>
                   </TableCell>
                   <TableCell>
-                    {w.statusWarga === "AKTIF" ? (
-                      <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20">Aktif</Badge>
+                    {w.statusWarga === "TETAP" ? (
+                      <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20">Tetap</Badge>
+                    ) : w.statusWarga === "KONTRAK_KOST" ? (
+                      <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20">Kontrak/Kost</Badge>
                     ) : w.statusWarga === "PINDAH" ? (
-                      <Badge variant="secondary">Pindah</Badge>
+                      <Badge variant="secondary">Pindah Domisili</Badge>
                     ) : (
-                      <Badge variant="destructive">Meninggal</Badge>
+                      <Badge variant="destructive">Meninggal Dunia</Badge>
                     )}
                   </TableCell>
                 </TableRow>

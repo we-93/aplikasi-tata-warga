@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Database, Shield, Smartphone, FileText, PieChart, MessageSquare, Users, Wallet, LayoutGrid, Settings, Home, Activity, CreditCard, Cloud, Bot, Sparkles, Zap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedDataWarga } from "./animated-data-warga";
@@ -94,17 +97,25 @@ export function Features({ features }: { features?: any }) {
               const iconKey = typeof feature.icon === 'string' ? feature.icon.toLowerCase().replace(/[-_ ]/g, '') : '';
               const IconComp = iconKey ? (iconMap[iconKey] || Shield) : (feature.icon || Shield);
               return (
-                <Card key={i} className="border border-border/50 bg-card hover:border-primary/30 hover:shadow-md transition-all duration-300">
-                  <CardContent className="p-4 md:p-6 flex flex-col items-center md:items-start text-center md:text-left">
-                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center mb-3 md:mb-4 ${feature.bg || 'bg-primary/10'}`}>
-                      <IconComp className={`w-5 h-5 md:w-6 md:h-6 ${feature.color || 'text-primary'}`} />
-                    </div>
-                    <h3 className="text-sm md:text-lg font-semibold mb-2 leading-tight">{feature.title}</h3>
-                    <p className="text-muted-foreground text-[11px] md:text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                >
+                  <Card className="h-full border border-border/50 bg-card hover:border-primary/30 hover:shadow-md transition-all duration-300">
+                    <CardContent className="p-4 md:p-6 flex flex-col items-center md:items-start text-center md:text-left h-full">
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center mb-3 md:mb-4 ${feature.bg || 'bg-primary/10'}`}>
+                        <IconComp className={`w-5 h-5 md:w-6 md:h-6 ${feature.color || 'text-primary'}`} />
+                      </div>
+                      <h3 className="text-sm md:text-lg font-semibold mb-2 leading-tight">{feature.title}</h3>
+                      <p className="text-muted-foreground text-[11px] md:text-sm leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               );
             })}
           </div>

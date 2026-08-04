@@ -105,7 +105,7 @@ export default async function PrivacyPolicyPage() {
                 Jika Anda memiliki pertanyaan, keluhan, atau saran mengenai Kebijakan Privasi ini, jangan ragu untuk menghubungi tim dukungan kami melalui:
               </p>
               <div className="mt-4 p-4 bg-muted/50 rounded-xl border border-border inline-block">
-                <p className="text-foreground font-medium">Email: <a href="mailto:info@tatawarga.id" className="text-primary hover:underline">info@tatawarga.id</a></p>
+                <p className="text-foreground font-medium">Email: <a href="mailto:info@tatawarga.net" className="text-primary hover:underline">info@tatawarga.net</a></p>
                 <p className="text-foreground font-medium mt-2">WhatsApp: <a href="https://api.whatsapp.com/send?phone=6285945441445" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+62 859 4544 1445</a></p>
               </div>
             </section>

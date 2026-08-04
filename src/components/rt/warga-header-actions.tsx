@@ -51,7 +51,7 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
         "Tanggal Lahir": "1990-01-01",
         "Agama": "Islam",
         "No HP": "08123456789",
-        "Status Warga": "AKTIF",
+        "Status Warga": "TETAP",
         "Alamat": "Blok A No 1"
       }
     ];
@@ -82,7 +82,7 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
         tanggalLahir: row["Tanggal Lahir"] || "",
         agama: String(row["Agama"] || ""),
         noHp: String(row["No HP"] || row["no_hp"] || ""),
-        statusWarga: String(row["Status Warga"] || row["status"] || "AKTIF"),
+        statusWarga: String(row["Status Warga"] || row["status"] || "TETAP"),
         alamat: String(row["Alamat"] || "")
       })).filter(row => row.nik && row.namaLengkap); // Must have NIK and Nama
 

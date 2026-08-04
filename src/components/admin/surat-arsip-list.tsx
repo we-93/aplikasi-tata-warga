@@ -4,6 +4,7 @@ import { useState } from "react";
 import { 
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
 } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, Search, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
@@ -25,8 +26,11 @@ const getFullNomorSurat = (a: any) => {
 
 export function AdminSuratArsipList({ arsips }: { arsips: any[] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterTemplate, setFilterTemplate] = useState("SEMUA");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+
+  const uniqueTemplates = Array.from(new Set(arsips.map(a => a.template?.name).filter(Boolean)));
 
   const handleDelete = async (id: string) => {
     if (!confirm("Hapus riwayat surat ini secara permanen? File tidak akan bisa diakses lagi.")) return;
@@ -39,6 +43,8 @@ export function AdminSuratArsipList({ arsips }: { arsips: any[] }) {
   };
 
   const filteredArsips = arsips.filter(a => {
+    if (filterTemplate !== "SEMUA" && a.template?.name !== filterTemplate) return false;
+
     const term = searchTerm.toLowerCase();
     const namaWarga = a.warga?.namaLengkap?.toLowerCase() || "";
     const emailRt = a.tenant?.users?.[0]?.email?.toLowerCase() || "";
@@ -60,14 +66,29 @@ export function AdminSuratArsipList({ arsips }: { arsips: any[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center bg-white dark:bg-[#141229] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 shadow-sm w-full md:w-96">
-        <Search className="h-4 w-4 text-slate-400 mr-2" />
-        <Input 
-          placeholder="Cari warga, email RT, nomor surat..." 
-          className="border-0 focus-visible:ring-0 p-0 h-auto bg-transparent"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex items-center bg-white dark:bg-[#141229] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 shadow-sm w-full md:w-96 flex-1">
+          <Search className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
+          <Input 
+            placeholder="Cari warga, email RT, nomor surat..." 
+            className="border-0 focus-visible:ring-0 p-0 h-auto bg-transparent"
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+          />
+        </div>
+        <div className="flex-none">
+          <Select value={filterTemplate} onValueChange={(v) => { setFilterTemplate(v); setCurrentPage(1); }}>
+            <SelectTrigger className="w-full sm:w-[220px] h-[38px] bg-white dark:bg-[#141229] border-slate-200 dark:border-white/10 rounded-xl">
+              <SelectValue placeholder="Jenis Surat" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="SEMUA">Semua Jenis Surat</SelectItem>
+              {uniqueTemplates.map((t: any) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#141229] overflow-hidden shadow-sm">
@@ -75,8 +96,8 @@ export function AdminSuratArsipList({ arsips }: { arsips: any[] }) {
           <Table>
             <TableHeader className="bg-slate-50 dark:bg-white/5">
               <TableRow className="text-xs uppercase text-slate-500 dark:text-slate-400">
-                <TableHead className="h-10">Asal RT/RW</TableHead>
-                <TableHead className="h-10">Email Akun RT</TableHead>
+                <TableHead className="h-10 w-12 text-center">NO</TableHead>
+                <TableHead className="h-10">Asal RT/RW & Email</TableHead>
                 <TableHead className="h-10">Nomor & Jenis Surat</TableHead>
                 <TableHead className="h-10">Data Warga</TableHead>
                 <TableHead className="h-10">Tanggal Pembuatan</TableHead>
@@ -91,13 +112,14 @@ export function AdminSuratArsipList({ arsips }: { arsips: any[] }) {
                   </TableCell>
                 </TableRow>
               ) : (
-                currentData.map((a) => (
+                currentData.map((a, index) => (
                   <TableRow key={a.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-slate-200 dark:border-white/5">
-                    <TableCell className="font-medium whitespace-nowrap text-sm">
-                      RT {a.tenant?.rt || '-'} / RW {a.tenant?.rw || '-'}
+                    <TableCell className="text-center text-sm font-medium text-slate-500">
+                      {(currentPage - 1) * itemsPerPage + index + 1}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
-                      {a.tenant?.users?.[0]?.email || '-'}
+                    <TableCell className="whitespace-nowrap">
+                      <div className="font-medium text-sm">RT {a.tenant?.rt || '-'} / RW {a.tenant?.rw || '-'}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">{a.tenant?.users?.[0]?.email || '-'}</div>
                     </TableCell>
                     <TableCell>
                       <div className="font-medium text-sm">{getFullNomorSurat(a)}</div>

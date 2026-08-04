@@ -12,7 +12,7 @@ import {
   Mic, Upload, Save, Eye, Calendar, Users, Image as ImageIcon, Type, Copy
 } from "lucide-react";
 import { generateNotulen, saveNotulen, deleteNotulen } from "@/app/actions/notulen";
-import { transcribeAudio, transcribeImage } from "@/app/actions/ai";
+import { transcribeImage } from "@/app/actions/ai";
 
 type Notulen = {
   id: string;
@@ -48,8 +48,8 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
   const [judulRapat, setJudulRapat] = useState("");
   const [tanggalRapat, setTanggalRapat] = useState(new Date().toISOString().split("T")[0]);
   
-  // Input Modes: "audio" | "image" | "text"
-  const [inputMode, setInputMode] = useState<"audio" | "image" | "text">("text");
+  // Input Modes: "image" | "text"
+  const [inputMode, setInputMode] = useState<"image" | "text">("text");
   
   const [rawInput, setRawInput] = useState("");
   
@@ -58,7 +58,6 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Review state (Right Column)
@@ -72,38 +71,6 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
     rawTranskrip: string;
     logId?: string;
   } | null>(null);
-
-  // Actions
-  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 15 * 1024 * 1024) {
-      toast.error("Ukuran file audio maksimal 15MB.");
-      if (audioInputRef.current) audioInputRef.current.value = "";
-      return;
-    }
-
-    setIsTranscribing(true);
-    const id = toast.loading("Mentranskripsi audio rapat... ⏳");
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await transcribeAudio(formData);
-      if (res?.success) {
-        setRawInput(prev => prev + (prev ? "\n\n" : "") + res.text);
-        setInputMode("text"); // Switch back to text tab to show result
-        toast.success("Audio berhasil ditranskripsi ke teks mentah!", { id });
-      } else {
-        toast.error(res?.error || "Gagal transkripsi audio", { id });
-      }
-    } catch {
-      toast.error("Terjadi kesalahan sistem.", { id });
-    } finally {
-      setIsTranscribing(false);
-      if (audioInputRef.current) audioInputRef.current.value = "";
-    }
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -247,12 +214,6 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
                 <Type className="w-4 h-4"/> Teks Manual
               </button>
               <button
-                className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${inputMode === "audio" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                onClick={() => setInputMode("audio")}
-              >
-                <Mic className="w-4 h-4"/> Suara
-              </button>
-              <button
                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${inputMode === "image" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 onClick={() => setInputMode("image")}
               >
@@ -261,23 +222,7 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
             </div>
 
             {/* Input Areas depending on mode */}
-            {inputMode === "audio" && (
-              <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 space-y-3 text-center">
-                <Mic className="w-10 h-10 text-primary mx-auto opacity-50" />
-                <p className="text-sm font-medium text-primary">Upload Audio Rapat</p>
-                <p className="text-xs text-muted-foreground">Upload rekaman suara. AI akan mentranskripsikannya menjadi teks.</p>
-                <input type="file" ref={audioInputRef} className="hidden" accept="audio/*" onChange={handleAudioUpload} />
-                <Button
-                  variant="outline"
-                  className="w-full border-primary/30 text-primary hover:bg-primary/10 mt-2"
-                  onClick={() => audioInputRef.current?.click()}
-                  disabled={isTranscribing}
-                >
-                  {isTranscribing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                  {isTranscribing ? "Memproses Audio..." : "Pilih File Audio"}
-                </Button>
-              </div>
-            )}
+
 
             {inputMode === "image" && (
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 space-y-3 text-center">

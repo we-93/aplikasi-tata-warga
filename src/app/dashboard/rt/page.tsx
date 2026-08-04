@@ -54,7 +54,7 @@ export default async function RTDashboardPage() {
   const suratLimit = baseSurat + tenant.addonMaxSurat; 
 
   const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: startOfMonth } } });
-  const aiChatLogs = await prisma.activityLog.findMany({ where: { tenantId, action: "AI_CHAT_USAGE", createdAt: { gte: startOfMonth } } });
+  const aiChatLogs = await prisma.activityLog.findMany({ where: { tenantId, action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, createdAt: { gte: startOfMonth } } });
   const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
   const aiUsed = notulens.reduce((acc, curr) => acc + curr.tokenUsed, 0) + aiChatUsed;
   

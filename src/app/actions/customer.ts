@@ -25,7 +25,8 @@ export async function getTenants() {
         orderBy: { createdAt: "desc" },
         take: 1
       },
-      waDevice: true
+      waDevice: true,
+      users: { select: { email: true, name: true, role: true } }
     },
     orderBy: { createdAt: "desc" }
   });

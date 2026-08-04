@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Send, Bot, User, Mic, Image as ImageIcon, Copy, Paperclip, X, Save, Eye, Trash2 } from "lucide-react";
-import { chatWithAi, generateAiBroadcast, generateAiReport, transcribeAudio } from "@/app/actions/ai";
+import { chatWithAi, generateAiBroadcast, generateAiReport } from "@/app/actions/ai";
 import { terbitkanPengumuman, hapusPengumuman } from "@/app/actions/pengumuman";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
@@ -55,24 +55,8 @@ export function AiClient({ initialPengumuman = [] }: { initialPengumuman?: any[]
         toast.success("Gambar berhasil dilampirkan");
       };
       reader.readAsDataURL(file);
-    } else if (file.type.startsWith("audio/")) {
-      // Transcribe audio immediately
-      const id = toast.loading("Mentranskripsi audio...");
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await transcribeAudio(formData);
-        if (res?.success) {
-          toast.success("Audio berhasil ditranskripsi", { id });
-          setChatInput((prev) => prev ? prev + "\n" + res.text : res.text);
-        } else {
-          toast.error(res?.error || "Gagal mentranskripsi", { id });
-        }
-      } catch (err: any) {
-        toast.error("Terjadi kesalahan jaringan", { id });
-      }
     } else {
-      toast.error("Format file tidak didukung. Harap pilih gambar atau audio.");
+      toast.error("Format file tidak didukung. Harap pilih gambar.");
     }
     
     // Reset input
@@ -233,7 +217,7 @@ export function AiClient({ initialPengumuman = [] }: { initialPengumuman?: any[]
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-60">
               <Bot className="w-16 h-16 mb-4 text-primary" />
               <p>Mulai obrolan dengan AI Assistant.</p>
-              <p className="text-sm">Bisa kirim teks, foto laporan, atau pesan suara (audio).</p>
+              <p className="text-sm">Bisa kirim teks atau foto laporan.</p>
             </div>
           )}
           {messages.map((m, idx) => (
@@ -278,8 +262,8 @@ export function AiClient({ initialPengumuman = [] }: { initialPengumuman?: any[]
             </div>
           )}
           <div className="flex gap-2">
-            <input type="file" ref={fileInputRef} className="hidden" accept="image/*,audio/*" onChange={handleFileAttach} />
-            <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} title="Lampirkan Foto/Audio">
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileAttach} />
+            <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} title="Lampirkan Foto">
               <Paperclip className="w-5 h-5" />
             </Button>
             <Input 

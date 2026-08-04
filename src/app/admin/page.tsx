@@ -41,8 +41,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   const rtAktif = await prisma.tenant.count({ where: { status: "AKTIF" } });
   const rtAktifGrowth = await getGrowth("tenant", { status: "AKTIF" });
 
-  const rtTrial = await prisma.tenant.count({ where: { status: "PENDING" } });
-  const rtTrialGrowth = await getGrowth("tenant", { status: "PENDING" });
+  const { getAiSettings } = await import("@/app/actions/integrations");
+  const aiSettings = await getAiSettings();
+  const totalTokensUsed = (aiSettings.totalChatTokensUsed || 0) + (aiSettings.totalOcrTokensUsed || 0);
 
   // Calculate total revenue
   const revenueAgg = await prisma.invoice.aggregate({
@@ -187,7 +188,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   const data = {
     totalTenant, totalTenantGrowth,
     rtAktif, rtAktifGrowth,
-    rtTrial, rtTrialGrowth,
+    totalTokensUsed,
     pendapatan, pendapatanGrowth,
     totalSurat, totalSuratGrowth,
     totalWarga, totalWargaGrowth,

@@ -24,7 +24,12 @@ export default async function CreateSuratPage() {
 
   // Fetch active wargas
   const wargas = await prisma.warga.findMany({
-    where: { tenantId, statusWarga: "AKTIF" },
+    where: { 
+      tenantId, 
+      statusWarga: {
+        in: ["TETAP", "KONTRAK_KOST"]
+      } 
+    },
     orderBy: { namaLengkap: 'asc' }
   });
 

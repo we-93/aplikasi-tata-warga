@@ -141,8 +141,8 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
               )}
               <div className="mb-6">
                 <h3 className="text-lg font-medium text-muted-foreground mb-2">{pkg.name}</h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">{pkg.price}</span>
+                <div className="flex items-baseline gap-1 flex-wrap">
+                  <span className="text-3xl lg:text-2xl xl:text-xl font-bold">{pkg.price}</span>
                   <span className="text-sm text-muted-foreground font-medium">{pkg.period}</span>
                 </div>
               </div>

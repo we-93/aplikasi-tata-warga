@@ -30,7 +30,15 @@ async function getAiConfig() {
   });
   if (!tenant) throw new Error("Tenant tidak ditemukan.");
 
-  return { openaiApiKey: settings.openaiApiKey, geminiApiKey: settings.geminiApiKey, tenant, tenantId: user.tenantId };
+  return { 
+    openaiApiKey: settings?.openaiApiKey, 
+    geminiApiKey: settings?.geminiApiKey, 
+    chatApiUrl: settings?.chatApiUrl || "https://weizerouter.web.id/v1",
+    chatApiKey: settings?.chatApiKey,
+    chatApiModel: settings?.chatApiModel || "wz/gemini-3.5-flash-low",
+    tenant, 
+    tenantId: user.tenantId 
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -42,7 +50,11 @@ export async function generateNotulen(data: {
   rawInput: string; // transkripsi audio atau catatan manual
 }) {
   try {
-    const { openaiApiKey, geminiApiKey, tenant, tenantId } = await getAiConfig();
+    const { chatApiUrl, chatApiKey, chatApiModel, tenant, tenantId } = await getAiConfig();
+
+    if (!chatApiKey) {
+      throw new Error("API Key Chat belum dikonfigurasi.");
+    }
 
     const systemPrompt = `Anda adalah Sekretaris RT profesional dan cermat. Tugas Anda adalah menganalisis transkripsi atau catatan rapat RT yang diberikan, lalu menyusunnya menjadi Notulen Rapat resmi yang terstruktur dalam format JSON yang valid.
 
@@ -69,56 +81,28 @@ Tolong buat notulen resminya dalam format JSON seperti yang diminta.`;
     let parsed = null;
     let tokenUsed = 0;
 
-    if (geminiApiKey) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiApiKey}`;
-      const payload = {
-        contents: [
-          { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }
-        ],
-        generationConfig: {
-          responseMimeType: "application/json"
-        }
-      };
+    const response = await fetch(`${chatApiUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${chatApiKey}`
+      },
+      body: JSON.stringify({
+        model: chatApiModel,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ]
+      })
+    });
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error?.message || "Gagal menghubungi Gemini API");
-      
-      const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-      // Ensure we extract JSON just in case Gemini wraps it in markdown despite responseMimeType
-      const cleanText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-      parsed = JSON.parse(cleanText);
-      tokenUsed = result.usageMetadata?.totalTokenCount || 0;
-    } else if (openaiApiKey) {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${openaiApiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-          ],
-          response_format: { type: "json_object" }
-        })
-      });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error?.message || "Gagal menghubungi WeizeRouter API");
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error?.message || "Gagal menghubungi AI");
-
-      tokenUsed = result.usage?.total_tokens || 0;
-      const raw = result.choices[0].message.content;
-      parsed = JSON.parse(raw);
-    } else {
-      throw new Error("Tidak ada API Key yang dikonfigurasi.");
-    }
+    tokenUsed = result.usage?.total_tokens || 500;
+    const rawText = result.choices[0].message.content || "{}";
+    const cleanText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+    parsed = JSON.parse(cleanText);
 
     let logId = "";
     if (tokenUsed > 0) {

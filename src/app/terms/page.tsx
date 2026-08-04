@@ -103,7 +103,7 @@ export default async function TermsAndConditionsPage() {
             <section>
               <h2 className="text-2xl font-semibold mt-8 mb-4">8. Kontak Kami</h2>
               <p className="leading-relaxed text-muted-foreground">
-                Jika Anda memiliki pertanyaan mengenai Syarat & Ketentuan ini, Anda dapat menghubungi kami melalui email di <a href="mailto:info@tatawarga.id" className="text-primary hover:underline">info@tatawarga.id</a> atau melalui WhatsApp di <a href="https://api.whatsapp.com/send?phone=6285945441445" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+62 859 4544 1445</a>.
+                Jika Anda memiliki pertanyaan mengenai Syarat & Ketentuan ini, Anda dapat menghubungi kami melalui email di <a href="mailto:info@tatawarga.net" className="text-primary hover:underline">info@tatawarga.net</a> atau melalui WhatsApp di <a href="https://api.whatsapp.com/send?phone=6285945441445" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+62 859 4544 1445</a>.
               </p>
             </section>
           </div>

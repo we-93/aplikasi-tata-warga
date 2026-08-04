@@ -63,17 +63,17 @@ export function NotificationsClient({ settings }: { settings: any }) {
           <div className="space-y-3">
             <Label className="text-blue-600 dark:text-blue-400 font-bold text-base">Template WA Selamat Datang (Pendaftar Baru)</Label>
             <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white font-mono"
+              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white font-light"
               value={config.waAdminWelcomeTemplate}
               onChange={e => setConfig({...config, waAdminWelcomeTemplate: e.target.value})}
             />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{NAMA}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{PRODUK}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{INVOICE}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{HARGA}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{BANK}}`}</code></p>
+            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{nama}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{produk}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{invoice}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{harga}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{bank}}`}</code></p>
           </div>
 
           <div className="space-y-3">
             <Label className="text-emerald-600 dark:text-emerald-400 font-bold text-base">Template ACC Registrasi</Label>
             <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all text-slate-900 dark:text-white font-mono"
+              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all text-slate-900 dark:text-white font-light"
               value={config.waAdminTemplate}
               onChange={e => setConfig({...config, waAdminTemplate: e.target.value})}
             />
@@ -83,7 +83,7 @@ export function NotificationsClient({ settings }: { settings: any }) {
           <div className="space-y-3">
             <Label className="text-[#6419c1] dark:text-[#a064fa] font-bold text-base">Template Invoice Tagihan Baru</Label>
             <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white font-mono"
+              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white font-light"
               value={config.waAdminInvoiceTemplate}
               onChange={e => setConfig({...config, waAdminInvoiceTemplate: e.target.value})}
             />
@@ -93,17 +93,17 @@ export function NotificationsClient({ settings }: { settings: any }) {
           <div className="space-y-3">
             <Label className="text-teal-600 dark:text-teal-400 font-bold text-base">Template ACC Pembayaran (Topup & Perpanjang)</Label>
             <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 outline-none transition-all text-slate-900 dark:text-white font-mono"
+              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 outline-none transition-all text-slate-900 dark:text-white font-light"
               value={config.waAdminTopupTemplate || ""}
               onChange={e => setConfig({...config, waAdminTopupTemplate: e.target.value})}
             />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{NAMA}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{invoice}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{tanggal}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{PRODUK}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{HARGA}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{link_login}}`}</code></p>
+            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{nama}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{invoice}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{tanggal}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{produk}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{harga}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{link_login}}`}</code></p>
           </div>
 
           <div className="space-y-3">
             <Label className="text-orange-500 font-bold text-base">Template Peringatan H-7 Expired</Label>
             <textarea 
-              className="w-full h-32 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 outline-none transition-all text-slate-900 dark:text-white font-mono"
+              className="w-full h-32 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 outline-none transition-all text-slate-900 dark:text-white font-light"
               value={config.waAdminExpired7DaysTemplate}
               onChange={e => setConfig({...config, waAdminExpired7DaysTemplate: e.target.value})}
             />
@@ -113,7 +113,7 @@ export function NotificationsClient({ settings }: { settings: any }) {
           <div className="space-y-3">
             <Label className="text-red-500 font-bold text-base">Template Hari H Expired (Suspend)</Label>
             <textarea 
-              className="w-full h-32 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none transition-all text-slate-900 dark:text-white font-mono"
+              className="w-full h-32 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none transition-all text-slate-900 dark:text-white font-light"
               value={config.waAdminExpiredTodayTemplate}
               onChange={e => setConfig({...config, waAdminExpiredTodayTemplate: e.target.value})}
             />

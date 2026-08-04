@@ -17,7 +17,7 @@ export function IntegrationsClient({
   aiSettings 
 }: { 
   devices: any[]; 
-  aiSettings: { openaiApiKey: string; geminiApiKey: string; aiMasterPrompt: string; totalTokensUsed?: number } 
+  aiSettings: { openaiApiKey: string; geminiApiKey: string; aiMasterPrompt: string; chatApiUrl: string; chatApiKey: string; chatApiModel: string; totalChatTokensUsed?: number; totalOcrTokensUsed?: number } 
 }) {
   const [activeTab, setActiveTab] = useState("whatsapp");
 
@@ -125,10 +125,16 @@ export function IntegrationsClient({
             <MessageSquare className="w-4 h-4 shrink-0" /> WA Gateway
           </TabsTrigger>
           <TabsTrigger 
-            value="ai" 
+            value="chat_ai" 
             className="flex items-center gap-2 rounded-lg data-active:bg-[#6419c1] data-active:text-white dark:data-active:bg-[#6419c1] dark:data-active:text-white transition-all shadow-none data-active:shadow-sm whitespace-nowrap"
           >
-            <Bot className="w-4 h-4 shrink-0" /> AI Assistant
+            <Bot className="w-4 h-4 shrink-0" /> API Chat
+          </TabsTrigger>
+          <TabsTrigger 
+            value="notulen_ai" 
+            className="flex items-center gap-2 rounded-lg data-active:bg-[#6419c1] data-active:text-white dark:data-active:bg-[#6419c1] dark:data-active:text-white transition-all shadow-none data-active:shadow-sm whitespace-nowrap"
+          >
+            <Bot className="w-4 h-4 shrink-0" /> API Notulen
           </TabsTrigger>
         </TabsList>
 
@@ -426,12 +432,78 @@ export function IntegrationsClient({
           </Dialog>
         </TabsContent>
 
-        {/* AI TAB */}
-        <TabsContent value="ai" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* CHAT AI TAB */}
+        <TabsContent value="chat_ai" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="bg-white dark:bg-[#141229] p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] max-w-3xl">
             <div className="mb-6">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Konfigurasi AI Global</h2>
-              <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Atur "Otak Utama" asisten virtual yang akan melayani seluruh grup RT.</p>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">API Chat (WeizeRouter)</h2>
+              <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Konfigurasi API untuk fitur Chat AI, Broadcast Pengumuman, dan Laporan Kas.</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-slate-900 dark:text-white font-semibold">Base URL</Label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
+                  placeholder="https://weizerouter.web.id/v1" 
+                  value={aiConfig.chatApiUrl} 
+                  onChange={e => setAiConfig({...aiConfig, chatApiUrl: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-slate-900 dark:text-white font-semibold">API Key</Label>
+                <input 
+                  type="password" 
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
+                  placeholder="Bearer API Key dari WeizeRouter" 
+                  value={aiConfig.chatApiKey || ""} 
+                  onChange={e => setAiConfig({...aiConfig, chatApiKey: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-slate-900 dark:text-white font-semibold">Model Name</Label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
+                  placeholder="wz/gemini-3.5-flash-low" 
+                  value={aiConfig.chatApiModel || ""} 
+                  onChange={e => setAiConfig({...aiConfig, chatApiModel: e.target.value})}
+                />
+              </div>
+
+              {aiSettings.totalChatTokensUsed !== undefined && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-emerald-900 dark:text-emerald-300">Total Penggunaan Token Chat</h3>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-400">Jumlah token WeizeRouter yang digunakan (Chat, Broadcast, Laporan, Draft Notulen).</p>
+                  </div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    {aiSettings.totalChatTokensUsed.toLocaleString("id-ID")}
+                  </div>
+                </div>
+              )}
+
+              <Button 
+                onClick={handleSaveAi} 
+                disabled={isSavingAi} 
+                className="w-full sm:w-auto px-8 py-3 flex items-center justify-center gap-2 bg-[#6419c1] text-white rounded-xl shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] hover:bg-[#7735d4] transition-all text-sm font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isSavingAi && <Loader2 className="w-4 h-4 animate-spin" />}
+                Simpan Konfigurasi Chat
+              </Button>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* NOTULEN AI TAB */}
+        <TabsContent value="notulen_ai" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-white dark:bg-[#141229] p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] max-w-3xl">
+            <div className="mb-6">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">API Notulen (OpenAI / Gemini)</h2>
+              <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Konfigurasi AI khusus untuk Notulen Rapat dan Penalaran Panjang.</p>
             </div>
 
             <div className="space-y-6">
@@ -441,10 +513,10 @@ export function IntegrationsClient({
                   type="password" 
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white"
                   placeholder="sk-proj-xxxxxxxxxxxxxxxxxxxxxxxx" 
-                  value={aiConfig.openaiApiKey} 
+                  value={aiConfig.openaiApiKey || ""} 
                   onChange={e => setAiConfig({...aiConfig, openaiApiKey: e.target.value})}
                 />
-                <p className="text-xs text-slate-500 dark:text-white/40">Kunci rahasia ini digunakan untuk seluruh transaksi AI di platform Anda.</p>
+                <p className="text-xs text-slate-500 dark:text-white/40">Digunakan untuk Notulen Rapat AI.</p>
               </div>
 
               <div className="space-y-3">
@@ -477,14 +549,14 @@ export function IntegrationsClient({
                 </div>
               </div>
 
-              {aiSettings.totalTokensUsed !== undefined && (
+              {aiSettings.totalOcrTokensUsed !== undefined && (
                 <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30 flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-emerald-900 dark:text-emerald-300">Total Penggunaan Token</h3>
-                    <p className="text-sm text-emerald-700 dark:text-emerald-400">Jumlah token AI yang telah dikonsumsi oleh seluruh RT dari semua fitur.</p>
+                    <h3 className="font-semibold text-emerald-900 dark:text-emerald-300">Total Penggunaan Token OCR</h3>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-400">Jumlah token OpenAI / Gemini yang digunakan khusus untuk fitur Baca Gambar.</p>
                   </div>
                   <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    {aiSettings.totalTokensUsed.toLocaleString("id-ID")}
+                    {aiSettings.totalOcrTokensUsed.toLocaleString("id-ID")}
                   </div>
                 </div>
               )}

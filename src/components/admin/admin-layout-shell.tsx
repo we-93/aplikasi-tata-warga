@@ -53,11 +53,25 @@ export function AdminLayoutShell({ children, logoUrl, logoUrlDark, userName, use
   const pathname = usePathname();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [lastReadLogId, setLastReadLogId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    // Allow light mode now, default to system or what user chose
+    const stored = localStorage.getItem("admin_last_read_log_id");
+    if (stored) {
+      setLastReadLogId(stored);
+    }
   }, []);
+
+  const hasNewLogs = mounted && recentLogs.length > 0 && recentLogs[0].id !== lastReadLogId;
+
+  const handleNotificationClick = () => {
+    if (recentLogs.length > 0) {
+      const latestId = recentLogs[0].id;
+      setLastReadLogId(latestId);
+      localStorage.setItem("admin_last_read_log_id", latestId);
+    }
+  };
 
   const isDark = mounted && resolvedTheme === "dark";
 
@@ -246,10 +260,10 @@ export function AdminLayoutShell({ children, logoUrl, logoUrlDark, userName, use
             )}
             
             {/* Notifications */}
-            <DropdownMenu>
+            <DropdownMenu onOpenChange={(open) => { if (open) handleNotificationClick(); }}>
               <DropdownMenuTrigger className="relative p-2 rounded-full text-slate-600 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <Bell className="h-5 w-5" />
-                {recentLogs.length > 0 && (
+                {hasNewLogs && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                 )}
               </DropdownMenuTrigger>

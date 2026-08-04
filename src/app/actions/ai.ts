@@ -26,10 +26,6 @@ export async function getAiConfigAndContext(passedTenantId?: string) {
     throw new Error("Konfigurasi global belum diatur.");
   }
   
-  if (!settings.openaiApiKey && !settings.geminiApiKey) {
-    throw new Error("API Key (OpenAI / Gemini) belum dikonfigurasi. Hubungi Admin Pusat.");
-  }
-
   // Build Context Summary
   const tenantInfo = await prisma.tenant.findUnique({ where: { id: tenantId } });
   const wargaCount = await prisma.warga.count({ where: { tenantId } });
@@ -102,6 +98,9 @@ ${settings.aiMasterPrompt || ""}`;
   return { 
     openaiApiKey: settings.openaiApiKey, 
     geminiApiKey: settings.geminiApiKey,
+    chatApiUrl: settings.chatApiUrl || "https://weizerouter.web.id/v1",
+    chatApiKey: settings.chatApiKey,
+    chatApiModel: settings.chatApiModel || "wz/gemini-3.5-flash-low",
     systemContext, 
     tenantId 
   };
@@ -109,168 +108,51 @@ ${settings.aiMasterPrompt || ""}`;
 
 export async function chatWithAi(messages: any[]) {
   try {
-    const { openaiApiKey, geminiApiKey, systemContext, tenantId } = await getAiConfigAndContext();
+    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId } = await getAiConfigAndContext();
 
-    if (geminiApiKey) {
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + geminiApiKey;
-      
-      const contents = [];
-      contents.push({ role: "user", parts: [{ text: systemContext }] });
-      contents.push({ role: "model", parts: [{ text: "Baik, saya mengerti konteksnya." }] });
-      
-      for (const m of messages) {
-        if (m.role === "system") continue;
-        
-        let parts = [];
-        if (typeof m.content === 'string') {
-          parts.push({ text: m.content });
-        } else if (Array.isArray(m.content)) {
-          for (const c of m.content) {
-            if (c.type === 'text') parts.push({ text: c.text });
-            else if (c.type === 'image_url') {
-              const base64Data = c.image_url.url.split(',')[1];
-              const mimeType = c.image_url.url.split(';')[0].split(':')[1];
-              parts.push({ inlineData: { mimeType, data: base64Data } });
-            }
-          }
+    if (!chatApiKey) {
+      throw new Error("API Key Chat belum dikonfigurasi.");
+    }
+
+    const payloadMessages = [
+      { role: "system", content: systemContext },
+      ...messages
+    ];
+
+    const response = await fetch(`${chatApiUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + chatApiKey
+      },
+      body: JSON.stringify({
+        model: chatApiModel,
+        messages: payloadMessages,
+      })
+    });
+    
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || "Gagal menghubungi Chat API");
+    
+    const tokens = data.usage?.total_tokens || 100;
+    
+    if (tenantId) {
+      await prisma.activityLog.create({
+        data: {
+          tenantId,
+          action: "AI_CHAT_USAGE",
+          description: tokens.toString()
         }
-        contents.push({ role: m.role === "user" ? "user" : "model", parts });
-      }
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents })
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || "Gagal menghubungi Gemini API");
-      
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      const tokens = data.usageMetadata?.totalTokenCount || Math.ceil(text.length / 4) + 100;
-      
-      if (tenantId) {
-        await prisma.activityLog.create({
-          data: {
-            tenantId,
-            action: "AI_CHAT_USAGE",
-            description: tokens.toString()
-          }
-        });
-      }
-
-      return { success: true, message: { role: "assistant", content: text } };
-    } else if (openaiApiKey) {
-      const payloadMessages = [
-        { role: "system", content: systemContext },
-        ...messages
-      ];
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + openaiApiKey
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: payloadMessages,
-        })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || "Gagal menghubungi OpenAI API");
-      const tokens = data.usage?.total_tokens || 100;
-      
-      if (tenantId) {
-        await prisma.activityLog.create({
-          data: {
-            tenantId,
-            action: "AI_CHAT_USAGE",
-            description: tokens.toString()
-          }
-        });
-      }
-
-      return { success: true, message: data.choices[0].message };
-    } else {
-      throw new Error("API Key belum dikonfigurasi");
     }
+
+    return { success: true, message: data.choices[0].message };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
 
-export async function transcribeAudio(formData: FormData) {
-  try {
-    const session = await auth();
-    if (!session) throw new Error("Unauthorized");
 
-    const file = formData.get("file") as File;
-    if (!file) throw new Error("Tidak ada file audio yang diunggah.");
-
-    // Enforce quota check by using getAiConfigAndContext
-    const { tenantId } = await getAiConfigAndContext();
-
-    const settings = await prisma.siteSettings.findFirst();
-    if (!settings) throw new Error("Pengaturan tidak ditemukan.");
-    if (!settings.openaiApiKey && !settings.geminiApiKey) {
-      throw new Error("API Key belum dikonfigurasi.");
-    }
-
-    if (settings.geminiApiKey) {
-      const buffer = await file.arrayBuffer();
-      const base64 = Buffer.from(buffer).toString("base64");
-      
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + settings.geminiApiKey;
-      const payload = {
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: "Tolong transkripsikan (ubah menjadi teks) seluruh isi audio ini secara akurat dan lengkap." },
-              {
-                inlineData: {
-                  mimeType: file.type || "audio/mp3",
-                  data: base64
-                }
-              }
-            ]
-          }
-        ]
-      };
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || "Gagal mentranskripsi audio dengan Gemini");
-      
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      return { success: true, text };
-    } else if (settings.openaiApiKey) {
-      const whisperFormData = new FormData();
-      whisperFormData.append("file", file);
-      whisperFormData.append("model", "whisper-1");
-
-      const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer " + settings.openaiApiKey
-        },
-        body: whisperFormData as any
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || "Gagal mentranskripsi audio");
-
-      const tokens = 500; // estimated for whisper
-      if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_AUDIO_USAGE", description: tokens.toString() } });
-      return { success: true, text: data.text };
-    }
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
 
 export async function transcribeImage(formData: FormData) {
   try {
@@ -281,20 +163,18 @@ export async function transcribeImage(formData: FormData) {
     if (!file) throw new Error("Tidak ada file gambar yang diunggah.");
 
     // Enforce quota check by using getAiConfigAndContext
-    const { tenantId } = await getAiConfigAndContext();
+    const { tenantId, geminiApiKey, openaiApiKey } = await getAiConfigAndContext();
 
-    const settings = await prisma.siteSettings.findFirst();
-    if (!settings) throw new Error("Pengaturan tidak ditemukan.");
-    if (!settings.openaiApiKey && !settings.geminiApiKey) {
-      throw new Error("API Key belum dikonfigurasi.");
+    if (!openaiApiKey && !geminiApiKey) {
+      throw new Error("API Key Notulen (OpenAI/Gemini) belum dikonfigurasi.");
     }
 
     const buffer = await file.arrayBuffer();
     const base64 = Buffer.from(buffer).toString("base64");
     const mimeType = file.type || "image/jpeg";
 
-    if (settings.geminiApiKey) {
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + settings.geminiApiKey;
+    if (geminiApiKey) {
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + geminiApiKey;
       const payload = {
         contents: [
           {
@@ -317,12 +197,12 @@ export async function transcribeImage(formData: FormData) {
       
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       return { success: true, text };
-    } else if (settings.openaiApiKey) {
+    } else if (openaiApiKey) {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + settings.openaiApiKey
+          "Authorization": "Bearer " + openaiApiKey
         },
         body: JSON.stringify({
           model: "gpt-4o-mini",
@@ -363,7 +243,11 @@ export async function generateAiBroadcast(data: {
   lokasi: string;
 }) {
   try {
-    const { openaiApiKey, geminiApiKey, systemContext, tenantId } = await getAiConfigAndContext();
+    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId } = await getAiConfigAndContext();
+
+    if (!chatApiKey) {
+      throw new Error("API Key Chat belum dikonfigurasi.");
+    }
 
     const prompt = "Tolong buatkan draf pesan pengumuman WhatsApp untuk warga RT.\n" +
 "Detail:\n" +
@@ -374,48 +258,28 @@ export async function generateAiBroadcast(data: {
 "- Gaya Bahasa: " + data.tone + "\n\n" +
 "Buat formatnya menarik, gunakan emoji yang relevan, dan pastikan jelas dibaca di WhatsApp. Jangan tambahkan penjelasan apa-apa, cukup langsung berikan teks pengumumannya saja.";
 
-    if (geminiApiKey) {
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + geminiApiKey;
-      const payload = {
-        contents: [
-          { role: "user", parts: [{ text: systemContext }] },
-          { role: "model", parts: [{ text: "Mengerti." }] },
-          { role: "user", parts: [{ text: prompt }] }
-        ]
-      };
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error?.message || "Gagal memproses broadcast dengan Gemini");
-      const tokens = result.usageMetadata?.totalTokenCount || 100;
-      if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_BROADCAST_USAGE", description: tokens.toString() } });
-      return { success: true, text: result.candidates?.[0]?.content?.parts?.[0]?.text || "" };
-    } else if (openaiApiKey) {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + openaiApiKey
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemContext },
-            { role: "user", content: prompt }
-          ],
-        })
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error?.message || "Gagal memproses broadcast");
-      const tokens = result.usage?.total_tokens || 100;
-      if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_BROADCAST_USAGE", description: tokens.toString() } });
-      return { success: true, text: result.choices[0].message.content };
-    } else {
-      throw new Error("API Key belum dikonfigurasi");
-    }
+    const response = await fetch(`${chatApiUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + chatApiKey
+      },
+      body: JSON.stringify({
+        model: chatApiModel,
+        messages: [
+          { role: "system", content: systemContext },
+          { role: "user", content: prompt }
+        ],
+      })
+    });
+    
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error?.message || "Gagal memproses broadcast");
+    
+    const tokens = result.usage?.total_tokens || 100;
+    if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_BROADCAST_USAGE", description: tokens.toString() } });
+    
+    return { success: true, text: result.choices[0].message.content };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -423,7 +287,11 @@ export async function generateAiBroadcast(data: {
 
 export async function generateAiReport(month: number, year: number) {
   try {
-    const { openaiApiKey, geminiApiKey, systemContext, tenantId } = await getAiConfigAndContext();
+    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId } = await getAiConfigAndContext();
+
+    if (!chatApiKey) {
+      throw new Error("API Key Chat belum dikonfigurasi.");
+    }
 
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
@@ -443,48 +311,28 @@ export async function generateAiReport(month: number, year: number) {
 kasText + "\n\n" +
 "Berikan pembuka yang hangat, rangkum total pemasukan dan pengeluaran secara jelas, lalu berikan kalimat penutup yang membangun semangat gotong royong warga. Jangan tambahkan penjelasan lain di luar surat laporan.";
 
-    if (geminiApiKey) {
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + geminiApiKey;
-      const payload = {
-        contents: [
-          { role: "user", parts: [{ text: systemContext }] },
-          { role: "model", parts: [{ text: "Mengerti." }] },
-          { role: "user", parts: [{ text: prompt }] }
-        ]
-      };
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error?.message || "Gagal membuat laporan dengan Gemini");
-      const tokens = result.usageMetadata?.totalTokenCount || 200;
-      if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_REPORT_USAGE", description: tokens.toString() } });
-      return { success: true, text: result.candidates?.[0]?.content?.parts?.[0]?.text || "" };
-    } else if (openaiApiKey) {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + openaiApiKey
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemContext },
-            { role: "user", content: prompt }
-          ],
-        })
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error?.message || "Gagal membuat laporan dengan OpenAI");
-      const tokens = result.usage?.total_tokens || 200;
-      if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_REPORT_USAGE", description: tokens.toString() } });
-      return { success: true, text: result.choices[0].message.content };
-    } else {
-      throw new Error("API Key belum dikonfigurasi");
-    }
+    const response = await fetch(`${chatApiUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + chatApiKey
+      },
+      body: JSON.stringify({
+        model: chatApiModel,
+        messages: [
+          { role: "system", content: systemContext },
+          { role: "user", content: prompt }
+        ],
+      })
+    });
+    
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error?.message || "Gagal membuat laporan AI");
+    
+    const tokens = result.usage?.total_tokens || 200;
+    if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_REPORT_USAGE", description: tokens.toString() } });
+    
+    return { success: true, text: result.choices[0].message.content };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -492,47 +340,28 @@ kasText + "\n\n" +
 
 export async function chatWithWaAi(tenantId: string, userMessage: string) {
   try {
-    const { openaiApiKey, geminiApiKey, systemContext } = await getAiConfigAndContext(tenantId);
+    const { chatApiUrl, chatApiKey, chatApiModel, systemContext } = await getAiConfigAndContext(tenantId);
 
-    if (geminiApiKey) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiApiKey}`;
-      const payload = {
-        contents: [
-          { role: "user", parts: [{ text: systemContext }] },
-          { role: "model", parts: [{ text: "Mengerti, saya akan bertindak sesuai instruksi tersebut." }] },
-          { role: "user", parts: [{ text: userMessage }] }
-        ]
-      };
-
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || "Gagal memanggil Gemini API");
-      
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, AI tidak memberikan respons yang valid.";
-      return { success: true, text };
-    } else if (openaiApiKey) {
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiApiKey}` },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemContext },
-            { role: "user", content: userMessage }
-          ]
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || "Gagal memanggil OpenAI API");
-      
-      return { success: true, text: data.choices[0].message.content };
-    } else {
+    if (!chatApiKey) {
       throw new Error("Tidak ada API Key yang dikonfigurasi.");
     }
+
+    const res = await fetch(`${chatApiUrl}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${chatApiKey}` },
+      body: JSON.stringify({
+        model: chatApiModel,
+        messages: [
+          { role: "system", content: systemContext },
+          { role: "user", content: userMessage }
+        ]
+      })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || "Gagal memanggil Chat API");
+    
+    return { success: true, text: data.choices[0].message.content };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

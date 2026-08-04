@@ -196,28 +196,40 @@ export async function getAiSettings() {
     settings = await prisma.siteSettings.create({ data: {} });
   }
 
-  // Aggregate total token usage from all AI features (NotulenAi + ActivityLog)
+  // WeizeRouter (Chat, Broadcast, Report, Draft, Notulen)
   const notulenTokens = await prisma.notulenAi.aggregate({
     _sum: { tokenUsed: true }
   });
-  const notulenUsed = notulenTokens._sum.tokenUsed || 0;
+  const notulenDraftUsed = notulenTokens._sum.tokenUsed || 0;
 
-  const otherAiLogs = await prisma.activityLog.findMany({
+  const chatAiLogs = await prisma.activityLog.findMany({
     where: {
       action: {
-        in: ["AI_CHAT_USAGE", "AI_REPORT_USAGE", "AI_BROADCAST_USAGE"]
+        in: ["AI_CHAT_USAGE", "AI_REPORT_USAGE", "AI_BROADCAST_USAGE", "AI_DRAFT_USAGE"]
       }
     }
   });
-  const otherAiUsed = otherAiLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
+  const totalChatTokensUsed = chatAiLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0) + notulenDraftUsed;
 
-  const totalTokensUsed = notulenUsed + otherAiUsed;
+  // OpenAI / Gemini (OCR)
+  const ocrAiLogs = await prisma.activityLog.findMany({
+    where: {
+      action: {
+        in: ["AI_OCR_USAGE"]
+      }
+    }
+  });
+  const totalOcrTokensUsed = ocrAiLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
 
   return {
     openaiApiKey: settings.openaiApiKey || "",
     geminiApiKey: settings.geminiApiKey || "",
     aiMasterPrompt: settings.aiMasterPrompt || "",
-    totalTokensUsed,
+    chatApiUrl: settings.chatApiUrl || "https://weizerouter.web.id/v1",
+    chatApiKey: settings.chatApiKey || "",
+    chatApiModel: settings.chatApiModel || "wz/gemini-3.5-flash-low",
+    totalChatTokensUsed,
+    totalOcrTokensUsed,
   };
 }
 
@@ -225,6 +237,9 @@ export async function saveAiSettings(data: {
   openaiApiKey: string; 
   geminiApiKey: string;
   aiMasterPrompt: string;
+  chatApiUrl: string;
+  chatApiKey: string;
+  chatApiModel: string;
 }) {
   try {
     const session = await auth();
@@ -239,6 +254,9 @@ export async function saveAiSettings(data: {
           openaiApiKey: data.openaiApiKey,
           geminiApiKey: data.geminiApiKey,
           aiMasterPrompt: data.aiMasterPrompt,
+          chatApiUrl: data.chatApiUrl,
+          chatApiKey: data.chatApiKey,
+          chatApiModel: data.chatApiModel,
         }
       });
     } else {
@@ -247,6 +265,9 @@ export async function saveAiSettings(data: {
           openaiApiKey: data.openaiApiKey,
           geminiApiKey: data.geminiApiKey,
           aiMasterPrompt: data.aiMasterPrompt,
+          chatApiUrl: data.chatApiUrl,
+          chatApiKey: data.chatApiKey,
+          chatApiModel: data.chatApiModel,
         }
       });
     }
