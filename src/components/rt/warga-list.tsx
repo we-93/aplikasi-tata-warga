@@ -65,7 +65,7 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
           />
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <Select value={status} onValueChange={setStatus}>
+          <Select value={status} onValueChange={(v) => setStatus(v || "ALL")}>
             <SelectTrigger className="w-full sm:w-[150px] bg-card border-slate-200 dark:border-white/10">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -78,7 +78,7 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
             </SelectContent>
           </Select>
           
-          <Select value={gender} onValueChange={setGender}>
+          <Select value={gender} onValueChange={(v) => setGender(v || "ALL")}>
             <SelectTrigger className="w-full sm:w-[150px] bg-card border-slate-200 dark:border-white/10">
               <SelectValue placeholder="Jenis Kelamin" />
             </SelectTrigger>
