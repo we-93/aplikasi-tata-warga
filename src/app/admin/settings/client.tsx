@@ -10,13 +10,15 @@ import { toast } from "sonner";
 import { updateSuperAdminProfile, updateSystemSettings, addSuperAdmin, removeSuperAdmin } from "@/app/actions/admin-settings";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Upload, Trash2, ShieldAlert } from "lucide-react";
+import { Loader2, Upload, Trash2, ShieldAlert, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 
 export function AdminSettingsClient({ currentUser, siteSettings, admins }: { currentUser: any, siteSettings: any, admins: any[] }) {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
+  const [showProfilePassword, setShowProfilePassword] = useState(false);
+  const [showNewAdminPassword, setShowNewAdminPassword] = useState(false);
   
   // Handlers for profile
   const handleUpdateProfile = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -180,7 +182,16 @@ export function AdminSettingsClient({ currentUser, siteSettings, admins }: { cur
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password Baru (Opsional)</Label>
-                    <Input id="password" name="password" type="password" placeholder="Kosongkan jika tidak ingin mengubah" />
+                    <div className="relative">
+                      <Input id="password" name="password" type={showProfilePassword ? "text" : "password"} placeholder="Kosongkan jika tidak ingin mengubah" className="pr-10" />
+                      <button
+                        type="button"
+                        onClick={() => setShowProfilePassword(!showProfilePassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                      >
+                        {showProfilePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -266,7 +277,16 @@ export function AdminSettingsClient({ currentUser, siteSettings, admins }: { cur
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="adminPassword">Password</Label>
-                    <Input id="adminPassword" name="password" type="password" required />
+                    <div className="relative">
+                      <Input id="adminPassword" name="password" type={showNewAdminPassword ? "text" : "password"} required className="pr-10" />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewAdminPassword(!showNewAdminPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                      >
+                        {showNewAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                 </CardContent>
                 <CardFooter>

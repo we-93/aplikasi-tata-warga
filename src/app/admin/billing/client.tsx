@@ -256,7 +256,7 @@ export function BillingClient({
               <div key={prod.id} className="bg-white dark:bg-[#141229] rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] p-6 relative hover:shadow-md transition-shadow">
                 {!prod.isActive && <div className="absolute top-4 right-4 bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[11px] font-bold px-2.5 py-1 rounded-full border border-red-200 dark:border-red-500/20">Nonaktif</div>}
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{prod.name}</h3>
-                <p className="text-2xl font-black text-[#6419c1] dark:text-[#a064fa] mb-4">{formatRp(prod.hargaPendaftaran)} <span className="text-sm font-normal text-slate-500 dark:text-white/50">/ {prod.masaAktifBulan} bln</span></p>
+                <p className="text-2xl font-black text-[#6419c1] dark:text-[#a064fa] mb-4">{formatRp(prod.hargaPendaftaran)} <span className="text-sm font-normal text-slate-500 dark:text-white/50">/ {prod.masaAktifBulan} hari</span></p>
                 
                 <div className="space-y-2.5 text-sm mb-6 text-slate-600 dark:text-white/70">
                   <p className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-2"><strong className="text-slate-900 dark:text-white">Perpanjang:</strong> {formatRp(prod.hargaPerpanjangan)}</p>
@@ -305,7 +305,7 @@ export function BillingClient({
                 
                 {productForm.type !== "ADDON" && (
                   <div className="space-y-2">
-                    <Label>Masa Aktif (Bulan)</Label>
+                    <Label>Masa Aktif (Hari)</Label>
                     <Input type="number" min={1} value={productForm.masaAktifBulan} onChange={e => setProductForm({...productForm, masaAktifBulan: parseInt(e.target.value)})} />
                   </div>
                 )}

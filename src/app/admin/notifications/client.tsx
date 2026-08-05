@@ -8,11 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { saveNotificationSettings } from "@/app/actions/notifications";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 export function NotificationsClient({ settings }: { settings: any }) {
   const [config, setConfig] = useState(settings);
   const [isSaving, setIsSaving] = useState(false);
+  const [showToken, setShowToken] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -50,13 +51,22 @@ export function NotificationsClient({ settings }: { settings: any }) {
 
         <div className="space-y-3">
           <Label className="text-slate-900 dark:text-white font-semibold">Admin WA API Key (Token)</Label>
-          <input 
-            type="password" 
-            placeholder="Token WA Pusat..." 
-            value={config.waAdminApiKey} 
-            onChange={e => setConfig({...config, waAdminApiKey: e.target.value})}
-            className="w-full md:w-1/2 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white"
-          />
+          <div className="relative w-full md:w-1/2">
+            <input 
+              type={showToken ? "text" : "password"} 
+              placeholder="Token WA Pusat..." 
+              value={config.waAdminApiKey} 
+              onChange={e => setConfig({...config, waAdminApiKey: e.target.value})}
+              className="w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white"
+            />
+            <button
+              type="button"
+              onClick={() => setShowToken(!showToken)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1"
+            >
+              {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-200 dark:border-white/10 mt-8">

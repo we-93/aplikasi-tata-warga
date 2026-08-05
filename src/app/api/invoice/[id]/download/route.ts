@@ -230,7 +230,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                   AI Token: ${invoice.product.maxAiToken === -1 ? 'Unlimited' : invoice.product.maxAiToken}
                 </span>
               </td>
-              <td class="text-right">${invoice.product.masaAktifBulan} Bulan</td>
+              <td class="text-right">${invoice.product.masaAktifBulan} Hari</td>
               <td class="text-right">${formatRp(Number(invoice.amount))}</td>
               <td class="text-right font-bold">${formatRp(Number(invoice.amount))}</td>
             </tr>

@@ -99,7 +99,7 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
     packages = productsToShow.map((p: any) => ({
       name: p.name,
       price: formatRp(p.hargaPendaftaran),
-      period: p.masaAktifBulan === 1 ? "/bulan" : `/ ${p.masaAktifBulan} bln`,
+      period: p.masaAktifBulan === 30 ? "/bulan" : `/ ${p.masaAktifBulan} hari`,
       link: `/checkout/${p.slug}`,
       popular: p.name.toLowerCase().includes("pro") || p.name.toLowerCase().includes("premium"), // Auto-popular if it contains Pro/Premium
       features: [

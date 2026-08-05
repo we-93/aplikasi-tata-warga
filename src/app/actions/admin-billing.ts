@@ -46,7 +46,7 @@ export async function approveInvoice(invoiceId: string) {
     if (orderType === "UPGRADE" || orderType === "NEW") {
       // Reset plan, extend from TODAY
       const newExpiry = new Date(now);
-      newExpiry.setMonth(newExpiry.getMonth() + product.masaAktifBulan);
+      newExpiry.setDate(newExpiry.getDate() + product.masaAktifBulan);
 
       await prisma.tenant.update({
         where: { id: tenant.id },
@@ -62,7 +62,7 @@ export async function approveInvoice(invoiceId: string) {
       // Extend from CURRENT expiry (or today if already expired)
       const baseDate = (tenant.activeUntil && tenant.activeUntil > now) ? tenant.activeUntil : now;
       const newExpiry = new Date(baseDate);
-      newExpiry.setMonth(newExpiry.getMonth() + product.masaAktifBulan);
+      newExpiry.setDate(newExpiry.getDate() + product.masaAktifBulan);
 
       await prisma.tenant.update({
         where: { id: tenant.id },

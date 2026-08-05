@@ -64,7 +64,7 @@ export function UpgradeClient({ initialData }: { initialData: any }) {
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold">{formatRp(plan.hargaPendaftaran)}</span>
-                <span className="text-sm text-muted-foreground font-medium">/ {plan.masaAktifBulan} bln</span>
+                <span className="text-sm text-muted-foreground font-medium">/ {plan.masaAktifBulan} Hari</span>
               </div>
             </div>
             

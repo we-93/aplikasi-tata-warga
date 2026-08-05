@@ -136,10 +136,6 @@ export function SettingsForm({ initialData }: { initialData: any }) {
             <Input id="namaRw" name="namaRw" defaultValue={initialData?.namaRw || ""} placeholder="Misal: Bapak Hermawan" required />
             <p className="text-xs text-muted-foreground">Tampil di kop surat bagian pengurus RW.</p>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="noHpRt">Nomor HP RT</Label>
-            <Input id="noHpRt" name="noHpRt" defaultValue={initialData?.noHpRt || ""} placeholder="Misal: 081234567890" />
-          </div>
         </div>
 
         <h3 className="text-lg font-semibold border-b pb-2 pt-4">Data Wilayah Administrasi</h3>

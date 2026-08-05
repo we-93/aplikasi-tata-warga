@@ -47,7 +47,7 @@ const menuItems = [
   { name: "WA Asisten", href: "/dashboard/rt/wa", icon: MessageCircle },
   { name: "Notulen AI", href: "/dashboard/rt/notulen", icon: Database },
   { name: "Langganan & Tagihan", href: "/dashboard/rt/billing", icon: Receipt },
-  { name: "Pengaturan RT", href: "/dashboard/rt/settings", icon: Settings },
+  { name: "Pengaturan", href: "/dashboard/rt/settings", icon: Settings },
   { name: "Log Aktivitas", href: "/dashboard/rt/logs", icon: Activity },
 ];
 

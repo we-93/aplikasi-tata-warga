@@ -93,7 +93,7 @@ export function AdminInvoicesClient({ initialInvoices }: { initialInvoices: any[
                   <div className="text-xs text-muted-foreground">
                     {inv.orderType === 'TOPUP' 
                       ? `+${inv.product.maxSurat > 0 ? inv.product.maxSurat + ' Srt' : inv.product.maxAiToken + ' Tkn'}` 
-                      : `${inv.product.masaAktifBulan} Bln`}
+                      : `${inv.product.masaAktifBulan} Hari`}
                   </div>
                 </td>
                 <td className="px-6 py-4 font-bold text-[#21b7b1]">{formatRp(inv.amount)}</td>

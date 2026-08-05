@@ -298,9 +298,9 @@ export async function approveInvoice(id: string, waDeviceId: string, status: str
       });
     }
 
-    // Hitung Expires At berdasarkan masaAktifBulan
+    // Hitung Expires At berdasarkan masaAktifBulan (sekarang dalam hitungan Hari)
     const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + invoice.product.masaAktifBulan);
+    expiresAt.setDate(expiresAt.getDate() + invoice.product.masaAktifBulan);
 
     // 2. Update Tenant Status and Integrations and Quotas
     const tenantUpdateData: any = {

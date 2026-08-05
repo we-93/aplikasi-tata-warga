@@ -36,7 +36,7 @@ export default async function RTDashboardPage() {
     planExpiry = new Date(tenant.activeUntil).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
   } else if (tenant.status === "PENDING" && currentProduct?.masaAktifBulan) {
     const future = new Date();
-    future.setMonth(future.getMonth() + currentProduct.masaAktifBulan);
+    future.setDate(future.getDate() + currentProduct.masaAktifBulan);
     planExpiry = future.toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) + " (Estimasi)";
   }
 
