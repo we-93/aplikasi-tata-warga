@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { searchWargaGlobal, deleteWargaGlobal } from "@/app/actions/customer";
+import { searchWargaGlobal, deleteWargaGlobal, getTenantUsageStats } from "@/app/actions/customer";
 import { updateTenantByAdmin, deleteTenantByAdmin } from "@/app/actions/tenant";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Users, Search, Trash2, Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Users, Search, Trash2, Edit, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 
-export function DataClient({ initialTenants, waDevices = [] }: { initialTenants: any[], waDevices?: any[] }) {
+export function DataClient({ initialTenants, waDevices = [], products = [] }: { initialTenants: any[], waDevices?: any[], products?: any[] }) {
   const [activeTab, setActiveTab] = useState("tenants");
   const [currentTenantPage, setCurrentTenantPage] = useState(1);
   const itemsPerPage = 20;
@@ -56,6 +56,23 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
   });
   const [isUpdatingTenant, setIsUpdatingTenant] = useState(false);
   
+  // USAGE STATS STATE
+  const [statsTenant, setStatsTenant] = useState<any>(null);
+  const [statsData, setStatsData] = useState<any>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
+  const handleOpenStats = async (t: any, totalSurat: number, totalAi: number) => {
+    setStatsTenant({ ...t, limitSurat: totalSurat, limitAi: totalAi });
+    setIsLoadingStats(true);
+    const res = await getTenantUsageStats(t.id);
+    if (res.success) {
+      setStatsData(res);
+    } else {
+      toast.error("Gagal memuat statistik");
+    }
+    setIsLoadingStats(false);
+  };
+
   // WARGA SEARCH STATE
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -189,11 +206,11 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-black/20 border-b border-slate-200 dark:border-white/5">
-                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">NO</th>
+                    <th className="px-4 py-4 w-12 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider text-center">NO</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">ADMIN / EMAIL</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">NAMA RT</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">PAKET</th>
-                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">FASILITAS</th>
+                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">WA GATEWAY</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">STATUS</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider text-right">AKSI</th>
                   </tr>
@@ -208,33 +225,30 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
                   ) : currentTenants.map((t, index) => {
                     const sub = t.subscriptions?.[0];
                     const tenantAdmin = t.users?.find((u: any) => u.role === "TENANT_ADMIN");
+                    const plan = products.find(p => p.name === t.subscriptionPlan) || sub?.product;
+                    
                     return (
                       <tr key={t.id} className="bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
-                        <td className="px-6 py-4 text-sm font-medium text-slate-500">
+                        <td className="px-4 py-4 w-12 text-center text-sm font-medium text-slate-500">
                           {(currentTenantPage - 1) * itemsPerPage + index + 1}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{t.ketuaName || "Belum diset"}</span>
+                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{tenantAdmin?.name || "Belum diset"}</span>
                             <span className="text-xs text-slate-500 dark:text-white/50">{tenantAdmin?.email || "Tidak ada email"}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-[#6419c1]/10 dark:bg-[#6419c1]/20 flex items-center justify-center text-[#6419c1] dark:text-[#a064fa] font-bold text-xs uppercase shrink-0">
-                              {t.name.charAt(0)}
-                            </div>
-                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{t.name}</span>
-                          </div>
+                          <span className="text-sm font-semibold text-slate-900 dark:text-white">{t.name}</span>
                         </td>
                         <td className="px-6 py-4 text-sm font-medium text-[#6419c1] dark:text-[#a064fa]">
                           {t.subscriptionPlan || "Free"}
                         </td>
+
                         <td className="px-6 py-4">
                           <div className="text-xs space-y-1.5 text-slate-600 dark:text-white/70">
-                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Bot: {t.waDevice?.name || t.whatsappBotNo || "Belum ada"} {t.waDevice?.phoneNumber ? `(${t.waDevice.phoneNumber})` : ""}</p>
-                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Surat: {sub?.product.maxSurat === 0 ? "Unlimited" : (sub?.product.maxSurat || 0)}</p>
-                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> AI: {sub?.product.maxAiToken === 0 ? "Unlimited" : (sub?.product.maxAiToken || 0)} Token</p>
+                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Bot: {t.waDevice?.name || t.whatsappBotNo || "Belum ada"}</p>
+                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Grup: {t.waGroup?.name || "Belum diset"}</p>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -248,6 +262,13 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => handleOpenStats(t, plan?.maxSurat === -1 ? 999999 : (plan?.maxSurat ?? 20) + (t.addonMaxSurat || 0), plan?.maxAiToken === -1 ? 9999999 : (plan?.maxAiToken ?? 2000) + (t.addonMaxAiToken || 0))}
+                              className="p-2 text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-lg transition-colors"
+                              title="Lihat Statistik Penggunaan"
+                            >
+                              <BarChart3 className="w-4 h-4" />
+                            </button>
                             <button 
                               onClick={() => {
                                 setEditingTenant(t);
@@ -461,6 +482,58 @@ export function DataClient({ initialTenants, waDevices = [] }: { initialTenants:
                 Simpan Perubahan
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* DIALOG STATS */}
+        <Dialog open={!!statsTenant} onOpenChange={(o) => !o && setStatsTenant(null)}>
+          <DialogContent className="max-w-md sm:max-w-lg p-6">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Statistik Pemakaian</DialogTitle>
+              <p className="text-sm text-muted-foreground">{statsTenant?.name}</p>
+            </DialogHeader>
+            {isLoadingStats ? (
+              <div className="flex flex-col items-center justify-center py-10">
+                <Loader2 className="w-8 h-8 animate-spin text-[#6419c1] mb-4" />
+                <p className="text-sm text-muted-foreground">Memuat data...</p>
+              </div>
+            ) : (statsData && statsTenant) ? (
+              <div className="space-y-6 py-4">
+                {/* Warga & Kas */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border border-border bg-muted/30">
+                    <p className="text-xs text-muted-foreground mb-1 uppercase font-bold">Total Warga</p>
+                    <p className="text-2xl font-black">{statsData.totalWarga}</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-border bg-muted/30">
+                    <p className="text-xs text-muted-foreground mb-1 uppercase font-bold">Saldo Kas</p>
+                    <p className="text-2xl font-black">Rp {statsData.kasSaldo.toLocaleString('id-ID')}</p>
+                  </div>
+                </div>
+
+                {/* Surat */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <p className="text-sm font-bold">Kuota Surat (Bulan Ini)</p>
+                    <p className="text-sm font-semibold">{statsData.totalSurat} / {statsTenant.limitSurat >= 999999 ? "∞" : statsTenant.limitSurat}</p>
+                  </div>
+                  <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-orange-500 transition-all" style={{ width: `${Math.min(100, (statsData.totalSurat / statsTenant.limitSurat) * 100)}%` }} />
+                  </div>
+                </div>
+
+                {/* AI */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <p className="text-sm font-bold">Token AI (Bulan Ini)</p>
+                    <p className="text-sm font-semibold">{statsData.totalAi >= 1000 ? (statsData.totalAi / 1000).toFixed(1) + 'k' : statsData.totalAi} / {statsTenant.limitAi >= 9999999 ? "∞" : (statsTenant.limitAi >= 1000 ? (statsTenant.limitAi / 1000).toFixed(1) + 'k' : statsTenant.limitAi)}</p>
+                  </div>
+                  <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-cyan-500 transition-all" style={{ width: `${Math.min(100, (statsData.totalAi / statsTenant.limitAi) * 100)}%` }} />
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </DialogContent>
         </Dialog>
 

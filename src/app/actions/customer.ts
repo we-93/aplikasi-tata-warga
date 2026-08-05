@@ -26,6 +26,7 @@ export async function getTenants() {
         take: 1
       },
       waDevice: true,
+      waGroup: true,
       users: { select: { email: true, name: true, role: true } }
     },
     orderBy: { createdAt: "desc" }
@@ -460,4 +461,34 @@ export async function deleteWargaGlobal(wargaId: string) {
   } catch (error: any) {
     return { success: false, error: error.message };
   }
+}
+
+// -----------------------------------------------------------------------------
+// TAB 1: USAGE STATS (AJAX)
+// -----------------------------------------------------------------------------
+export async function getTenantUsageStats(tenantId: string) {
+  const session = await auth();
+  checkSuperAdmin(session);
+  
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const totalWarga = await prisma.warga.count({ where: { tenantId } });
+  const totalSurat = await prisma.suratArsip.count({ where: { tenantId, createdAt: { gte: startOfMonth } } });
+  
+  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: startOfMonth } } });
+  const aiChatLogs = await prisma.activityLog.findMany({ where: { tenantId, action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, createdAt: { gte: startOfMonth } } });
+  
+  const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
+  const totalAi = notulens.reduce((acc, curr) => acc + curr.tokenUsed, 0) + aiChatUsed;
+  
+  const allKas = await prisma.kasTransaction.findMany({ where: { tenantId } });
+  let kasSaldo = 0;
+  allKas.forEach(k => {
+    const amt = Number(k.amount);
+    if (k.type === "PEMASUKAN") kasSaldo += amt;
+    else kasSaldo -= amt;
+  });
+
+  return { success: true, totalWarga, totalSurat, totalAi, kasSaldo };
 }
