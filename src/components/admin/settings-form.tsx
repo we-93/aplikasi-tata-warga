@@ -17,7 +17,12 @@ export function SettingsForm({ initialData }: { initialData: any }) {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingLogoDark, setUploadingLogoDark] = useState(false);
   
-  // JSON states
+  // Hero tab states
+  const [heroTitle, setHeroTitle] = useState(initialData?.heroTitle || "");
+  const [heroSubtitle, setHeroSubtitle] = useState(initialData?.heroSubtitle || "");
+  const [heroImage, setHeroImage] = useState(initialData?.heroImage || "");
+  const [footerText, setFooterText] = useState(initialData?.footerText || "");
+
   const [featuresJson, setFeaturesJson] = useState(initialData?.features ? JSON.stringify(initialData.features, null, 2) : "[\n]");
   const [pricingJson, setPricingJson] = useState(initialData?.pricing ? JSON.stringify(initialData.pricing, null, 2) : "[\n]");
   const [faqJson, setFaqJson] = useState(initialData?.faq ? JSON.stringify(initialData.faq, null, 2) : "[\n]");
@@ -68,6 +73,14 @@ export function SettingsForm({ initialData }: { initialData: any }) {
 
     try {
       const formData = new FormData(e.currentTarget);
+      
+      // Ensure all fields from state are appended since TabsContent might unmount them
+      formData.set("logoUrl", logoUrl);
+      formData.set("logoUrlDark", logoUrlDark);
+      formData.set("heroTitle", heroTitle);
+      formData.set("heroSubtitle", heroSubtitle);
+      formData.set("heroImage", heroImage);
+      formData.set("footerText", footerText);
       
       // Validate JSONs before submitting
       const jsons = [
@@ -181,19 +194,19 @@ export function SettingsForm({ initialData }: { initialData: any }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="heroTitle" className="text-slate-900 dark:text-white font-semibold">Judul Hero</Label>
-            <input id="heroTitle" name="heroTitle" defaultValue={initialData?.heroTitle || ""} placeholder="Transformasi Digital Manajemen Warga..." className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
+            <input id="heroTitle" name="heroTitle" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Transformasi Digital Manajemen Warga..." className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="heroSubtitle" className="text-slate-900 dark:text-white font-semibold">Sub Judul Hero</Label>
-            <textarea id="heroSubtitle" name="heroSubtitle" defaultValue={initialData?.heroSubtitle || ""} placeholder="Fasilitasi komunikasi..." className="w-full h-24 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
+            <textarea id="heroSubtitle" name="heroSubtitle" value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Fasilitasi komunikasi..." className="w-full h-24 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="heroImage" className="text-slate-900 dark:text-white font-semibold">URL Gambar Dashboard (Opsional)</Label>
-            <input id="heroImage" name="heroImage" defaultValue={initialData?.heroImage || ""} placeholder="https://..." className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
+            <input id="heroImage" name="heroImage" value={heroImage} onChange={(e) => setHeroImage(e.target.value)} placeholder="https://..." className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
           </div>
           <div className="space-y-2 pt-6 border-t border-slate-200 dark:border-white/10 mt-6">
             <Label htmlFor="footerText" className="text-slate-900 dark:text-white font-semibold">Teks Footer</Label>
-            <input id="footerText" name="footerText" defaultValue={initialData?.footerText || ""} placeholder="© 2026 Tata Warga." className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
+            <input id="footerText" name="footerText" value={footerText} onChange={(e) => setFooterText(e.target.value)} placeholder="© 2026 Tata Warga." className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white" />
           </div>
         </TabsContent>
 
