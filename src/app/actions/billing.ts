@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { sendMessage } from "@/lib/whatsapp";
+import { getCycleStart } from "@/lib/utils";
 
 async function getAuthTenant() {
   const session = await auth();
@@ -47,25 +48,24 @@ export async function getBillingDashboard() {
     where: { name: tenant.subscriptionPlan } 
   });
 
-  // Get current month's surat usage
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  // Calculate the start date of the current billing cycle
+  const cycleStart = getCycleStart(tenant.activeUntil, currentProduct?.masaAktifBulan || 30);
+  cycleStart.setHours(0, 0, 0, 0);
 
   const suratCount = await prisma.suratArsip.count({
     where: {
       tenantId,
-      createdAt: { gte: startOfMonth }
+      createdAt: { gte: cycleStart }
     }
   });
 
-  // Get current month's AI usage
-  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: startOfMonth } } });
+  // Get current cycle's AI usage
+  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: cycleStart } } });
   const aiChatLogs = await prisma.activityLog.findMany({ 
     where: { 
       tenantId, 
       action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, 
-      createdAt: { gte: startOfMonth } 
+      createdAt: { gte: cycleStart } 
     } 
   });
   const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
@@ -134,7 +134,8 @@ export async function createCheckoutInvoice(productId: string, orderType: "UPGRA
     const invoiceNumber = `INV/${dateStr}/${randomStr}`;
     
     // Gunakan hargaPendaftaran untuk UPGRADE/TOPUP/NEW, hargaPerpanjangan untuk RENEW
-    const finalAmount = orderType === "RENEW" ? product.hargaPerpanjangan : product.hargaPendaftaran;
+    const hargaPerpanjang = Number(product.hargaPerpanjangan) > 0 ? product.hargaPerpanjangan : product.hargaPendaftaran;
+    const finalAmount = orderType === "RENEW" ? hargaPerpanjang : product.hargaPendaftaran;
 
     const invoice = await prisma.invoice.create({
       data: {

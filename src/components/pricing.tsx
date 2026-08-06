@@ -9,7 +9,7 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
       price: "Rp0",
       period: "Masa aktif 2 hari",
       features: [
-        "Chat Ai",
+        "Token AI",
         "Dashboard RT",
         "Database Warga",
         "Kuota Surat 5 / 2 hari",
@@ -24,7 +24,7 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
       price: "Rp49.000",
       period: "/bulan",
       features: [
-        "Chat Ai",
+        "Token AI",
         "Dashboard RT",
         "Database Warga",
         "Quota Surat 20 surat/bulan",
@@ -38,7 +38,7 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
       period: "/bulan",
       popular: true,
       features: [
-        "Chat Ai",
+        "Token AI",
         "Dashboard RT",
         "Database Warga",
         "Kuota Surat 50/bulan",
@@ -52,7 +52,7 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
       price: "Rp149.000",
       period: "/bulan",
       features: [
-        "Chat Ai",
+        "Token AI",
         "Dashboard RT",
         "Database Warga",
         "Kuota Surat 100/bulan",
@@ -67,7 +67,7 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
       price: "Rp299.000",
       period: "/bulan",
       features: [
-        "Chat Ai",
+        "Token AI",
         "Dashboard RT",
         "Database Warga",
         "Kuota Surat 100/bulan",
@@ -107,7 +107,7 @@ export function Pricing({ pricing, dbProducts }: { pricing?: any, dbProducts?: a
         "Manajemen Database Warga",
         p.maxSurat === -1 ? "Cetak Surat Tanpa Batas" : p.maxSurat === 0 ? null : `Kuota ${p.maxSurat} Surat/bln`,
         p.maxWarga === -1 ? "Data Warga Tanpa Batas" : p.maxWarga === 0 ? null : `Maksimal ${p.maxWarga} Warga`,
-        p.maxAiToken === 0 ? null : "Chat AI",
+        p.maxAiToken === 0 ? null : `${p.maxAiToken === -1 ? 'Unlimited' : new Intl.NumberFormat('id-ID').format(p.maxAiToken)} Token AI`,
         "Broadcast Pengumuman",
       ].filter(Boolean)
     }));

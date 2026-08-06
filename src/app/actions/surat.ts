@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
+import { getCycleStart } from "@/lib/utils";
 
 export async function createSuratArsip(
   templateId: string, 
@@ -28,14 +29,13 @@ export async function createSuratArsip(
     const totalSuratLimit = baseSurat + (tenant.addonMaxSurat || 0);
 
     if (totalSuratLimit !== 9999999) {
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      const cycleStart = getCycleStart(tenant.activeUntil, currentProduct?.masaAktifBulan || 30);
+      cycleStart.setHours(0, 0, 0, 0);
 
       const suratCount = await prisma.suratArsip.count({
         where: {
           tenantId,
-          createdAt: { gte: startOfMonth }
+          createdAt: { gte: cycleStart }
         }
       });
 

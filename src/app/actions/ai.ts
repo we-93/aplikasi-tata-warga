@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { getCycleStart } from "@/lib/utils";
 
 // Internal helper to get Tenant context and API keys
 export async function getAiConfigAndContext(passedTenantId?: string) {
@@ -50,12 +51,15 @@ export async function getAiConfigAndContext(passedTenantId?: string) {
   const baseAi = currentProduct?.maxAiToken === -1 ? 9999999 : (currentProduct?.maxAiToken || 0);
   const totalLimit = baseAi + (tenantInfo?.addonMaxAiToken || 0);
 
-  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: startOfMonth } } });
+  const cycleStart = getCycleStart(tenantInfo?.activeUntil, currentProduct?.masaAktifBulan || 30);
+  cycleStart.setHours(0, 0, 0, 0);
+
+  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: cycleStart } } });
   const aiChatLogs = await prisma.activityLog.findMany({ 
     where: { 
       tenantId, 
       action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, 
-      createdAt: { gte: startOfMonth } 
+      createdAt: { gte: cycleStart } 
     } 
   });
   const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);

@@ -3,6 +3,7 @@ import { DashboardCharts } from "@/components/rt/dashboard-charts";
 import { Users, FileText, MessageSquare, Sparkles, ChevronRight, Plus, CheckCircle2, UserPlus, Info, CreditCard, Bot } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
+import { getCycleStart } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -44,17 +45,19 @@ export default async function RTDashboardPage() {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const cycleStart = getCycleStart(tenant.activeUntil, currentProduct?.masaAktifBulan || 30);
+  cycleStart.setHours(0, 0, 0, 0);
 
   const totalWarga = await prisma.warga.count({ where: { tenantId } });
-  const wargaBaru = await prisma.warga.count({ where: { tenantId, createdAt: { gte: startOfMonth } } });
+  const wargaBaru = await prisma.warga.count({ where: { tenantId, createdAt: { gte: cycleStart } } });
   const wargaGrowth = totalWarga > 0 ? Math.round((wargaBaru / totalWarga) * 100) : 0;
 
-  const totalSurat = await prisma.suratArsip.count({ where: { tenantId, createdAt: { gte: startOfMonth } } });
+  const totalSurat = await prisma.suratArsip.count({ where: { tenantId, createdAt: { gte: cycleStart } } });
   const baseSurat = currentProduct?.maxSurat === -1 ? 999999 : (currentProduct?.maxSurat ?? 20);
   const suratLimit = baseSurat + tenant.addonMaxSurat; 
 
-  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: startOfMonth } } });
-  const aiChatLogs = await prisma.activityLog.findMany({ where: { tenantId, action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, createdAt: { gte: startOfMonth } } });
+  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: cycleStart } } });
+  const aiChatLogs = await prisma.activityLog.findMany({ where: { tenantId, action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, createdAt: { gte: cycleStart } } });
   const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
   const aiUsed = notulens.reduce((acc, curr) => acc + curr.tokenUsed, 0) + aiChatUsed;
   
