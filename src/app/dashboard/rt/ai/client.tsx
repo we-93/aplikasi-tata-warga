@@ -222,7 +222,7 @@ export function AiClient({ initialPengumuman = [] }: { initialPengumuman?: any[]
           )}
           {messages.map((m, idx) => (
             <div key={idx} className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              {m.role !== 'user' && <div className="w-8 h-8 rounded-full bg-card border border-border-card-foreground shrink-0"><Bot className="w-4 h-4" /></div>}
+              {m.role !== 'user' && <div className="w-8 h-8 rounded-full bg-card border border-border-card-foreground shrink-0 flex items-center justify-center text-primary"><Bot className="w-4 h-4" /></div>}
               
               <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${m.role === 'user' ? 'bg-primary hover:bg-primary/90 text-primary-foreground rounded-br-none' : 'bg-muted rounded-bl-none'}`}>
                 {typeof m.content === 'string' ? (
@@ -243,9 +243,9 @@ export function AiClient({ initialPengumuman = [] }: { initialPengumuman?: any[]
           ))}
           {isChatLoading && (
             <div className="flex gap-3 justify-start">
-              <div className="w-8 h-8 rounded-full bg-card border border-border-card-foreground shrink-0"><Bot className="w-4 h-4" /></div>
-              <div className="bg-muted rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" /> Mengetik...
+              <div className="w-8 h-8 rounded-full bg-card border border-border-card-foreground shrink-0 flex items-center justify-center text-primary"><Bot className="w-4 h-4" /></div>
+              <div className="bg-muted rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
+                Asisten RT sedang mengetik....
               </div>
             </div>
           )}

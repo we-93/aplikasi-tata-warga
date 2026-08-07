@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { addWaDevice, updateWaDevice, deleteWaDevice, pingWaDevice, saveAiSettings } from "@/app/actions/integrations";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, RefreshCw, MessageSquare, Bot, Wifi, WifiOff, Edit, Eye } from "lucide-react";
+import { Loader2, Plus, Trash2, RefreshCw, MessageSquare, Bot, Wifi, WifiOff, Edit, Eye, EyeOff } from "lucide-react";
 
 export function IntegrationsClient({ 
   devices, 
@@ -40,6 +40,10 @@ export function IntegrationsClient({
   // AI State
   const [aiConfig, setAiConfig] = useState<any>(aiSettings);
   const [isSavingAi, setIsSavingAi] = useState(false);
+  
+  // Visibility State
+  const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
+  const toggleKey = (k: string) => setShowKeys(p => ({...p, [k]: !p[k]}));
 
   // WA Handlers
   const handleAddDevice = async () => {
@@ -176,7 +180,12 @@ export function IntegrationsClient({
                   </div>
                   <div className="space-y-2">
                     <Label>API Key</Label>
-                    <Input placeholder="Token dari provider" value={newDevice.apiKey} onChange={e => setNewDevice({...newDevice, apiKey: e.target.value})} />
+                    <div className="relative">
+                      <Input type={showKeys['newWa'] ? "text" : "password"} placeholder="Token dari provider" value={newDevice.apiKey} onChange={e => setNewDevice({...newDevice, apiKey: e.target.value})} className="pr-10" />
+                      <button type="button" onClick={() => toggleKey('newWa')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        {showKeys['newWa'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Nomor WhatsApp (Opsional)</Label>
@@ -380,7 +389,12 @@ export function IntegrationsClient({
                 </div>
                 <div className="space-y-2">
                   <Label>API Key</Label>
-                  <Input placeholder="Token dari provider" value={editForm.apiKey} onChange={e => setEditForm({...editForm, apiKey: e.target.value})} />
+                  <div className="relative">
+                    <Input type={showKeys['editWa'] ? "text" : "password"} placeholder="Token dari provider" value={editForm.apiKey} onChange={e => setEditForm({...editForm, apiKey: e.target.value})} className="pr-10" />
+                    <button type="button" onClick={() => toggleKey('editWa')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                      {showKeys['editWa'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Nomor WhatsApp (Opsional)</Label>
@@ -460,13 +474,18 @@ export function IntegrationsClient({
 
               <div className="space-y-3">
                 <Label className="text-slate-900 dark:text-white font-semibold">API Key</Label>
-                <input 
-                  type="password" 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
-                  placeholder="Bearer API Key dari WeizeRouter" 
-                  value={aiConfig.chatApiKey || ""} 
-                  onChange={e => setAiConfig({...aiConfig, chatApiKey: e.target.value})}
-                />
+                <div className="relative">
+                  <input 
+                    type={showKeys['chat'] ? "text" : "password"} 
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white pr-10"
+                    placeholder="Bearer API Key dari WeizeRouter" 
+                    value={aiConfig.chatApiKey || ""} 
+                    onChange={e => setAiConfig({...aiConfig, chatApiKey: e.target.value})}
+                  />
+                  <button type="button" onClick={() => toggleKey('chat')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    {showKeys['chat'] ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -515,25 +534,35 @@ export function IntegrationsClient({
             <div className="space-y-6">
               <div className="space-y-3">
                 <Label className="text-slate-900 dark:text-white font-semibold">OpenAI API Key</Label>
-                <input 
-                  type="password" 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white"
-                  placeholder="sk-proj-xxxxxxxxxxxxxxxxxxxxxxxx" 
-                  value={aiConfig.openaiApiKey || ""} 
-                  onChange={e => setAiConfig({...aiConfig, openaiApiKey: e.target.value})}
-                />
+                <div className="relative">
+                  <input 
+                    type={showKeys['openai'] ? "text" : "password"} 
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white pr-10"
+                    placeholder="sk-proj-xxxxxxxxxxxxxxxxxxxxxxxx" 
+                    value={aiConfig.openaiApiKey || ""} 
+                    onChange={e => setAiConfig({...aiConfig, openaiApiKey: e.target.value})}
+                  />
+                  <button type="button" onClick={() => toggleKey('openai')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    {showKeys['openai'] ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 <p className="text-xs text-slate-500 dark:text-white/40">Digunakan untuk Notulen Rapat AI.</p>
               </div>
 
               <div className="space-y-3">
                 <Label className="text-slate-900 dark:text-white font-semibold">Google Gemini API Key</Label>
-                <input 
-                  type="password" 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white"
-                  placeholder="AIzaSyAxxxxxxxxxxxxxxxxxxxxxxxx" 
-                  value={aiConfig.geminiApiKey || ""} 
-                  onChange={e => setAiConfig({...aiConfig, geminiApiKey: e.target.value})}
-                />
+                <div className="relative">
+                  <input 
+                    type={showKeys['gemini'] ? "text" : "password"} 
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white pr-10"
+                    placeholder="AIzaSyAxxxxxxxxxxxxxxxxxxxxxxxx" 
+                    value={aiConfig.geminiApiKey || ""} 
+                    onChange={e => setAiConfig({...aiConfig, geminiApiKey: e.target.value})}
+                  />
+                  <button type="button" onClick={() => toggleKey('gemini')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    {showKeys['gemini'] ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 <p className="text-xs text-slate-500 dark:text-white/40">Alternatif OpenAI. Digunakan jika Anda ingin menggunakan model Gemini.</p>
               </div>
 
@@ -601,13 +630,18 @@ export function IntegrationsClient({
 
               <div className="space-y-3">
                 <Label className="text-slate-900 dark:text-white font-semibold">API Key Doc</Label>
-                <input 
-                  type="password" 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
-                  placeholder="Bearer API Key khusus Dokumentasi" 
-                  value={aiConfig.docApiKey || ""} 
-                  onChange={e => setAiConfig({...aiConfig, docApiKey: e.target.value})}
-                />
+                <div className="relative">
+                  <input 
+                    type={showKeys['doc'] ? "text" : "password"} 
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white pr-10"
+                    placeholder="Bearer API Key khusus Dokumentasi" 
+                    value={aiConfig.docApiKey || ""} 
+                    onChange={e => setAiConfig({...aiConfig, docApiKey: e.target.value})}
+                  />
+                  <button type="button" onClick={() => toggleKey('doc')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    {showKeys['doc'] ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3">

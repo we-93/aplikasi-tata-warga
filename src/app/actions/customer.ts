@@ -398,7 +398,7 @@ export async function approveInvoice(id: string, waDeviceId: string, status: str
       template = template.replace(/{{email}}/gi, user?.email || "-");
       template = template.replace(/{{password}}/gi, user?.plainPassword || "-"); // Using plainPassword as requested
       template = template.replace(/{{bot_wa}}/gi, finalBotNo || "-");
-      template = template.replace(/{{link_login}}/gi, "https://tatawarga.biz.id/login");
+      template = template.replace(/{{link_login}}/gi, "https://tatawarga.net/login");
       template = template.replace(/{{link_grup}}/gi, groupLink);
       
       // Additional variables for topup template

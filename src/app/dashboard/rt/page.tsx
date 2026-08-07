@@ -143,6 +143,13 @@ export default async function RTDashboardPage() {
     orderBy: { createdAt: 'desc' }
   });
 
+  // 6. Fetch Notulen Terbaru
+  const notulenTerbaru = await prisma.notulenAi.findMany({
+    where: { tenantId },
+    take: 3,
+    orderBy: { createdAt: 'desc' }
+  });
+
   // 6. Fetch Aktivitas Terbaru
   const aktivitasTerbaru = await prisma.activityLog.findMany({
     where: { tenantId },
@@ -186,7 +193,7 @@ export default async function RTDashboardPage() {
       </div>
 
       {/* 4 Top Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {/* Total Warga */}
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
           <div className="flex justify-between items-start mb-4">
@@ -228,7 +235,7 @@ export default async function RTDashboardPage() {
           <h3 className="text-lg font-extrabold text-emerald-500 truncate">{tenant?.whatsappBotNo || "Belum Terhubung"}</h3>
         </div>
 
-        {/* Kuota AI */}
+        {/* Token AI */}
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
           <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-500">
@@ -238,7 +245,7 @@ export default async function RTDashboardPage() {
               <div className="h-full bg-cyan-500" style={{ width: `${Math.min(100, (aiUsed/aiLimit)*100)}%` }}></div>
             </div>
           </div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Kuota AI</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Token AI</p>
           <h3 className="text-3xl font-extrabold flex items-baseline gap-1">
             {aiUsed >= 1000 ? (aiUsed/1000).toFixed(1) + 'k' : aiUsed}
             <span className="text-sm font-medium text-muted-foreground">/ {aiLimit >= 1000 ? (aiLimit/1000).toFixed(1) + 'k' : aiLimit}</span>
@@ -249,14 +256,12 @@ export default async function RTDashboardPage() {
       {/* Charts */}
       <DashboardCharts data={kasChartData} summary={kasSummary} />
 
-      {/* Bottom Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Bottom Grid 1: Surat & Notulen */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         
-        {/* Left Column (Surat & Pengumuman) */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Surat Terbaru */}
-          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        {/* Left Column (Surat Terbaru) */}
+        <div className="lg:col-span-2 flex flex-col h-full">
+          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex-1">
             <div className="p-4 md:p-5 border-b border-border flex items-center justify-between">
               <h3 className="font-bold text-sm">Surat Terbaru</h3>
               <Link href="/dashboard/rt/surat" className="text-xs font-semibold text-primary hover:underline">Lihat Semua</Link>
@@ -294,8 +299,42 @@ export default async function RTDashboardPage() {
             </div>
           </div>
 
-          {/* Pengumuman Terkini */}
-          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm p-4 md:p-5 relative">
+        </div>
+
+        {/* Right Column (Notulen) */}
+        <div className="flex flex-col h-full">
+          <div className="bg-card border border-border rounded-2xl shadow-sm p-4 md:p-5 flex flex-col flex-1 h-full relative overflow-hidden">
+            <div className="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="flex items-center justify-between mb-4 relative z-10">
+              <h3 className="font-bold text-sm">Riwayat Notulen AI</h3>
+              <Link href="/dashboard/rt/ai" className="text-xs font-semibold text-primary hover:underline">Buat</Link>
+            </div>
+            
+            <div className="space-y-3 relative z-10 flex-1">
+              {notulenTerbaru.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground text-sm border border-dashed border-border rounded-xl">
+                  Belum ada notulen
+                </div>
+              ) : (
+                notulenTerbaru.map((n) => (
+                  <div key={n.id} className="p-3 rounded-xl border border-border bg-indigo-500/5 hover:bg-indigo-500/10 transition-colors">
+                    <h4 className="font-bold text-sm text-indigo-600 dark:text-indigo-400 mb-1 line-clamp-1">{n.judulRapat}</h4>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{n.hasilRapat || n.agendaRapat || "Notulen tanpa ringkasan..."}</p>
+                    <p className="text-[10px] text-muted-foreground/70">{new Date(n.tanggalRapat).toLocaleDateString('id-ID')}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Grid 2: Pengumuman & Aktivitas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column (Pengumuman Terkini) */}
+        <div className="lg:col-span-2 flex flex-col h-full">
+          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm p-4 md:p-5 relative flex-1 h-full">
             <div className="absolute right-0 top-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
             <div className="flex items-center justify-between mb-4 relative z-10">
               <h3 className="font-bold text-sm">Pengumuman Terkini</h3>
@@ -318,7 +357,7 @@ export default async function RTDashboardPage() {
             </div>
             
             <Button variant="outline" className="w-full border-dashed border-border text-muted-foreground hover:text-foreground relative z-10" asChild>
-              <Link href="/dashboard/rt/ai">
+              <Link href="/dashboard/rt/ai" className="flex items-center justify-center w-full">
                 <Plus className="w-4 h-4 mr-2" /> Buat Pengumuman
               </Link>
             </Button>
