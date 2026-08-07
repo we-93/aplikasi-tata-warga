@@ -17,7 +17,7 @@ export function IntegrationsClient({
   aiSettings 
 }: { 
   devices: any[]; 
-  aiSettings: { openaiApiKey: string; geminiApiKey: string; aiMasterPrompt: string; chatApiUrl: string; chatApiKey: string; chatApiModel: string; totalChatTokensUsed?: number; totalOcrTokensUsed?: number } 
+  aiSettings: { openaiApiKey: string; geminiApiKey: string; aiMasterPrompt: string; chatApiUrl: string; chatApiKey: string; chatApiModel: string; docApiUrl?: string; docApiKey?: string; docApiModel?: string; totalChatTokensUsed?: number; totalOcrTokensUsed?: number } 
 }) {
   const [activeTab, setActiveTab] = useState("whatsapp");
 
@@ -135,6 +135,12 @@ export function IntegrationsClient({
             className="flex items-center gap-2 rounded-lg data-active:bg-[#6419c1] data-active:text-white dark:data-active:bg-[#6419c1] dark:data-active:text-white transition-all shadow-none data-active:shadow-sm whitespace-nowrap"
           >
             <Bot className="w-4 h-4 shrink-0" /> API Notulen
+          </TabsTrigger>
+          <TabsTrigger 
+            value="doc_ai" 
+            className="flex items-center gap-2 rounded-lg data-active:bg-[#6419c1] data-active:text-white dark:data-active:bg-[#6419c1] dark:data-active:text-white transition-all shadow-none data-active:shadow-sm whitespace-nowrap"
+          >
+            <Bot className="w-4 h-4 shrink-0" /> API Doc
           </TabsTrigger>
         </TabsList>
 
@@ -568,6 +574,60 @@ export function IntegrationsClient({
               >
                 {isSavingAi && <Loader2 className="w-4 h-4 animate-spin" />}
                 Simpan Konfigurasi AI
+              </Button>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* API DOC TAB */}
+        <TabsContent value="doc_ai" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-white dark:bg-[#141229] p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] max-w-3xl">
+            <div className="mb-6">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">API Chat Dokumentasi (Docusaurus)</h2>
+              <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Konfigurasi API AI terpisah khusus untuk Chatbot di halaman tutorial/dokumentasi. Penggunaan token di sini tidak akan dihitung ke kuota Tenant mana pun.</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-slate-900 dark:text-white font-semibold">Base URL API Doc</Label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
+                  placeholder="https://weizerouter.web.id/v1" 
+                  value={aiConfig.docApiUrl || ""} 
+                  onChange={e => setAiConfig({...aiConfig, docApiUrl: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-slate-900 dark:text-white font-semibold">API Key Doc</Label>
+                <input 
+                  type="password" 
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
+                  placeholder="Bearer API Key khusus Dokumentasi" 
+                  value={aiConfig.docApiKey || ""} 
+                  onChange={e => setAiConfig({...aiConfig, docApiKey: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-slate-900 dark:text-white font-semibold">Model Name Doc</Label>
+                <input 
+                  type="text" 
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white"
+                  placeholder="wz/gemini-3.5-flash-low" 
+                  value={aiConfig.docApiModel || ""} 
+                  onChange={e => setAiConfig({...aiConfig, docApiModel: e.target.value})}
+                />
+              </div>
+
+              <Button 
+                onClick={handleSaveAi} 
+                disabled={isSavingAi} 
+                className="w-full sm:w-auto px-8 py-3 flex items-center justify-center gap-2 bg-[#6419c1] text-white rounded-xl shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] hover:bg-[#7735d4] transition-all text-sm font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isSavingAi && <Loader2 className="w-4 h-4 animate-spin" />}
+                Simpan Konfigurasi Doc API
               </Button>
             </div>
           </div>

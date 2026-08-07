@@ -31,7 +31,10 @@ model SiteSettings {
   chatApiUrl     String? @default("https://weizerouter.web.id/v1")
   chatApiKey     String?
   chatApiModel   String? @default("wz/gemini-3.5-flash-low")
-
+  
+  docApiUrl      String? @default("https://weizerouter.web.id/v1")
+  docApiKey      String?
+  docApiModel    String? @default("wz/gemini-3.5-flash-low")
   // Admin WA Notification
   waAdminProvider String? @default("FONNTE")
   waAdminApiKey   String?

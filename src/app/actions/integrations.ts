@@ -228,6 +228,9 @@ export async function getAiSettings() {
     chatApiUrl: settings.chatApiUrl || "https://weizerouter.web.id/v1",
     chatApiKey: settings.chatApiKey || "",
     chatApiModel: settings.chatApiModel || "wz/gemini-3.5-flash-low",
+    docApiUrl: settings.docApiUrl || "https://weizerouter.web.id/v1",
+    docApiKey: settings.docApiKey || "",
+    docApiModel: settings.docApiModel || "wz/gemini-3.5-flash-low",
     totalChatTokensUsed,
     totalOcrTokensUsed,
   };
@@ -240,6 +243,9 @@ export async function saveAiSettings(data: {
   chatApiUrl: string;
   chatApiKey: string;
   chatApiModel: string;
+  docApiUrl?: string;
+  docApiKey?: string;
+  docApiModel?: string;
 }) {
   try {
     const session = await auth();
@@ -257,6 +263,9 @@ export async function saveAiSettings(data: {
           chatApiUrl: data.chatApiUrl,
           chatApiKey: data.chatApiKey,
           chatApiModel: data.chatApiModel,
+          docApiUrl: data.docApiUrl,
+          docApiKey: data.docApiKey,
+          docApiModel: data.docApiModel,
         }
       });
     } else {
@@ -268,6 +277,9 @@ export async function saveAiSettings(data: {
           chatApiUrl: data.chatApiUrl,
           chatApiKey: data.chatApiKey,
           chatApiModel: data.chatApiModel,
+          docApiUrl: data.docApiUrl,
+          docApiKey: data.docApiKey,
+          docApiModel: data.docApiModel,
         }
       });
     }
