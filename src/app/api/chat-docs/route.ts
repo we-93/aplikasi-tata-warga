@@ -31,11 +31,13 @@ Jika ada pengguna yang bertanya di luar sistem aplikasi Tata Warga, tolak dengan
 
     const payloadMessages = [
       { role: 'system', content: systemContext },
-      ...messages
+      ...messages.map((m: any) => ({ role: m.role || 'user', content: m.content || '' }))
     ];
 
-    const docApiUrl = settings.docApiUrl || 'https://weizerouter.web.id/v1';
+    const docApiUrl = (settings.docApiUrl || 'https://weizerouter.web.id/v1').replace(/\/$/, '');
     const docApiModel = settings.docApiModel || 'wz/gemini-3.5-flash-low';
+
+    console.log(`[Chat Docs] Sending request to ${docApiUrl}/chat/completions using model ${docApiModel}`);
 
     const response = await fetch(`${docApiUrl}/chat/completions`, {
       method: 'POST',
@@ -51,7 +53,8 @@ Jika ada pengguna yang bertanya di luar sistem aplikasi Tata Warga, tolak dengan
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Gagal menghubungi Chat API');
+      console.error("[Chat Docs] Upstream API Error:", data);
+      throw new Error(data.error?.message || data.message || 'Gagal menghubungi Chat API');
     }
 
     return NextResponse.json({ 
@@ -60,7 +63,7 @@ Jika ada pengguna yang bertanya di luar sistem aplikasi Tata Warga, tolak dengan
     }, { headers: corsHeaders });
 
   } catch (error: any) {
-    console.error('Chat Docs API Error:', error);
+    console.error('[Chat Docs] Route Error:', error.message || error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500, headers: corsHeaders });
   }
 }

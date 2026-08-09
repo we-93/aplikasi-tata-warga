@@ -45,9 +45,16 @@ export async function POST(req: NextRequest) {
        return NextResponse.json({ status: 'ignored' });
     }
 
-    // Find Tenant by whatsappGroupId
+    const cleanGroupId = groupId.toString().replace('@g.us', '');
+
+    // Find Tenant by whatsappGroupId (support both with and without @g.us)
     const tenant = await prisma.tenant.findFirst({
-      where: { whatsappGroupId: groupId.toString() },
+      where: { 
+        OR: [
+          { whatsappGroupId: cleanGroupId },
+          { whatsappGroupId: `${cleanGroupId}@g.us` }
+        ]
+      },
       include: { waDevice: true },
     });
 
@@ -57,23 +64,23 @@ export async function POST(req: NextRequest) {
     }
 
     if (!tenant.waDevice || !tenant.waDevice.apiKey) {
+      console.log('Webhook error: WA Device API Key missing for this tenant');
       return NextResponse.json({ status: 'error', reason: 'WA Device API Key missing for this tenant' });
     }
 
     // Kirim langsung ke otak bot (State Machine)
-    setImmediate(async () => {
-      try {
-        await processMessage(
-          tenant.id,
-          senderNumber?.toString() || "",
-          groupId.toString(),
-          message ? message.toString() : '',
-          tenant.waDevice!.apiKey
-        );
-      } catch (err) {
-        console.error('Error processing whatsapp state machine:', err);
-      }
-    });
+    // We await the processMessage to ensure it runs completely before Next.js kills the request context.
+    try {
+      await processMessage(
+        tenant.id,
+        senderNumber?.toString() || "",
+        groupId.toString(),
+        message ? message.toString() : '',
+        tenant.waDevice!.apiKey
+      );
+    } catch (err) {
+      console.error('Error processing whatsapp state machine:', err);
+    }
 
     return NextResponse.json({ status: 'success' });
 

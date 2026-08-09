@@ -39,9 +39,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: 'ignored', reason: 'Not a group message' });
     }
 
-    // Find Tenant by whatsappGroupId
+    const cleanGroupId = groupId.toString().replace('@g.us', '');
+
+    // Find Tenant by whatsappGroupId (support both with and without @g.us)
     const tenant = await prisma.tenant.findFirst({
-      where: { whatsappGroupId: groupId.toString() },
+      where: { 
+        OR: [
+          { whatsappGroupId: cleanGroupId },
+          { whatsappGroupId: `${cleanGroupId}@g.us` }
+        ]
+      },
       include: { waDevice: true },
     });
 
@@ -51,28 +58,23 @@ export async function POST(req: NextRequest) {
     }
 
     if (!tenant.waDevice || !tenant.waDevice.apiKey) {
+      console.log('Webhook error: WA Device API Key missing for this tenant');
       return NextResponse.json({ status: 'error', reason: 'WA Device API Key missing for this tenant' });
     }
 
     // Pass it to State Machine
-    // We don't await the processMessage to avoid Fonnte timeout (max 5s typically for webhooks)
-    // NextJS doesn't perfectly support fire-and-forget in serverless without edge functions or background jobs,
-    // but for local testing and basic MVP, we can await it or run it asynchronously.
-    
-    // Using an async wrapper to not block response
-    setImmediate(async () => {
-      try {
-        await processMessage(
-          tenant.id,
-          senderNumber.toString(),
-          groupId.toString(),
-          message ? message.toString() : '',
-          tenant.waDevice!.apiKey
-        );
-      } catch (err) {
-        console.error('Error processing whatsapp state machine:', err);
-      }
-    });
+    // We await the processMessage to ensure it runs completely before Next.js kills the request context.
+    try {
+      await processMessage(
+        tenant.id,
+        senderNumber.toString(),
+        groupId.toString(),
+        message ? message.toString() : '',
+        tenant.waDevice!.apiKey
+      );
+    } catch (err) {
+      console.error('Error processing whatsapp state machine:', err);
+    }
 
     return NextResponse.json({ status: 'success' });
 
