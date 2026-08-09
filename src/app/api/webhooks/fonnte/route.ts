@@ -4,17 +4,29 @@ import { processMessage } from '@/services/whatsapp/stateMachine';
 
 export async function POST(req: NextRequest) {
   try {
-    // Fonnte sends form-data or JSON, we'll try to parse either
     const contentType = req.headers.get('content-type') || '';
     let body: any = {};
     
-    if (contentType.includes('application/json')) {
-      body = await req.json();
-    } else {
-      const formData = await req.formData();
-      formData.forEach((value, key) => {
-        body[key] = value;
-      });
+    try {
+      if (contentType.includes('application/json')) {
+        body = await req.json();
+      } else if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
+        const formData = await req.formData();
+        formData.forEach((value, key) => {
+          body[key] = value;
+        });
+      } else {
+        // Fallback: try to parse as JSON anyway, or just get text
+        const text = await req.text();
+        try {
+          body = JSON.parse(text);
+        } catch {
+          console.log("Could not parse body as JSON. Raw text:", text);
+        }
+      }
+    } catch (parseError) {
+      console.error("Error parsing webhook body:", parseError);
+      return NextResponse.json({ status: 'error', reason: 'Failed to parse body' }, { status: 400 });
     }
 
     console.log("=== INCOMING WEBHOOK FROM FONNTE ===");
