@@ -275,6 +275,7 @@ export async function registerAndCheckout(data: any) {
         data: {
           name,
           email,
+          phone,
           password: hashedPassword,
           plainPassword: password, // Store plain text for WA notifications as requested
           role: "TENANT_ADMIN",
