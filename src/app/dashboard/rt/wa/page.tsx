@@ -12,8 +12,8 @@ export default async function WaAsistenPage() {
     where: { id: tenantId }
   });
 
-  const waNumber = tenant?.whatsappBotNo || "Belum diatur";
-  const status = tenant?.whatsappBotNo ? "ONLINE" : "OFFLINE";
+  const waNumber = process.env.NEXT_PUBLIC_BOT_NUMBER || "Belum diatur";
+  const status = "ONLINE";
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
