@@ -32,7 +32,7 @@ export function IntegrationsClient({
     if (res.success) {
       if (res.status === "ONLINE") toast.success(res.message);
       else toast.warning(res.message);
-      setPingStatus(res.status);
+      setPingStatus(res.status || null);
     } else {
       toast.error(res.error);
     }
