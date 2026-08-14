@@ -9,12 +9,11 @@ export default async function WaAsistenPage() {
   if (!tenantId) return <div>Akses Ditolak</div>;
 
   const tenant = await prisma.tenant.findUnique({
-    where: { id: tenantId },
-    include: { waDevice: true }
+    where: { id: tenantId }
   });
 
   const waNumber = tenant?.whatsappBotNo || "Belum diatur";
-  const status = tenant?.waDevice?.status || "OFFLINE";
+  const status = tenant?.whatsappBotNo ? "ONLINE" : "OFFLINE";
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -37,8 +36,8 @@ export default async function WaAsistenPage() {
             </div>
           </div>
         </div>
-        <div className="relative z-10 w-full md:w-auto text-sm text-muted-foreground">
-          Pengaturan koneksi API dikelola oleh Admin.
+        <div className="relative z-10 w-full md:w-auto text-sm text-muted-foreground text-left md:text-right md:max-w-[250px]">
+          Simpan nomor ini dengan nama Asisten RT untuk menggunakan chat AI dan bot pelayanan.
         </div>
       </div>
 
@@ -48,7 +47,7 @@ export default async function WaAsistenPage() {
           <Smartphone className="w-5 h-5 text-primary" /> Panduan Perintah WhatsApp
         </h3>
         <p className="text-sm text-muted-foreground mb-6">
-          Kirimkan perintah utama, ketik <code className="font-bold text-primary">#MENU</code> ke Grup WhatsApp Asisten di atas untuk memulai interaksi. Berikut adalah rincian layanan otomatis yang tersedia:
+          Kirimkan perintah utama, ketik <code className="font-bold text-primary">#MENU</code> ke nomor WhatsApp Asisten (chat personal) di atas untuk memulai interaksi. Pastikan nomor HP Anda sudah didaftarkan pada Pengaturan Akun. Berikut adalah rincian layanan otomatis yang tersedia:
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -58,7 +57,7 @@ export default async function WaAsistenPage() {
             <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-2">
               <span className="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">#WARGA</span>
             </h4>
-            <p className="text-xs text-muted-foreground mb-3">Kelola data kependudukan langsung dari grup WA. Tersedia sub-menu:</p>
+            <p className="text-xs text-muted-foreground mb-3">Kelola data kependudukan langsung dari chat WA. Tersedia sub-menu:</p>
             <ul className="text-sm space-y-1 text-slate-600 dark:text-white/70">
               <li>1. Tambah Warga (Isi form otomatis)</li>
               <li>2. Cari Warga (Berdasarkan NIK)</li>

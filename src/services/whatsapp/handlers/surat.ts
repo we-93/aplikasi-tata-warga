@@ -15,7 +15,7 @@ export const handleSuratState = async (
     const sessionData = session.data as { templates?: any[] };
     
     if (isNaN(selectedIndex) || !sessionData.templates || !sessionData.templates[selectedIndex]) {
-      await sendMessage(apiKey, target, `✉️ Pilihan tidak valid. Silakan balas dengan angka yang sesuai.`);
+      await sendMessage(apiKey, target, `✉️ Pilihan tidak valid. Silakan gunakan tombol *Pilih Menu* yang tersedia di atas.`);
       return;
     }
 
@@ -117,7 +117,12 @@ export const handleSuratState = async (
       await sendMessage(
         apiKey,
         target,
-        `✉️ Data ditemukan:\nNAMA: ${warga.namaLengkap}\nNomor Surat:\n${generatedNomorSurat}/${kodeSurat}\n\nData Lengkap Warga:\n${wargaCsv}\n\nKetik 1 = Buat Surat, 2 = Batal\n*(Atau balas dengan menyalin pesan ini jika ingin mengubah data surat)*`
+        `✉️ Data ditemukan:\nNAMA: ${warga.namaLengkap}\nNomor Surat:\n${generatedNomorSurat}/${kodeSurat}\n\nData Lengkap Warga:\n${wargaCsv}\n\n*(Atau balas dengan menyalin pesan ini jika ingin mengubah data surat)*`,
+        undefined,
+        [
+          { id: "1", display_text: "Buat Surat" },
+          { id: "2", display_text: "Batal" }
+        ]
       );
     } else {
       await prisma.waSession.update({
@@ -127,7 +132,12 @@ export const handleSuratState = async (
       await sendMessage(
         apiKey,
         target,
-        `❌ NIK Tidak Ditemukan\nKetik 1 = Batal\nKetik 2 = Lanjut Buat Surat (data warga akan tersimpan otomatis)`
+        `❌ NIK Tidak Ditemukan\n(Data warga baru akan otomatis tersimpan jika lanjut)`,
+        undefined,
+        [
+          { id: "2", display_text: "Lanjut Buat Surat" },
+          { id: "1", display_text: "Batal" }
+        ]
       );
     }
     return;
@@ -149,7 +159,7 @@ export const handleSuratState = async (
         `Silakan balas pesan ini dengan format:\nNAMA, NIK, TEMPAT LAHIR, TANGGAL LAHIR (YYYY-MM-DD), ALAMAT, AGAMA, JENIS KELAMIN, PEKERJAAN, NO HP\n\nContoh:\nBudi Santoso, 3201010101010101, Jakarta, 1990-01-01, Jl. Merdeka 1, Islam, LAKI_LAKI, Karyawan Swasta, 0812345678`
       );
     } else {
-      await sendMessage(apiKey, target, `Pilihan tidak valid. Ketik 1 atau 2.`);
+      await sendMessage(apiKey, target, `Pilihan tidak valid. Silakan gunakan tombol di atas.`);
     }
     return;
   }
@@ -360,7 +370,12 @@ export const handleSuratState = async (
       await sendMessage(
         apiKey,
         target,
-        `✉️ Data tersimpan! Nomor: ${currentFullNomor}\n\nKetik:\n1 = Buat Surat\n2 = Batal`
+        `✉️ Data tersimpan! Nomor: ${currentFullNomor}`,
+        undefined,
+        [
+          { id: "1", display_text: "Buat Surat" },
+          { id: "2", display_text: "Batal" }
+        ]
       );
       return;
     }
@@ -421,14 +436,24 @@ export const handleSuratState = async (
           await sendMessage(
             apiKey,
             target,
-            `✉️ Seluruh data lengkap! Nomor: ${finalNomorStr}\n\nKetik:\n1 = Buat Surat\n2 = Batal`
+            `✉️ Seluruh data lengkap! Nomor: ${finalNomorStr}`,
+            undefined,
+            [
+              { id: "1", display_text: "Buat Surat" },
+              { id: "2", display_text: "Batal" }
+            ]
           );
         }
       } else {
         await sendMessage(
           apiKey,
           target,
-          `✉️ Balasan tidak valid.\n\nKetik:\n1 = Buat Surat\n2 = Batal`
+          `✉️ Balasan tidak valid. Silakan gunakan tombol:`,
+          undefined,
+          [
+            { id: "1", display_text: "Buat Surat" },
+            { id: "2", display_text: "Batal" }
+          ]
         );
       }
     }

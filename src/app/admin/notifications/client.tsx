@@ -44,6 +44,7 @@ export function NotificationsClient({ settings }: { settings: any }) {
               <SelectContent>
                 <SelectItem value="FONNTE">Fonnte</SelectItem>
                 <SelectItem value="APICOID">Api.co.id</SelectItem>
+                <SelectItem value="KIRIMCHAT">Kirim.chat</SelectItem>
               </SelectContent>
             </Select>
           </div>

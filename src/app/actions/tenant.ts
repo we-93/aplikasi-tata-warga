@@ -3,6 +3,7 @@
 import { uploadFile, deleteFile } from "@/lib/s3";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { formatWhatsAppNumber } from "@/lib/whatsapp";
 import { auth } from "@/auth";
 
 export async function updateTenantProfile(formData: FormData) {
@@ -149,7 +150,7 @@ export async function updateTenantByAdmin(
     namaRw?: string;
     noHpRt?: string;
     whatsappGroupId?: string;
-    waDeviceId?: string | null;
+
     status?: string;
   }
 ) {
@@ -159,15 +160,7 @@ export async function updateTenantByAdmin(
       return { success: false, error: 'Unauthorized' };
     }
 
-    let whatsappBotNo = undefined;
-    if (data.waDeviceId) {
-      const waDevice = await prisma.waDevice.findUnique({ where: { id: data.waDeviceId } });
-      if (waDevice) {
-        whatsappBotNo = waDevice.phoneNumber || "000000000";
-      }
-    } else if (data.waDeviceId === null) {
-      whatsappBotNo = null; // Clear if null
-    }
+
 
     await prisma.tenant.update({
       where: { id: tenantId },
@@ -184,10 +177,9 @@ export async function updateTenantByAdmin(
         ketuaName: data.ketuaName,
         ketuaNik: data.ketuaNik,
         namaRw: data.namaRw,
-        noHpRt: data.noHpRt,
+        noHpRt: data.noHpRt ? formatWhatsAppNumber(data.noHpRt) : null,
         whatsappGroupId: data.whatsappGroupId,
-        waDeviceId: data.waDeviceId || null,
-        whatsappBotNo: whatsappBotNo,
+
         status: data.status,
       },
     });

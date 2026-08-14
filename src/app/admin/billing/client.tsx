@@ -15,12 +15,10 @@ import { useRef } from "react";
 export function BillingClient({ 
   initialProducts, 
   initialInvoices, 
-  waDevices,
   settings
 }: { 
   initialProducts: any[], 
   initialInvoices: any[],
-  waDevices: any[],
   settings: any
 }) {
   const [activeTab, setActiveTab] = useState("products");
@@ -59,7 +57,7 @@ export function BillingClient({
   // INVOICE STATE
   const [isAccDialogOpen, setIsAccDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
-  const [accForm, setAccForm] = useState({ waDeviceId: "", status: "AKTIF" });
+  const [accForm, setAccForm] = useState({ status: "AKTIF" });
   const [isProcessingAcc, setIsProcessingAcc] = useState(false);
 
   // BANK SETTINGS STATE
@@ -113,7 +111,7 @@ export function BillingClient({
   const handleDirectAcc = async (inv: any) => {
     if (confirm(`Setujui tagihan ${inv.invoiceNumber} untuk ${inv.product.name}?`)) {
       setIsProcessingAcc(true);
-      const res = await approveInvoice(inv.id, "", "AKTIF");
+      const res = await approveInvoice(inv.id, "AKTIF");
       if (res.success) toast.success("Tagihan disetujui!");
       else toast.error(res.error);
       setIsProcessingAcc(false);
@@ -121,9 +119,8 @@ export function BillingClient({
   };
 
   const handleAcc = async () => {
-    if (!accForm.waDeviceId) return toast.error("Pilih Nomor Bot WA terlebih dahulu!");
     setIsProcessingAcc(true);
-    const res = await approveInvoice(selectedInvoice.id, accForm.waDeviceId, accForm.status);
+    const res = await approveInvoice(selectedInvoice.id, accForm.status);
     if (res.success) {
       toast.success("Invoice disetujui, akun aktif, & WA telah dikirim!");
       setIsAccDialogOpen(false);
@@ -405,15 +402,9 @@ export function BillingClient({
                           {inv.status === "PENDING" && (
                             <>
                               <button className="px-3 py-1.5 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:hover:bg-emerald-500/30 rounded-lg text-xs font-bold transition-colors" onClick={() => {
-                                if (inv.tenant?.whatsappGroupId) {
-                                  // If already has a bot/group (TOPUP/RENEW/UPGRADE of active tenant)
-                                  handleDirectAcc(inv);
-                                } else {
-                                  // Requires bot assignment
-                                  setSelectedInvoice(inv);
-                                  setAccForm({ waDeviceId: "", status: "AKTIF" });
-                                  setIsAccDialogOpen(true);
-                                }
+                                setSelectedInvoice(inv);
+                                setAccForm({ status: "AKTIF" });
+                                setIsAccDialogOpen(true);
                               }}>Terima</button>
                               <button className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/30 rounded-lg text-xs font-bold transition-colors" onClick={() => handleCancel(inv.id)}>Tolak</button>
                             </>
@@ -502,21 +493,6 @@ export function BillingClient({
                   <p>Aksi ini akan mengaktifkan Tenant dan mengirim WA berisi Email, Password, serta instruksi login ke Customer.</p>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label>Pilih Bot WhatsApp (Multi-Device)</Label>
-                  <Select value={accForm.waDeviceId || ""} onValueChange={v => setAccForm({...accForm, waDeviceId: v || ""})}>
-                    <SelectTrigger><SelectValue placeholder="-- Pilih Perangkat WA --" /></SelectTrigger>
-                    <SelectContent>
-                      {waDevices.map(d => (
-                        <SelectItem key={d.id} value={d.id}>
-                          {d.name} ({d.provider}) - Grup Terpakai: {d.groups?.filter((g: any) => g.tenantId).length || 0}/{d.groups?.length || 0}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-
                 <div className="space-y-2">
                   <Label>Status Akun Tenant</Label>
                   <Select value={accForm.status} onValueChange={v => setAccForm({...accForm, status: v || "AKTIF"})}>

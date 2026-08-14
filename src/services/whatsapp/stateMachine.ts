@@ -50,8 +50,13 @@ export const processMessage = async (
       data: { state: 'IDLE', data: {} },
     });
     
-    const reply = `Selamat datang di Tata Warga 👋\n\nSilakan pilih menu:\n#WARGA\n#SURAT\n#KAS RT\n#AKTIFKAN AI`;
-    await sendMessage(apiKey, groupId || senderNumber, reply);
+    const reply = `Selamat datang di Tata Warga 👋\n\nSilakan pilih menu:`;
+    await sendMessage(apiKey, groupId || senderNumber, reply, undefined, [
+      { id: "#WARGA", display_text: "Data Warga" },
+      { id: "#SURAT", display_text: "Pelayanan Surat" },
+      { id: "#KAS RT", display_text: "Keuangan / Kas RT" },
+      { id: "#AKTIFKAN AI", display_text: "Tanya Asisten AI" }
+    ]);
     return;
   }
 
@@ -65,86 +70,99 @@ export const processMessage = async (
     return;
   }
 
-  // Handle Root Menu Choices
-  if (session.state === 'IDLE') {
-    switch (command) {
-      case '#WARGA':
-        await prisma.waSession.update({
-          where: { id: session.id },
-          data: { state: 'MENU_WARGA' },
-        });
-        await sendMessage(
-          apiKey,
-          groupId || senderNumber,
-          `Menu Data Warga`,
-          undefined,
-          [
-            { id: "1", display_text: "Tambah Warga" },
-            { id: "2", display_text: "Cari Warga" },
-            { id: "3", display_text: "Edit Warga" },
-            { id: "4", display_text: "Hapus Warga" }
-          ]
-        );
-        return;
-      case '#SURAT':
-        const templates = await prisma.suratTemplate.findMany({
-          where: { OR: [{ tenantId: session.tenantId }, { tenantId: null }] },
-        });
-        
-        let menuSurat = `✉️ Menu Surat\nPilih Jenis Surat:`;
-        const suratButtons = templates.map((t, index) => ({
-          id: (index + 1).toString(),
-          display_text: t.name
-        }));
+  // Handle Root Menu Choices (Global commands that can interrupt any state)
+  switch (command) {
+    case '#WARGA':
+      await prisma.waSession.update({
+        where: { id: session.id },
+        data: { state: 'MENU_WARGA' },
+      });
+      await sendMessage(
+        apiKey,
+        groupId || senderNumber,
+        `Menu Data Warga`,
+        undefined,
+        [
+          { id: "1", display_text: "Tambah Warga" },
+          { id: "2", display_text: "Cari Warga" },
+          { id: "3", display_text: "Edit Warga" },
+          { id: "4", display_text: "Hapus Warga" }
+        ]
+      );
+      return;
+    case '#SURAT':
+      const templates = await prisma.suratTemplate.findMany({
+        where: { OR: [{ tenantId: session.tenantId }, { tenantId: null }] },
+      });
+      
+      let menuSurat = `✉️ Menu Surat\nPilih Jenis Surat:`;
+      const suratButtons = templates.map((t, index) => ({
+        id: (index + 1).toString(),
+        display_text: t.name
+      }));
 
-        await prisma.waSession.update({
-          where: { id: session.id },
-          data: { 
-            state: 'MENU_SURAT',
-            data: { templates: templates.map(t => ({ id: t.id, name: t.name, code: t.code })) }
-          },
-        });
-        
-        await sendMessage(
-          apiKey,
-          groupId || senderNumber,
-          menuSurat,
-          undefined,
-          suratButtons
-        );
-        return;
-      case '#KAS RT':
-        await prisma.waSession.update({
-          where: { id: session.id },
-          data: { state: 'MENU_KAS' },
-        });
-        await sendMessage(
-          apiKey,
-          groupId || senderNumber,
-          `💰 *Menu Kas RT*\nPilih jenis layanan Kas:`,
-          undefined,
-          [
-            { id: "1", display_text: "Pemasukan" },
-            { id: "2", display_text: "Pengeluaran" },
-            { id: "3", display_text: "Saldo" },
-            { id: "4", display_text: "Laporan Kas" }
-          ]
-        );
-        return;
-      case '#AKTIFKAN AI':
-        await prisma.waSession.update({
-          where: { id: session.id },
-          data: { state: 'AI_ACTIVE' },
-        });
-        await sendMessage(
-          apiKey,
-          groupId || senderNumber,
-          `Sesi AI Aktif! Saya siap menjawab pertanyaan terkait data RT Anda.\nKetik #SELESAI untuk mengakhiri.`
-        );
-        return;
-      default:
-        // Ignore unrecognized messages if in IDLE state (could be normal chat in group)
-        return;
+      await prisma.waSession.update({
+        where: { id: session.id },
+        data: { 
+          state: 'MENU_SURAT',
+          data: { templates: templates.map(t => ({ id: t.id, name: t.name, code: t.code })) }
+        },
+      });
+      
+      await sendMessage(
+        apiKey,
+        groupId || senderNumber,
+        menuSurat,
+        undefined,
+        suratButtons
+      );
+      return;
+    case '#KAS RT':
+      await prisma.waSession.update({
+        where: { id: session.id },
+        data: { state: 'MENU_KAS' },
+      });
+      await sendMessage(
+        apiKey,
+        groupId || senderNumber,
+        `💰 *Menu Kas RT*\nPilih jenis layanan Kas:`,
+        undefined,
+        [
+          { id: "1", display_text: "Pemasukan" },
+          { id: "2", display_text: "Pengeluaran" },
+          { id: "3", display_text: "Saldo" },
+          { id: "4", display_text: "Laporan Kas" }
+        ]
+      );
+      return;
+    case '#AKTIFKAN AI':
+      await prisma.waSession.update({
+        where: { id: session.id },
+        data: { state: 'AI_ACTIVE' },
+      });
+      await sendMessage(
+        apiKey,
+        groupId || senderNumber,
+        `Sesi AI Aktif! Saya siap menjawab pertanyaan terkait data RT Anda.\nKetik #SELESAI untuk mengakhiri.`
+      );
+      return;
+  }
+
+  // If in IDLE state and not a recognized command
+  if (session.state === 'IDLE') {
+    if (groupId) {
+      // Ignore unrecognized messages in groups to prevent spam
+      return;
+    } else {
+      // In private chat, gently guide the user to the main menu
+      const reply = `Halo! Selamat datang di Tata Warga 👋\n\nSilakan pilih menu layanan di bawah ini:`;
+      await sendMessage(apiKey, senderNumber, reply, undefined, [
+        { id: "#WARGA", display_text: "Data Warga" },
+        { id: "#SURAT", display_text: "Pelayanan Surat" },
+        { id: "#KAS RT", display_text: "Keuangan / Kas RT" },
+        { id: "#AKTIFKAN AI", display_text: "Tanya Asisten AI" }
+      ]);
+      return;
     }
   }
 

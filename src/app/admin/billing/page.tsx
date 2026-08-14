@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getProducts, getInvoices } from "@/app/actions/customer";
-import { getWaDevices } from "@/app/actions/integrations";
 import prisma from "@/lib/prisma";
 import { BillingClient } from "./client";
 
@@ -11,10 +10,9 @@ export default async function AdminBillingPage() {
     redirect("/auth/login");
   }
 
-  const [products, invoices, waDevices, settings] = await Promise.all([
+  const [products, invoices, settings] = await Promise.all([
     getProducts(),
     getInvoices(),
-    getWaDevices(),
     prisma.siteSettings.findFirst()
   ]);
 
@@ -23,7 +21,6 @@ export default async function AdminBillingPage() {
       <BillingClient 
         initialProducts={products} 
         initialInvoices={invoices} 
-        waDevices={waDevices}
         settings={settings}
       />
     </div>

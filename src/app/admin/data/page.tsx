@@ -11,12 +11,11 @@ export default async function AdminDataPage() {
   }
 
   const tenants = await getTenants();
-  const waDevices = await prisma.waDevice.findMany();
   const products = await getProducts();
 
   return (
     <div className="p-6">
-      <DataClient initialTenants={tenants} waDevices={waDevices} products={products} />
+      <DataClient initialTenants={tenants} products={products} />
     </div>
   );
 }

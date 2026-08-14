@@ -25,8 +25,6 @@ export async function getTenants() {
         orderBy: { createdAt: "desc" },
         take: 1
       },
-      waDevice: true,
-      waGroup: true,
       users: { select: { email: true, name: true, role: true } }
     },
     orderBy: { createdAt: "desc" }
@@ -258,7 +256,7 @@ export async function cancelInvoice(id: string) {
   }
 }
 
-export async function approveInvoice(id: string, waDeviceId: string, status: string = "AKTIF") {
+export async function approveInvoice(id: string, status: string = "AKTIF") {
   try {
     const session = await auth();
     checkSuperAdmin(session);
@@ -270,33 +268,13 @@ export async function approveInvoice(id: string, waDeviceId: string, status: str
     if (!invoice) throw new Error("Invoice tidak ditemukan");
 
     const settings = await prisma.siteSettings.findFirst({ where: { tenant_id: null } });
-    let finalWaDeviceId = invoice.tenant.waDeviceId || waDeviceId;
     let finalGroupId = invoice.tenant.whatsappGroupId;
     let finalBotNo = invoice.tenant.whatsappBotNo;
 
-    if (!finalGroupId) {
-      const waDevice = await prisma.waDevice.findUnique({ 
-        where: { id: finalWaDeviceId },
-        include: { groups: true }
-      });
-      
-      if (!waDevice) throw new Error("Perangkat WA tidak ditemukan");
-      
-      const availableGroup = waDevice.groups.find((g: any) => !g.tenantId);
-      
-      if (!availableGroup) {
-        throw new Error("Gagal ACC: Grup pada Bot habis, silakan tambah grup RT baru di pengaturan perangkat (Integrasi)");
-      }
+    // We no longer rely on WaDevice for routing or bot assignment.
+    // Kirim.chat uses a central system, so finalBotNo is whatever is set in .env or config,
+    // and we don't assign a group slot. We just activate the tenant.
 
-      finalGroupId = availableGroup.groupId;
-      finalBotNo = waDevice.phoneNumber || "000000000";
-
-      // 2.5 Update WaGroup untuk menandai bahwa grup ini sudah terpakai
-      await prisma.waGroup.update({
-        where: { id: availableGroup.id },
-        data: { tenantId: invoice.tenantId }
-      });
-    }
 
     // Hitung Expires At berdasarkan masaAktifBulan (sekarang dalam hitungan Hari)
     const expiresAt = new Date();
@@ -305,7 +283,6 @@ export async function approveInvoice(id: string, waDeviceId: string, status: str
     // 2. Update Tenant Status and Integrations and Quotas
     const tenantUpdateData: any = {
       status: status,
-      waDeviceId: finalWaDeviceId,
       whatsappGroupId: finalGroupId,
       whatsappBotNo: finalBotNo
     };
@@ -370,16 +347,10 @@ export async function approveInvoice(id: string, waDeviceId: string, status: str
     if (settings?.waAdminApiKey) {
       // Fetch link grup if available
       let groupLink = "-";
-      if (finalGroupId) {
-        const waGroup = await prisma.waGroup.findFirst({ where: { groupId: finalGroupId } });
-        if (waGroup && waGroup.groupInviteLink) {
-          groupLink = waGroup.groupInviteLink;
-        }
-      }
 
       let template = "";
       if (invoice.orderType === "NEW") {
-        template = settings?.waAdminTemplate || "Halo, akun Tata Warga Anda sudah aktif!\nNo Invoice: {{invoice}}\nEmail: {{email}}\nPassword: {{password}}\nNo. Bot WA: {{bot_wa}}\nSilakan masuk ke: {{link_login}}\nGrup WA: {{link_grup}}\n\nJika ada pertanyaan silakan balas pesan ini.";
+        template = settings?.waAdminTemplate || "Halo, akun Tata Warga Anda sudah aktif!\nNo Invoice: {{invoice}}\nEmail: {{email}}\nPassword: {{password}}\nSilakan masuk ke: {{link_login}}\n\nSilakan simpan nomor ini dengan nama *Asisten RT* untuk menggunakan chat AI dan bot pelayanan.\n\nJika ada pertanyaan silakan balas pesan ini.";
       } else {
         template = settings?.waAdminTopupTemplate || "Terima kasih Kak {{NAMA}}, pembayaran Anda di Tata Warga telah berhasil 🥳\nRincian Pembayaran:\nNo. Invoice: {{invoice}}\nTanggal Invoice: {{tanggal}}\nProduk: {{PRODUK}}\nJumlah Pembayaran: Rp {{HARGA}}\nLink Login: {{link_login}}\n\nTerima kasih telah memilih Tata Warga! Jika Anda memiliki pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.";
       }

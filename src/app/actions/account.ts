@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
+import { formatWhatsAppNumber } from "@/lib/whatsapp";
 
 export async function updateAccountSettings(formData: FormData) {
   try {
@@ -13,7 +14,8 @@ export async function updateAccountSettings(formData: FormData) {
     const userId = session.user.id;
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
-    const phone = formData.get("phone") as string;
+    const phoneInput = formData.get("phone") as string;
+    const phone = formatWhatsAppNumber(phoneInput);
     const password = formData.get("password") as string;
     const tenantId = session.user.tenantId;
 

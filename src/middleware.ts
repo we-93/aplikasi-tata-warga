@@ -35,6 +35,7 @@ export default auth((req) => {
 
   // Paths
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+  const isMobileApiRoute = nextUrl.pathname.startsWith("/api/mobile");
   const isWebhookRoute = nextUrl.pathname.startsWith("/api/webhooks");
   const isChatDocsRoute = nextUrl.pathname.startsWith("/api/chat-docs");
   const isAuthRoute = nextUrl.pathname.startsWith("/auth");
@@ -43,7 +44,7 @@ export default auth((req) => {
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
 
-  if (isApiAuthRoute || isWebhookRoute || isChatDocsRoute) return NextResponse.next({ request: { headers: req.headers } });
+  if (isApiAuthRoute || isMobileApiRoute || isWebhookRoute || isChatDocsRoute) return NextResponse.next({ request: { headers: req.headers } });
 
   if (isAuthRoute) {
     if (isLoggedIn) {

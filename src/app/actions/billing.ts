@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { sendMessage } from "@/lib/whatsapp";
+import { sendMessage, formatWhatsAppNumber } from "@/lib/whatsapp";
 import { getCycleStart } from "@/lib/utils";
 
 async function getAuthTenant() {
@@ -155,9 +155,9 @@ export async function createCheckoutInvoice(productId: string, orderType: "UPGRA
       if (invoice.tenant.noHpRt) {
         const settings = await prisma.siteSettings.findFirst();
         if (settings?.waAdminApiKey) {
-          let invTemplate = settings.waAdminInvoiceTemplate || "Halo Kak! Pesanan Tata Warga Anda telah kami terima.\nNo Invoice: {{invoice}}\nPaket: {{paket}}\nTotal: Rp {{harga}}\n\nSilakan transfer ke rekening BCA 123456 a.n. Tata Warga, lalu balas pesan ini dengan menyertakan bukti transfer agar akun segera diaktifkan.";
+          let invTemplate = settings?.waAdminInvoiceTemplate || "Halo Kak! Pesanan Tata Warga Anda telah kami terima.\nNo Invoice: {{invoice}}\nPaket: {{paket}}\nTotal: Rp {{harga}}\n\nSilakan transfer ke rekening BCA 123456 a.n. Tata Warga, lalu balas pesan ini dengan menyertakan bukti transfer agar akun segera diaktifkan.";
           let bankStr = "- BCA 1234 567 890 a.n PT Tata Warga Digital"; // fallback
-          if (settings.bankInstructions) {
+          if (settings?.bankInstructions) {
             try {
               const parsedBanks = typeof settings.bankInstructions === 'string' 
                 ? JSON.parse(settings.bankInstructions) 
@@ -235,7 +235,8 @@ export async function getInvoiceDetails(invoiceId: string) {
 }
 export async function registerAndCheckout(data: any) {
   try {
-    const { name, email, phone, password, productId, paymentMethod } = data;
+    const { name, email, password, productId, paymentMethod } = data;
+    const phone = formatWhatsAppNumber(data.phone);
 
     // 1. Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -312,9 +313,9 @@ export async function registerAndCheckout(data: any) {
     try {
       const settings = await prisma.siteSettings.findFirst();
       if (settings?.waAdminApiKey) {
-        let welcomeMessage = settings.waAdminWelcomeTemplate || "Halo {{NAMA}},\n\nTerima kasih telah mendaftar di Tata Warga! Pendaftaran akun Anda untuk paket *{{PRODUK}}* telah kami terima.\n\nNomor Invoice: *{{INVOICE}}*\nTotal Tagihan: *Rp {{HARGA}}*\n\nSilakan transfer ke salah satu rekening berikut:\n{{BANK}}\n\nMohon segera selesaikan pembayaran agar akun Anda dapat diaktifkan. Terima kasih!";
+        let welcomeMessage = settings?.waAdminWelcomeTemplate || "Halo {{NAMA}},\n\nTerima kasih telah mendaftar di Tata Warga! Pendaftaran akun Anda untuk paket *{{PRODUK}}* telah kami terima.\n\nNomor Invoice: *{{INVOICE}}*\nTotal Tagihan: *Rp {{HARGA}}*\n\nSilakan transfer ke salah satu rekening berikut:\n{{BANK}}\n\nMohon segera selesaikan pembayaran agar akun Anda dapat diaktifkan. Terima kasih!";
         let bankStr = "- BCA 1234 567 890 a.n PT Tata Warga Digital"; // fallback
-        if (settings.bankInstructions) {
+        if (settings?.bankInstructions) {
           try {
             const parsedBanks = typeof settings.bankInstructions === 'string' 
               ? JSON.parse(settings.bankInstructions) 

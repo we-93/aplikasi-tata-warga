@@ -205,9 +205,9 @@ export function AiClient({ initialPengumuman = [] }: { initialPengumuman?: any[]
     <>
     <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
       <TabsList className="flex w-full justify-start md:grid md:grid-cols-3 mb-4 overflow-x-auto h-auto p-1">
-        <TabsTrigger value="chat">Chat AI</TabsTrigger>
-        <TabsTrigger value="broadcast">Broadcast Pengumuman</TabsTrigger>
-        <TabsTrigger value="report">Laporan Kas</TabsTrigger>
+        <TabsTrigger value="chat" className="data-active:!bg-[#6419c1] data-active:!text-white">Chat AI</TabsTrigger>
+        <TabsTrigger value="broadcast" className="data-active:!bg-[#6419c1] data-active:!text-white">Broadcast Pengumuman</TabsTrigger>
+        <TabsTrigger value="report" className="data-active:!bg-[#6419c1] data-active:!text-white">Laporan Kas</TabsTrigger>
       </TabsList>
 
       {/* CHAT TAB */}
@@ -273,7 +273,7 @@ export function AiClient({ initialPengumuman = [] }: { initialPengumuman?: any[]
               onKeyDown={(e) => { if(e.key === 'Enter') handleSendChat() }}
               className="flex-1 bg-white dark:bg-black"
             />
-            <Button className="bg-card border border-border-card-foreground" onClick={handleSendChat} disabled={isChatLoading || (!chatInput.trim() && !attachedImage)}>
+            <Button className="bg-[#6419c1] hover:bg-[#7735d4] text-white" onClick={handleSendChat} disabled={isChatLoading || (!chatInput.trim() && !attachedImage)}>
               <Send className="w-4 h-4" />
             </Button>
           </div>

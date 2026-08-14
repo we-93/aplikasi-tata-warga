@@ -1,5 +1,5 @@
 import { IntegrationsClient } from "./client";
-import { getWaDevices, getAiSettings } from "@/app/actions/integrations";
+import { getAiSettings } from "@/app/actions/integrations";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -9,10 +9,11 @@ export default async function IntegrationsPage() {
     redirect("/auth/login");
   }
 
-  const devices = await getWaDevices();
   const aiSettings = await getAiSettings();
 
   return (
-    <IntegrationsClient devices={devices} aiSettings={aiSettings} />
+    <div className="p-4 md:p-8">
+      <IntegrationsClient devices={[]} aiSettings={aiSettings} />
+    </div>
   );
 }

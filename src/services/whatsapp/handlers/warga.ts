@@ -40,7 +40,7 @@ export const handleWargaState = async (
       });
       await sendMessage(apiKey, target, `Masukan NIK (16 Digit) yang ingin dihapus:`);
     } else {
-      await sendMessage(apiKey, target, `Pilihan tidak valid. Silakan balas dengan angka 1, 2, 3, atau 4.`);
+      await sendMessage(apiKey, target, `Pilihan tidak valid. Silakan gunakan tombol *Pilih Menu* yang tersedia di atas.`);
     }
     return;
   }

@@ -12,12 +12,16 @@ export function AccountForm({ initialData }: { initialData: any }) {
   const [isPending, setIsPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [name, setName] = useState(initialData?.name || "");
+  const [email, setEmail] = useState(initialData?.email || "");
+  const [phone, setPhone] = useState(initialData?.phone || "");
+  const [password, setPassword] = useState("");
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsPending(true);
     
     const formData = new FormData(e.currentTarget);
-    const password = formData.get("password") as string;
 
     if (password && password.length < 8) {
       toast.error("Password baru minimal 8 karakter");
@@ -29,9 +33,7 @@ export function AccountForm({ initialData }: { initialData: any }) {
 
     if (res.success) {
       toast.success("Profil akun berhasil diperbarui!");
-      // clear password field
-      const form = e.target as HTMLFormElement;
-      form.password.value = "";
+      setPassword(""); // clear password field
     } else {
       toast.error(res.error || "Terjadi kesalahan.");
     }
@@ -46,18 +48,18 @@ export function AccountForm({ initialData }: { initialData: any }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="name">Nama Lengkap <span className="text-red-500">*</span></Label>
-            <Input id="name" name="name" defaultValue={initialData?.name || ""} placeholder="Misal: Budi Santoso" required />
+            <Input id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Misal: Budi Santoso" required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">Alamat Email <span className="text-red-500">*</span></Label>
-            <Input id="email" name="email" type="email" defaultValue={initialData?.email || ""} placeholder="rt@domain.com" required />
+            <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="rt@domain.com" required />
             <p className="text-[11px] text-muted-foreground">Digunakan untuk login.</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">Nomor WhatsApp <span className="text-red-500">*</span></Label>
-            <Input id="phone" name="phone" type="tel" defaultValue={initialData?.phone || ""} placeholder="Misal: 081234567890" required />
+            <Input id="phone" name="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Misal: 081234567890" required />
             <p className="text-[11px] text-muted-foreground">Digunakan untuk notifikasi sistem & bot WA.</p>
           </div>
 
@@ -68,6 +70,8 @@ export function AccountForm({ initialData }: { initialData: any }) {
                 id="password" 
                 name="password" 
                 type={showPassword ? "text" : "password"} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Biarkan kosong jika tidak ingin diubah" 
                 className="pr-10"
               />

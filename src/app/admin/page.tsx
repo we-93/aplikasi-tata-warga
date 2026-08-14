@@ -70,8 +70,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   const totalWarga = await prisma.warga.count();
   const totalWargaGrowth = await getGrowth("warga");
   
-  const totalBot = await prisma.waDevice.count();
-  const botOnline = await prisma.waDevice.count({ where: { status: "ONLINE" } });
+  const totalBot = 1;
+  const botOnline = 1;
 
   // Get 10 recent tenants for the table
   const recentTenantsRaw = await prisma.tenant.findMany({

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, Users, Search, Trash2, Edit, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 
-export function DataClient({ initialTenants, waDevices = [], products = [] }: { initialTenants: any[], waDevices?: any[], products?: any[] }) {
+export function DataClient({ initialTenants, products = [] }: { initialTenants: any[], products?: any[] }) {
   const [activeTab, setActiveTab] = useState("tenants");
   const [currentTenantPage, setCurrentTenantPage] = useState(1);
   const itemsPerPage = 20;
@@ -52,7 +52,7 @@ export function DataClient({ initialTenants, waDevices = [], products = [] }: { 
   // TENANT EDIT STATE
   const [editingTenant, setEditingTenant] = useState<any>(null);
   const [editForm, setEditForm] = useState({ 
-    name: "", province: "", city: "", district: "", village: "", rt: "", rw: "", address: "", kodePos: "", ketuaName: "", ketuaNik: "", namaRw: "", noHpRt: "", whatsappGroupId: "", waDeviceId: "", status: "AKTIF" 
+    name: "", province: "", city: "", district: "", village: "", rt: "", rw: "", address: "", kodePos: "", ketuaName: "", ketuaNik: "", namaRw: "", noHpRt: "", whatsappGroupId: "", status: "AKTIF" 
   });
   const [isUpdatingTenant, setIsUpdatingTenant] = useState(false);
   
@@ -118,8 +118,7 @@ export function DataClient({ initialTenants, waDevices = [], products = [] }: { 
       ketuaNik: editForm.ketuaNik,
       namaRw: editForm.namaRw,
       noHpRt: editForm.noHpRt,
-      whatsappGroupId: editForm.whatsappGroupId,
-      waDeviceId: editForm.waDeviceId || null,
+      whatsappGroupId: editForm.whatsappGroupId || null,
       status: editForm.status
     });
     if (res.success) {
@@ -247,8 +246,7 @@ export function DataClient({ initialTenants, waDevices = [], products = [] }: { 
 
                         <td className="px-6 py-4">
                           <div className="text-xs space-y-1.5 text-slate-600 dark:text-white/70">
-                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Bot: {t.waDevice?.name || t.whatsappBotNo || "Belum ada"}</p>
-                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Grup: {t.waGroup?.name || "Belum diset"}</p>
+                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Bot: {t.whatsappBotNo || "Kirim.chat"}</p>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -287,7 +285,6 @@ export function DataClient({ initialTenants, waDevices = [], products = [] }: { 
                                   namaRw: t.namaRw || "",
                                   noHpRt: t.noHpRt || "",
                                   whatsappGroupId: t.whatsappGroupId || "",
-                                  waDeviceId: t.waDeviceId || "",
                                   status: t.status || "AKTIF"
                                 });
                               }}
@@ -445,25 +442,8 @@ export function DataClient({ initialTenants, waDevices = [], products = [] }: { 
               </div>
 
               <div className="pt-4 border-t border-slate-200 dark:border-white/10 space-y-3 md:space-y-4">
-                <h4 className="font-semibold text-sm md:text-base">Konfigurasi Integrasi & Status</h4>
+                <h4 className="font-semibold text-sm md:text-base">Status Keanggotaan</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                  <div className="space-y-1.5 md:space-y-2">
-                    <Label className="text-xs md:text-sm">ID Grup WhatsApp</Label>
-                    <Input placeholder="Misal: 120363xxx@g.us" value={editForm.whatsappGroupId} onChange={e => setEditForm({...editForm, whatsappGroupId: e.target.value})} />
-                    <p className="text-[10px] text-slate-500">ID webhook grup untuk notifikasi.</p>
-                  </div>
-                  <div className="space-y-1.5 md:space-y-2">
-                    <Label className="text-xs md:text-sm">Pilih Bot WhatsApp</Label>
-                    <Select value={editForm.waDeviceId || "NONE"} onValueChange={v => setEditForm({...editForm, waDeviceId: v === "NONE" ? "" : (v || "")})}>
-                      <SelectTrigger><SelectValue placeholder="Pilih Bot..." /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="NONE">Tidak Ada Bot</SelectItem>
-                        {waDevices.map((d: any) => (
-                          <SelectItem key={d.id} value={d.id}>{d.name} ({d.provider})</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                   <div className="space-y-1.5 md:space-y-2">
                     <Label className="text-xs md:text-sm">Status RT</Label>
                     <Select value={editForm.status} onValueChange={v => setEditForm({...editForm, status: v || "AKTIF"})}>

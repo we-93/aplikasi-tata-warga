@@ -82,10 +82,6 @@ model Tenant {
   // Integrations
   whatsappGroupId String?
   whatsappBotNo   String?
-  waDeviceId      String?
-  waDevice        WaDevice?      @relation(fields: [waDeviceId], references: [id])
-  waGroup         WaGroup?
-  
   // Subscription / Billing Cache
   subscriptionPlan String        @default("Free")
   activeUntil      DateTime?
@@ -434,40 +430,7 @@ model Pengumuman {
 // -----------------------------------------------------------------------------
 // MODULE: INTEGRATIONS (WA & AI)
 // -----------------------------------------------------------------------------
-model WaDevice {
-  id          String   @id @default(uuid())
-  name        String   // e.g. "Bot Utama 1"
-  provider    String   // "FONNTE" or "APICOID"
-  apiKey      String
-  phoneNumber String?
-  status      String   @default("OFFLINE")
-  slotLimit       Int      @default(50)
-  
-  tenants         Tenant[]
-  groups          WaGroup[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  @@map("wa_devices")
-}
-
-model WaGroup {
-  id              String   @id @default(uuid())
-  waDeviceId      String
-  waDevice        WaDevice @relation(fields: [waDeviceId], references: [id], onDelete: Cascade)
-  
-  name            String
-  groupId         String
-  groupInviteLink String?
-  
-  tenantId        String?  @unique
-  tenant          Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-
-  createdAt       DateTime @default(now())
-
-  @@map("wa_groups")
-}
 
 // -----------------------------------------------------------------------------
 // WHATSAPP SESSION (STATE MACHINE)

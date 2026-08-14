@@ -62,7 +62,7 @@ export const handleKasState = async (
       await sendMessage(apiKey, target, `📊 *Laporan Kas*\nLaporan Kas selengkapnya bisa diunduh melalui Dashboard RT.`);
       await prisma.waSession.update({ where: { id }, data: { state: 'IDLE' } });
     } else {
-      await sendMessage(apiKey, target, `Pilihan tidak valid. Balas dengan angka 1, 2, 3, atau 4.`);
+      await sendMessage(apiKey, target, `Pilihan tidak valid. Silakan gunakan tombol *Pilih Menu* yang tersedia di atas.`);
     }
     return;
   }

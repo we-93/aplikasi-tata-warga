@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { sendMessage } from "@/lib/whatsapp";
+import { sendMessage, formatWhatsAppNumber } from "@/lib/whatsapp";
 import bcrypt from "bcryptjs";
 
 // Helper to find user by email or tenant phone
@@ -14,8 +14,9 @@ async function findUserByIdentity(identity: string) {
 
   // If not found, try phone number via Tenant
   if (!user) {
+    const formattedIdentity = formatWhatsAppNumber(identity);
     const tenant = await prisma.tenant.findFirst({
-      where: { noHpRt: identity },
+      where: { noHpRt: formattedIdentity || identity },
       include: {
         users: {
           where: { role: "TENANT_ADMIN" }
