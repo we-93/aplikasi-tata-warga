@@ -118,7 +118,7 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
       ketuaNik: editForm.ketuaNik,
       namaRw: editForm.namaRw,
       noHpRt: editForm.noHpRt,
-      whatsappGroupId: editForm.whatsappGroupId || null,
+      whatsappGroupId: editForm.whatsappGroupId || undefined,
       status: editForm.status
     });
     if (res.success) {
