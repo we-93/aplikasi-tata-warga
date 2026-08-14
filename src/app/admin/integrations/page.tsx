@@ -13,7 +13,7 @@ export default async function IntegrationsPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <IntegrationsClient devices={[]} aiSettings={aiSettings} />
+      <IntegrationsClient aiSettings={aiSettings} />
     </div>
   );
 }
