@@ -203,7 +203,6 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
                 </Link>
               )}
             </div>
-          </div>
 
           <div className="flex items-center gap-4">
             
