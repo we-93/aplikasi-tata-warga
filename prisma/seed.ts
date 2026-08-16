@@ -1,9 +1,12 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  // Check if super admin already exists
+  const hashedPassword = await bcrypt.hash('password123', 10);
+
+  // 1. Check if super admin already exists
   const existingAdmin = await prisma.user.findUnique({
     where: { email: 'admin@tatawarga.com' }
   })
@@ -12,8 +15,7 @@ async function main() {
     await prisma.user.create({
       data: {
         email: 'admin@tatawarga.com',
-        // Note: In a real app, this should be a hashed password (e.g. bcrypt)
-        password: 'password123',
+        password: hashedPassword,
         name: 'Super Admin',
         role: 'SUPER_ADMIN'
       }
@@ -21,6 +23,40 @@ async function main() {
     console.log('Super admin created!')
   } else {
     console.log('Super admin already exists.')
+  }
+
+  // 2. Create a Mock RT Tenant and RT Admin for testing
+  let tenant = await prisma.tenant.findFirst({
+    where: { name: 'RT 01 Percontohan' }
+  });
+
+  if (!tenant) {
+    tenant = await prisma.tenant.create({
+      data: {
+        name: 'RT 01 Percontohan',
+        slug: 'rt-01-percontohan',
+        aiChatCredits: 30,
+        aiDocCredits: 5,
+      }
+    });
+    console.log('Tenant RT 01 created!');
+  }
+
+  const existingRtAdmin = await prisma.user.findUnique({
+    where: { email: 'rt@tatawarga.com' }
+  });
+
+  if (!existingRtAdmin) {
+    await prisma.user.create({
+      data: {
+        email: 'rt@tatawarga.com',
+        password: hashedPassword,
+        name: 'Ketua RT 01',
+        role: 'TENANT_ADMIN',
+        tenantId: tenant.id
+      }
+    });
+    console.log('RT Admin created! (email: rt@tatawarga.com, password: password123)');
   }
 }
 

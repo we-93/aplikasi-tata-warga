@@ -82,11 +82,10 @@ export async function createTenant(formData: FormData) {
     const name = formData.get("name") as string;
     const adminName = formData.get("adminName") as string;
     const email = formData.get("email") as string;
-    const productId = formData.get("productId") as string;
     const city = formData.get("city") as string || "";
     const province = formData.get("province") as string || "";
 
-    if (!name || !adminName || !email || !productId) {
+    if (!name || !adminName || !email) {
       return { success: false, error: "Data tidak lengkap." };
     }
 
@@ -113,14 +112,6 @@ export async function createTenant(formData: FormData) {
           password: hashedPassword,
           role: "TENANT_ADMIN",
           tenantId: tenant.id
-        }
-      });
-
-      await tx.subscription.create({
-        data: {
-          tenantId: tenant.id,
-          productId,
-          status: "ACTIVE"
         }
       });
     });
@@ -178,7 +169,6 @@ export async function updateTenantByAdmin(
         ketuaNik: data.ketuaNik,
         namaRw: data.namaRw,
         noHpRt: data.noHpRt ? formatWhatsAppNumber(data.noHpRt) : null,
-        whatsappGroupId: data.whatsappGroupId,
 
         status: data.status,
       },
@@ -213,3 +203,26 @@ export async function deleteTenantByAdmin(tenantId: string) {
   }
 }
 
+export async function topupCredit(tenantId: string, chatKredit: number, docKredit: number) {
+  try {
+    const session = await auth();
+    if (!session || session.user.role !== 'SUPER_ADMIN') {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: {
+        aiChatCredits: { increment: chatKredit },
+        aiDocCredits: { increment: docKredit }
+      }
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/data");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error topping up credit:", error);
+    return { success: false, error: "Gagal top-up kredit" };
+  }
+}

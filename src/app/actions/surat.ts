@@ -20,29 +20,7 @@ export async function createSuratArsip(
     }
     const tenantId = session.user.tenantId;
 
-    // Check Surat Quota Limit
-    const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
-    if (!tenant) return { success: false, error: "Tenant tidak ditemukan" };
-
-    const currentProduct = await prisma.product.findFirst({ where: { name: tenant.subscriptionPlan } });
-    const baseSurat = currentProduct?.maxSurat === -1 ? 9999999 : (currentProduct?.maxSurat || 0);
-    const totalSuratLimit = baseSurat + (tenant.addonMaxSurat || 0);
-
-    if (totalSuratLimit !== 9999999) {
-      const cycleStart = getCycleStart(tenant.activeUntil, currentProduct?.masaAktifBulan || 30);
-      cycleStart.setHours(0, 0, 0, 0);
-
-      const suratCount = await prisma.suratArsip.count({
-        where: {
-          tenantId,
-          createdAt: { gte: cycleStart }
-        }
-      });
-
-      if (suratCount >= totalSuratLimit) {
-        return { success: false, error: "Kuota Pembuatan Surat Anda bulan ini telah habis. Silakan Upgrade Paket atau Topup Kuota Surat." };
-      }
-    }
+    // Quota Limit checking has been removed based on new requirements
 
     // Update Warga data if provided from the live form
     if (wargaData && Object.keys(wargaData).length > 0) {

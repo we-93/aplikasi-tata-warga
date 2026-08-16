@@ -29,11 +29,6 @@ export default async function Home() {
   const testimonialsJson = settings?.testimonials as any;
   const faqJson = settings?.faq as any;
 
-  let dbProducts: any[] = [];
-  try {
-    dbProducts = await prisma.product.findMany({ where: { isActive: true } });
-  } catch (error) {}
-
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
       <Navbar logoUrl={settings?.logoUrl} logoUrlDark={settings?.logoUrlDark} session={session} />
@@ -45,7 +40,7 @@ export default async function Home() {
         />
         <Features features={featuresJson} />
         <HowItWorks />
-        <Pricing pricing={pricingJson} dbProducts={dbProducts} />
+
         <Testimonials testimonials={testimonialsJson} />
         <FAQ faq={faqJson} />
         <CTA />

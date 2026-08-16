@@ -20,8 +20,8 @@ const menuItems = [
   { name: "Data", href: "/admin/data", icon: Database },
   { name: "Template Surat", href: "/admin/letters", icon: FileText },
   { name: "Arsip Semua Surat", href: "/admin/surat-arsip", icon: FileText },
-  { name: "Produk & Invoice", href: "/admin/billing", icon: Receipt },
-  { name: "Integrasi WA & AI", href: "/admin/integrations", icon: MessageSquare },
+  { name: "Integrasi AI", href: "/admin/integrations", icon: MessageSquare },
+  { name: "Knowledge Base", href: "/admin/knowledge", icon: Database },
   { name: "Notifikasi Pusat", href: "/admin/notifications", icon: Bell },
   { name: "Landing Page", href: "/admin/landing-page", icon: Globe },
   { name: "Log Aktivitas", href: "/admin/logs", icon: Activity },
@@ -114,8 +114,8 @@ export function AdminLayoutShell({ children, logoUrl, logoUrlDark, userName, use
               )}
             </>
           ) : (
-            <Link href="/admin" className="font-bold text-xl text-[#6419c1]">
-              Tata Warga
+            <Link href="/admin" className="flex items-center">
+              <Image src="/logo-tata-waga.png" alt="Logo Tata Warga" width={120} height={40} className="h-8 w-auto object-contain" />
             </Link>
           )}
           <button onClick={() => setIsSidebarOpen(false)} className="text-slate-500 dark:text-white/70 hover:text-slate-900 dark:hover:text-white">
@@ -135,8 +135,8 @@ export function AdminLayoutShell({ children, logoUrl, logoUrlDark, userName, use
               )}
             </>
           ) : (
-            <Link href="/admin" className="font-bold text-xl text-[#6419c1]">
-              Tata Warga
+            <Link href="/admin" className="flex items-center">
+              <Image src="/logo-tata-waga.png" alt="Logo Tata Warga" width={120} height={40} className="h-8 w-auto object-contain" />
             </Link>
           )}
         </div>
@@ -232,8 +232,8 @@ export function AdminLayoutShell({ children, logoUrl, logoUrlDark, userName, use
                   )}
                 </>
               ) : (
-                <Link href="/admin" className="font-bold text-lg text-[#6419c1]">
-                  Tata Warga
+                <Link href="/admin" className="flex items-center">
+                  <Image src="/logo-tata-waga.png" alt="Logo Tata Warga" width={100} height={32} className="h-7 w-auto object-contain" />
                 </Link>
               )}
             </div>

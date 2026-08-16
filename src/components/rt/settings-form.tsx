@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateTenantProfile, updateTenantMediaField } from "@/app/actions/tenant";
 import { toast } from "sonner";
 import { Loader2, Save, Trash2 } from "lucide-react";
+import tangerangRegions from "@/lib/data/tangerang-regions.json";
 
 export function SettingsForm({ initialData }: { initialData: any }) {
   const [isPending, setIsPending] = useState(false);
@@ -18,6 +20,21 @@ export function SettingsForm({ initialData }: { initialData: any }) {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingTtd, setUploadingTtd] = useState(false);
   const [uploadingStamp, setUploadingStamp] = useState(false);
+
+  const toTitleCase = (str: string) => str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+
+  const initVillage = initialData?.village || "";
+  const isKelurahan = initVillage.toLowerCase().startsWith("kelurahan") || initVillage.toLowerCase().startsWith("kel.");
+  const initialVillagePrefix = isKelurahan ? "Kelurahan" : "Desa";
+  const initialVillageName = toTitleCase(initVillage.replace(/^(desa|kelurahan|kel\.)/i, "").trim());
+
+  const [selectedDistrict, setSelectedDistrict] = useState(toTitleCase(initialData?.district || ""));
+  const availableVillages = tangerangRegions.find(d => d.name === selectedDistrict)?.villages || [];
+  
+  const isInitialManual = initialVillageName && !availableVillages.some(v => v.name === initialVillageName);
+  const [selectedVillage, setSelectedVillage] = useState(isInitialManual ? "Lainnya" : initialVillageName);
+  const [villageManual, setVillageManual] = useState(isInitialManual ? initialVillageName : "");
+  const [villagePrefix, setVillagePrefix] = useState(initialVillagePrefix);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'ttd' | 'stamp', oldUrl: string) => {
     const file = e.target.files?.[0];
@@ -96,7 +113,19 @@ export function SettingsForm({ initialData }: { initialData: any }) {
       return;
     }
 
+    if (!selectedDistrict || (!selectedVillage && !villageManual)) {
+      toast.error("Kecamatan dan Desa/Kelurahan wajib diisi.");
+      setIsPending(false);
+      return;
+    }
+
+    const finalVillageName = selectedVillage === "Lainnya" ? toTitleCase(villageManual) : selectedVillage;
+
     const formData = new FormData(e.currentTarget);
+    formData.set("village", `${villagePrefix} ${finalVillageName}`);
+    formData.set("district", selectedDistrict);
+    formData.set("city", "Kabupaten Tangerang");
+    formData.set("province", "Banten");
     
     const res = await updateTenantProfile(formData);
 
@@ -141,22 +170,60 @@ export function SettingsForm({ initialData }: { initialData: any }) {
         <h3 className="text-lg font-semibold border-b pb-2 pt-4">Data Wilayah Administrasi</h3>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="village">Desa / Kelurahan <span className="text-red-500">*</span></Label>
-            <Input id="village" name="village" defaultValue={initialData?.village || ""} placeholder="Misal: Desa Sukamaju atau Kel. Sukaasih" required />
-            <p className="text-[11px] text-muted-foreground">Ketik lengkap dengan awalan "Desa" atau "Kelurahan" agar tercetak rapi di kop surat.</p>
+            <Label>Provinsi <span className="text-red-500">*</span></Label>
+            <Input value="Banten" readOnly className="bg-muted text-muted-foreground" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="district">Kecamatan <span className="text-red-500">*</span></Label>
-            <Input id="district" name="district" defaultValue={initialData?.district || ""} placeholder="Misal: Solear" required />
+            <Label>Kabupaten / Kota <span className="text-red-500">*</span></Label>
+            <Input value="Kabupaten Tangerang" readOnly className="bg-muted text-muted-foreground" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="city">Kabupaten / Kota <span className="text-red-500">*</span></Label>
-            <Input id="city" name="city" defaultValue={initialData?.city || ""} placeholder="Misal: Kab. Tangerang atau Kota Tangerang" required />
-            <p className="text-[11px] text-muted-foreground">Ketik lengkap dengan awalan "Kabupaten" atau "Kota".</p>
+            <Label>Kecamatan <span className="text-red-500">*</span></Label>
+            <Select 
+              value={selectedDistrict} 
+              onValueChange={(val) => {
+                setSelectedDistrict(val);
+                setSelectedVillage(""); // Reset village when district changes
+              }}
+            >
+              <SelectTrigger><SelectValue placeholder="Pilih Kecamatan" /></SelectTrigger>
+              <SelectContent>
+                {tangerangRegions.map((dist) => (
+                  <SelectItem key={dist.id} value={dist.name}>{dist.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="province">Provinsi <span className="text-red-500">*</span></Label>
-            <Input id="province" name="province" defaultValue={initialData?.province || ""} placeholder="Misal: Banten" required />
+            <Label>Desa / Kelurahan <span className="text-red-500">*</span></Label>
+            <div className="flex gap-2">
+              <Select value={villagePrefix} onValueChange={setVillagePrefix}>
+                <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Desa">Desa</SelectItem>
+                  <SelectItem value="Kelurahan">Kelurahan</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={selectedVillage} onValueChange={setSelectedVillage} disabled={!selectedDistrict}>
+                <SelectTrigger className="flex-1"><SelectValue placeholder="Pilih Desa/Kel." /></SelectTrigger>
+                <SelectContent>
+                  {availableVillages.map((vil) => (
+                    <SelectItem key={vil.id} value={vil.name}>{vil.name}</SelectItem>
+                  ))}
+                  <SelectItem value="Lainnya">Lainnya (Ketik Manual)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedVillage === "Lainnya" && (
+              <Input 
+                placeholder="Ketik nama Desa/Kelurahan..." 
+                value={villageManual}
+                onChange={(e) => setVillageManual(e.target.value)}
+                className="mt-2"
+                required
+              />
+            )}
+            <p className="text-[11px] text-muted-foreground mt-1">Otomatis tercetak dengan format yang dipilih di kop surat.</p>
           </div>
         </div>
 

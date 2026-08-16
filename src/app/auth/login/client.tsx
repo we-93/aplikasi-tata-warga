@@ -121,7 +121,7 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
       </div>
 
       {/* Right Screen (40%) - Login Form */}
-      <div className="w-full lg:w-[40%] h-full relative flex items-center justify-center p-4 overflow-hidden bg-[#0c0b21]">
+      <div className="w-full lg:w-[40%] h-full relative flex items-center justify-center p-4 overflow-hidden bg-slate-50">
         {/* Animated Geometric Background */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* Elemen geometrik di belakang */}
@@ -131,7 +131,7 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
               scale: [1, 1.2, 1],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[10%] -right-[10%] w-[500px] h-[500px] bg-gradient-to-br from-[#6419c1]/30 to-purple-600/10 rounded-full blur-[80px]"
+            className="absolute -top-[10%] -right-[10%] w-[500px] h-[500px] bg-gradient-to-br from-[#6419c1]/10 to-purple-600/5 rounded-full blur-[80px]"
           />
           <motion.div 
             animate={{ 
@@ -139,7 +139,7 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
               scale: [1, 1.3, 1],
             }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute top-[20%] -left-[20%] w-[400px] h-[400px] bg-gradient-to-tr from-blue-600/20 to-cyan-500/10 rounded-full blur-[60px]"
+            className="absolute top-[20%] -left-[20%] w-[400px] h-[400px] bg-gradient-to-tr from-blue-600/10 to-cyan-500/5 rounded-full blur-[60px]"
           />
           <motion.div 
             animate={{ 
@@ -152,34 +152,28 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
           />
         </div>
 
-        {/* Glassmorphism Card (Sesuai Mockup) */}
+        {/* Form Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-[380px] relative z-10 bg-white/5 backdrop-blur-3xl border border-white/20 rounded-3xl p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] flex flex-col"
+          className="w-full max-w-[380px] relative z-10 bg-white border border-slate-200 rounded-3xl p-8 shadow-xl flex flex-col"
         >
           {/* Logo & Header */}
           <div className="flex flex-col items-center text-center mb-6">
-            {logoUrl ? (
-              <div className="mb-4 h-8 flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={logoUrl} alt="Tata Warga" className="h-full object-contain drop-shadow-md" />
-              </div>
-            ) : (
-              <div className="w-12 h-12 bg-gradient-to-br from-[#6419c1] to-[#8a38f5] rounded-xl flex items-center justify-center shadow-lg shadow-[#6419c1]/30 mb-4">
-                <span className="text-white font-bold text-xl">TW</span>
-              </div>
-            )}
-            <h1 className="text-xl font-bold text-white mb-2">Selamat Datang</h1>
-            <p className="text-white/60 text-xs leading-relaxed px-2">
+            <div className="mb-4 h-16 w-16 flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/favicon-tata-warga.png" alt="Tata Warga" className="h-full object-contain" />
+            </div>
+            <h1 className="text-xl font-bold text-slate-900 mb-2">Selamat Datang</h1>
+            <p className="text-slate-500 text-xs leading-relaxed px-2">
               Masuk ke akun Tata Warga untuk mengelola data warga Anda
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5 group">
-              <Label htmlFor="email" className="text-white/80 group-focus-within:text-white transition-colors text-xs">Alamat Email</Label>
+              <Label htmlFor="email" className="text-slate-700 transition-colors text-xs">Alamat Email</Label>
               <div className="relative">
                 <Input 
                   id="email" 
@@ -187,25 +181,25 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
                   type="email" 
                   placeholder="admin@tatawarga.com" 
                   required 
-                  className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/30 h-10 px-4 rounded-xl focus:border-[#6419c1] focus:ring-1 focus:ring-[#6419c1] transition-all text-sm"
+                  className="w-full bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 h-10 px-4 rounded-xl focus:border-[#6419c1] focus:ring-1 focus:ring-[#6419c1] transition-all text-sm"
                 />
               </div>
             </div>
             
             <div className="space-y-1.5 group">
-              <Label htmlFor="password" className="text-white/80 group-focus-within:text-white transition-colors text-xs">Password</Label>
+              <Label htmlFor="password" className="text-slate-700 transition-colors text-xs">Password</Label>
               <div className="relative">
                 <Input 
                   id="password" 
                   name="password" 
                   type={showPassword ? "text" : "password"} 
                   required 
-                  className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/30 h-10 pl-4 pr-10 rounded-xl focus:border-[#6419c1] focus:ring-1 focus:ring-[#6419c1] transition-all text-sm"
+                  className="w-full bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 h-10 pl-4 pr-10 rounded-xl focus:border-[#6419c1] focus:ring-1 focus:ring-[#6419c1] transition-all text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors p-1 z-10 flex items-center justify-center"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 z-10 flex items-center justify-center"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -220,7 +214,7 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
                   className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
                     rememberMe 
                       ? 'bg-[#6419c1] border-[#6419c1]' 
-                      : 'bg-white/5 border-white/20 hover:border-white/40'
+                      : 'bg-white border-slate-300 hover:border-slate-400'
                   }`}
                 >
                   {rememberMe && (
@@ -231,11 +225,11 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
                     </motion.div>
                   )}
                 </button>
-                <Label className="text-sm text-white/70 cursor-pointer select-none" onClick={() => setRememberMe(!rememberMe)}>
+                <Label className="text-sm text-slate-600 cursor-pointer select-none" onClick={() => setRememberMe(!rememberMe)}>
                   Ingat password
                 </Label>
               </div>
-              <Link href="/auth/forgot-password" className="text-xs text-white/70 hover:text-white transition-colors underline underline-offset-4 decoration-white/30 hover:decoration-white">
+              <Link href="/auth/forgot-password" className="text-xs text-slate-500 hover:text-[#6419c1] transition-colors underline underline-offset-4 decoration-slate-300 hover:decoration-[#6419c1]">
                 Lupa Password?
               </Link>
             </div>
@@ -250,9 +244,9 @@ export function LoginClient({ logoUrl }: { logoUrl?: string | null }) {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-xs text-white/60">
+            <p className="text-xs text-slate-500">
               Belum punya akun?{" "}
-              <Link href="/auth/register" className="text-white font-semibold hover:text-white/80 underline underline-offset-4 decoration-white/30 transition-all">
+              <Link href="/auth/register" className="text-[#6419c1] font-semibold hover:text-[#5412a8] underline underline-offset-4 decoration-[#6419c1]/30 hover:decoration-[#6419c1] transition-all">
                 Daftar Sekarang
               </Link>
             </p>

@@ -26,6 +26,9 @@ model SiteSettings {
   howItWorks   Json?
   footerText   String?
   openaiApiKey String?
+  openaiApiModel String? @default("gpt-4o-mini")
+  qdrantUrl    String?
+  qdrantApiKey String?
   geminiApiKey String?
   aiMasterPrompt String? @db.Text
   chatApiUrl     String? @default("https://weizerouter.web.id/v1")
@@ -35,17 +38,6 @@ model SiteSettings {
   docApiUrl      String? @default("https://weizerouter.web.id/v1")
   docApiKey      String?
   docApiModel    String? @default("wz/gemini-3.5-flash-low")
-  // Admin WA Notification
-  waAdminProvider String? @default("FONNTE")
-  waAdminApiKey   String?
-  waAdminWelcomeTemplate String? @db.Text
-  waAdminTemplate String? @db.Text
-  waAdminInvoiceTemplate String? @db.Text
-  waAdminTopupTemplate   String? @db.Text
-  waAdminExpired7DaysTemplate String? @db.Text
-  waAdminExpiredTodayTemplate String? @db.Text
-  bankInstructions Json?
-  qrisUrl          String?
   
   // System & Server Settings
   faviconUrl        String?
@@ -79,24 +71,17 @@ model Tenant {
   namaRw          String?    // Nama RW
   noHpRt          String?    // Nomor HP RT
   
-  // Integrations
-  whatsappGroupId String?
-  whatsappBotNo   String?
-  // Subscription / Billing Cache
-  subscriptionPlan String        @default("Free")
-  activeUntil      DateTime?
-  maxWarga         Int           @default(50)
-  
-  // Add-on Quotas
-  addonMaxSurat   Int            @default(0)
-  addonMaxAiToken Int            @default(0)
-  
   // Customization
   logoUrl         String?
   signatureUrl    String?
   stampUrl        String?
   
   status          String         @default("AKTIF") // AKTIF, NONAKTIF, PENDING
+
+  // AI Credit System
+  aiChatCredits       Int      @default(30)
+  aiDocCredits        Int      @default(5)
+  lastCreditResetDate DateTime @default(now())
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -107,12 +92,10 @@ model Tenant {
   suratArsips     SuratArsip[]
   suratTemplates  SuratTemplate[]
   kasTransactions KasTransaction[]
-  subscriptions   Subscription[]
   activityLogs    ActivityLog[]
-  invoices        Invoice[]
   notulens        NotulenAi[]
   pengumumans     Pengumuman[]
-  waSessions      WaSession[]
+  notifications   Notification[]
 
   @@map("tenants")
 }
@@ -152,91 +135,6 @@ model User {
 }
 
 // -----------------------------------------------------------------------------
-// BILLING & SUBSCRIPTIONS (SaaS)
-// -----------------------------------------------------------------------------
-model Product {
-  id            String   @id @default(uuid())
-  name          String
-  slug          String   @unique
-  price         Decimal  @db.Decimal(10, 2)
-  billingPeriod     String   // e.g., "MONTHLY", "YEARLY", "LIFETIME", "TRIAL"
-  type              String   @default("NEW") // NEW, UPGRADE, RENEW, ADDON
-  masaAktifBulan    Int      @default(1)
-  hargaPendaftaran  Decimal  @default(0) @db.Decimal(10, 2)
-  hargaPerpanjangan Decimal  @default(0) @db.Decimal(10, 2)
-  
-  // Limiters
-  maxWarga      Int      @default(0) // 0 = unlimited
-  maxSurat      Int      @default(0) // Kuota cetak per bulan
-  maxAiChat     Int      @default(0)
-  maxAiToken    Int      @default(2000)
-  
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  subscriptions Subscription[]
-  invoices      Invoice[]
-
-  @@map("products")
-}
-
-enum SubscriptionStatus {
-  PENDING
-  ACTIVE
-  EXPIRED
-  CANCELLED
-}
-
-model Subscription {
-  id        String             @id @default(uuid())
-  tenantId  String
-  tenant    Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product            @relation(fields: [productId], references: [id])
-  
-  status    SubscriptionStatus @default(PENDING)
-  startsAt  DateTime           @default(now())
-  expiresAt DateTime?
-  
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-
-  @@index([tenantId])
-  @@map("subscriptions")
-}
-
-// -----------------------------------------------------------------------------
-// INVOICES (BILLING)
-// -----------------------------------------------------------------------------
-model Invoice {
-  id            String   @id @default(uuid())
-  invoiceNumber String   @unique // e.g., INV/YYYYMMDD/HHMM
-  date          DateTime @default(now())
-  
-  tenantId      String
-  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  productId     String
-  product       Product  @relation(fields: [productId], references: [id])
-  
-  amount        Decimal  @db.Decimal(10, 2)
-  status        String   @default("PENDING") // PENDING, CANCELLED, COMPLETED
-  orderType     String   @default("NEW") // NEW, UPGRADE, RENEWAL
-  paymentMethod String   @default("transfer") // qris, transfer
-  
-  // Temporary storage during registration before ACC
-  customerEmail    String?
-  customerPassword String?
-  customerName     String?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@index([tenantId])
-  @@map("invoices")
-}
-
-// -----------------------------------------------------------------------------
 // MODULE: DATA WARGA
 // -----------------------------------------------------------------------------
 enum WargaStatus {
@@ -251,6 +149,20 @@ enum Gender {
   PEREMPUAN
 }
 
+enum HubunganKeluarga {
+  KEPALA_KELUARGA
+  ISTRI
+  SUAMI
+  ANAK
+  MENANTU
+  CUCU
+  ORANG_TUA
+  MERTUA
+  FAMILI_LAIN
+  PEMBANTU
+  LAINNYA
+}
+
 model Warga {
   id             String      @id @default(uuid())
   tenantId       String
@@ -258,6 +170,7 @@ model Warga {
   
   nik            String      @db.VarChar(16)
   noKk           String      @db.VarChar(16)
+  hubunganKeluarga HubunganKeluarga @default(KEPALA_KELUARGA)
   namaLengkap    String
   namaPanggilan  String?
   tempatLahir    String?
@@ -428,29 +341,38 @@ model Pengumuman {
 }
 
 // -----------------------------------------------------------------------------
-// MODULE: INTEGRATIONS (WA & AI)
+// MODULE: NOTIFICATIONS (IN-APP)
 // -----------------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// WHATSAPP SESSION (STATE MACHINE)
-// -----------------------------------------------------------------------------
-model WaSession {
+model Notification {
   id          String   @id @default(uuid())
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  title       String
+  message     String   @db.Text
   
-  senderNumber String  // Nomor WA pengirim
-  groupId      String? // ID Grup WA (jika dari grup)
-  
-  state       String   // e.g., "WAITING_FOR_NIK", "MENU_WARGA"
-  data        Json?    // Data sementara yang dikumpulkan selama sesi
-  expiresAt   DateTime // Waktu kadaluwarsa sesi (TTL)
+  tenantId    String?  // Null means global notification for all tenants
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  isRead      Boolean  @default(false)
+  isGlobal    Boolean  @default(false) // If true, applies to all
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique([tenantId, senderNumber, groupId])
   @@index([tenantId])
-  @@map("wa_sessions")
+  @@map("notifications")
+}
+
+// -----------------------------------------------------------------------------
+// MODULE: KNOWLEDGE BASE (RAG)
+// -----------------------------------------------------------------------------
+model KnowledgeDocument {
+  id        String   @id @default(uuid())
+  filename  String
+  fileUrl   String?
+  status    String   // e.g., "PROCESSING", "READY", "FAILED"
+  error     String?  @db.Text
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("knowledge_documents")
 }

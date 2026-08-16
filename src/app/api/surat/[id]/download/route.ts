@@ -72,17 +72,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     // User manual input is stored in arsip.nomorSurat
     const nomorSuratFinal = arsip.nomorSurat && arsip.nomorSurat.trim() !== '' ? arsip.nomorSurat : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 
+    const toTitleCase = (str: string | null) => str ? str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()) : '-';
+
     const replacements: Record<string, string> = {
       'tw_nomor_surat': nomorSuratFinal,
       'tw_kode_surat': kodeSurat,
       'tw_tanggal_surat': new Date(arsip.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
       'tw_rt': tenant.rt || '-',
       'tw_rw': tenant.rw || '-',
-      'tw_desa': tenant.village || '-',
-      'tw_kecamatan': tenant.district || '-',
-      'tw_kabupaten': tenant.city || '-',
-      'tw_provinsi': tenant.province || '-',
-      'tw_ketua_rt': tenant.ketuaName || '-',
+      'tw_desa': toTitleCase(tenant.village),
+      'tw_kecamatan': toTitleCase(tenant.district),
+      'tw_kabupaten': toTitleCase(tenant.city),
+      'tw_provinsi': toTitleCase(tenant.province),
+      'tw_ketua_rt': toTitleCase(tenant.ketuaName),
       'tw_ketua_rw': tenant.namaRw || '-',
       'tw_no_hp_rt': tenant.noHpRt || '-',
       'tw_sekretariat': tenant.address || '-',

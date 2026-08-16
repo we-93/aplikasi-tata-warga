@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { searchWargaGlobal, deleteWargaGlobal, getTenantUsageStats } from "@/app/actions/customer";
-import { updateTenantByAdmin, deleteTenantByAdmin } from "@/app/actions/tenant";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { updateTenantByAdmin, deleteTenantByAdmin, topupCredit } from "@/app/actions/tenant";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,19 +12,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, Users, Search, Trash2, Edit, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 
-export function DataClient({ initialTenants, products = [] }: { initialTenants: any[], products?: any[] }) {
+export function DataClient({ initialTenants }: { initialTenants: any[] }) {
   const [activeTab, setActiveTab] = useState("tenants");
   const [currentTenantPage, setCurrentTenantPage] = useState(1);
   const itemsPerPage = 20;
-  const [filterPaket, setFilterPaket] = useState("SEMUA");
   const [searchTenantQuery, setSearchTenantQuery] = useState("");
 
   const filteredTenants = initialTenants.filter(t => {
-    if (filterPaket !== "SEMUA") {
-      const plan = (t.subscriptionPlan || "Trial").toUpperCase();
-      if (plan !== filterPaket.toUpperCase()) return false;
-    }
-    
     if (searchTenantQuery) {
       const q = searchTenantQuery.toLowerCase();
       const namaRt = (t.name || "").toLowerCase();
@@ -61,8 +55,8 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
   const [statsData, setStatsData] = useState<any>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
 
-  const handleOpenStats = async (t: any, totalSurat: number, totalAi: number) => {
-    setStatsTenant({ ...t, limitSurat: totalSurat, limitAi: totalAi });
+  const handleOpenStats = async (t: any) => {
+    setStatsTenant({ ...t });
     setIsLoadingStats(true);
     const res = await getTenantUsageStats(t.id);
     if (res.success) {
@@ -71,6 +65,25 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
       toast.error("Gagal memuat statistik");
     }
     setIsLoadingStats(false);
+  };
+
+  // TOP-UP CREDIT STATE
+  const [topupTenant, setTopupTenant] = useState<any>(null);
+  const [topupForm, setTopupForm] = useState({ chatKredit: 0, docKredit: 0 });
+  const [isToppingUp, setIsToppingUp] = useState(false);
+
+  const handleTopup = async () => {
+    if (!topupTenant) return;
+    setIsToppingUp(true);
+    const res = await topupCredit(topupTenant.id, topupForm.chatKredit, topupForm.docKredit);
+    if (res.success) {
+      toast.success("Kredit berhasil ditambahkan");
+      setTopupTenant(null);
+      window.location.reload();
+    } else {
+      toast.error(res.error);
+    }
+    setIsToppingUp(false);
   };
 
   // WARGA SEARCH STATE
@@ -183,21 +196,6 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
                     onChange={(e) => { setSearchTenantQuery(e.target.value); setCurrentTenantPage(1); }}
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs font-semibold text-slate-500 hidden sm:block">Paket:</Label>
-                  <Select value={filterPaket} onValueChange={(v) => { setFilterPaket(v || "SEMUA"); setCurrentTenantPage(1); }}>
-                    <SelectTrigger className="w-[120px] sm:w-[140px] h-8 text-xs bg-slate-50 dark:bg-black/20">
-                      <SelectValue placeholder="Pilih Paket" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SEMUA">Semua Paket</SelectItem>
-                      <SelectItem value="TRIAL">Trial</SelectItem>
-                      <SelectItem value="PREMIUM">Premium</SelectItem>
-                      <SelectItem value="PRO">Pro</SelectItem>
-                      <SelectItem value="PLATINUM">Platinum</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
             
@@ -208,8 +206,7 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
                     <th className="px-4 py-4 w-12 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider text-center">NO</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">ADMIN / EMAIL</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">NAMA RT</th>
-                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">PAKET</th>
-                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">WA GATEWAY</th>
+                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">KREDIT AI</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">STATUS</th>
                     <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider text-right">AKSI</th>
                   </tr>
@@ -217,14 +214,12 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
                 <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                   {currentTenants.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-slate-400 dark:text-white/40 text-sm">
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-400 dark:text-white/40 text-sm">
                         Belum ada RT yang mendaftar.
                       </td>
                     </tr>
                   ) : currentTenants.map((t, index) => {
-                    const sub = t.subscriptions?.[0];
                     const tenantAdmin = t.users?.find((u: any) => u.role === "TENANT_ADMIN");
-                    const plan = products.find(p => p.name === t.subscriptionPlan) || sub?.product;
                     
                     return (
                       <tr key={t.id} className="bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
@@ -241,14 +236,9 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
                           <span className="text-sm font-semibold text-slate-900 dark:text-white">{t.name}</span>
                         </td>
                         <td className="px-6 py-4 text-sm font-medium text-[#6419c1] dark:text-[#a064fa]">
-                          {t.subscriptionPlan || "Free"}
+                          Chat: {t.aiChatCredits}<br/>Doc: {t.aiDocCredits}
                         </td>
 
-                        <td className="px-6 py-4">
-                          <div className="text-xs space-y-1.5 text-slate-600 dark:text-white/70">
-                            <p className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Bot: {t.whatsappBotNo || "Kirim.chat"}</p>
-                          </div>
-                        </td>
                         <td className="px-6 py-4">
                           {t.status === "AKTIF" ? (
                             <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/20">Aktif</span>
@@ -261,7 +251,16 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
                             <button 
-                              onClick={() => handleOpenStats(t, plan?.maxSurat === -1 ? 999999 : (plan?.maxSurat ?? 20) + (t.addonMaxSurat || 0), plan?.maxAiToken === -1 ? 9999999 : (plan?.maxAiToken ?? 2000) + (t.addonMaxAiToken || 0))}
+                              onClick={() => {
+                                setTopupTenant(t);
+                                setTopupForm({ chatKredit: 10, docKredit: 5 });
+                              }}
+                              className="px-3 py-1.5 bg-[#6419c1] text-white text-xs font-bold rounded-lg hover:bg-[#7735d4] transition-colors"
+                            >
+                              Top-Up
+                            </button>
+                            <button 
+                              onClick={() => handleOpenStats(t)}
                               className="p-2 text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-lg transition-colors"
                               title="Lihat Statistik Penggunaan"
                             >
@@ -494,26 +493,54 @@ export function DataClient({ initialTenants, products = [] }: { initialTenants: 
                 {/* Surat */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-end">
-                    <p className="text-sm font-bold">Kuota Surat (Bulan Ini)</p>
-                    <p className="text-sm font-semibold">{statsData.totalSurat} / {statsTenant.limitSurat >= 999999 ? "∞" : statsTenant.limitSurat}</p>
-                  </div>
-                  <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-orange-500 transition-all" style={{ width: `${Math.min(100, (statsData.totalSurat / statsTenant.limitSurat) * 100)}%` }} />
+                    <p className="text-sm font-bold">Surat (Bulan Ini)</p>
+                    <p className="text-sm font-semibold">{statsData.totalSurat}</p>
                   </div>
                 </div>
 
                 {/* AI */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-end">
-                    <p className="text-sm font-bold">Token AI (Bulan Ini)</p>
-                    <p className="text-sm font-semibold">{statsData.totalAi >= 1000 ? (statsData.totalAi / 1000).toFixed(1) + 'k' : statsData.totalAi} / {statsTenant.limitAi >= 9999999 ? "∞" : (statsTenant.limitAi >= 1000 ? (statsTenant.limitAi / 1000).toFixed(1) + 'k' : statsTenant.limitAi)}</p>
-                  </div>
-                  <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-cyan-500 transition-all" style={{ width: `${Math.min(100, (statsData.totalAi / statsTenant.limitAi) * 100)}%` }} />
+                    <p className="text-sm font-bold">Token AI Dipakai (Bulan Ini)</p>
+                    <p className="text-sm font-semibold">{statsData.totalAi}</p>
                   </div>
                 </div>
               </div>
             ) : null}
+          </DialogContent>
+        </Dialog>
+
+        {/* DIALOG TOPUP KREDIT */}
+        <Dialog open={!!topupTenant} onOpenChange={(o) => !o && setTopupTenant(null)}>
+          <DialogContent className="max-w-sm p-6">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Top-Up Kredit AI</DialogTitle>
+              <p className="text-sm text-muted-foreground">RT: {topupTenant?.name}</p>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Kredit Chat Bot AI</Label>
+                <Input 
+                  type="number" 
+                  value={topupForm.chatKredit} 
+                  onChange={e => setTopupForm({...topupForm, chatKredit: parseInt(e.target.value) || 0})}
+                />
+                <p className="text-xs text-muted-foreground">Sisa saat ini: {topupTenant?.aiChatCredits}</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Kredit Notulen / Pengumuman AI</Label>
+                <Input 
+                  type="number" 
+                  value={topupForm.docKredit} 
+                  onChange={e => setTopupForm({...topupForm, docKredit: parseInt(e.target.value) || 0})}
+                />
+                <p className="text-xs text-muted-foreground">Sisa saat ini: {topupTenant?.aiDocCredits}</p>
+              </div>
+              <Button onClick={handleTopup} disabled={isToppingUp} className="w-full bg-[#6419c1] hover:bg-[#7735d4] text-white mt-4">
+                {isToppingUp ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Tambahkan Kredit
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 

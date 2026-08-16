@@ -10,76 +10,116 @@ function checkSuperAdmin(session: any) {
   }
 }
 
-export async function getNotificationSettings() {
+// -----------------------------------------------------------------------------
+// ADMIN ACTIONS
+// -----------------------------------------------------------------------------
+export async function getAdminNotifications() {
   const session = await auth();
   checkSuperAdmin(session);
   
-  let settings = await prisma.siteSettings.findFirst();
-  if (!settings) {
-    settings = await prisma.siteSettings.create({ data: {} });
-  }
+  const notifications = await prisma.notification.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { tenant: { select: { name: true } } }
+  });
   
-  return {
-    waAdminProvider: settings.waAdminProvider || "FONNTE",
-    waAdminApiKey: settings.waAdminApiKey || "",
-    waAdminWelcomeTemplate: settings.waAdminWelcomeTemplate || "Halo {{NAMA}},\n\nTerima kasih telah mendaftar di Tata Warga! Pendaftaran akun Anda untuk paket *{{PRODUK}}* telah kami terima.\n\nNomor Invoice: *{{INVOICE}}*\nTotal Tagihan: *Rp {{HARGA}}*\n\nSilakan transfer ke salah satu rekening berikut:\n{{BANK}}\n\nMohon segera selesaikan pembayaran agar akun Anda dapat diaktifkan. Terima kasih!",
-    waAdminTemplate: settings.waAdminTemplate || "Halo, pesanan paket Tata Warga Anda sudah aktif!\nNo Invoice: {{invoice}}\nEmail: {{email}}\nPassword: {{password}}\nNo. Bot WA: {{bot_wa}}\nSilakan masuk ke: {{link_login}}\n\nJika ada pertanyaan silakan balas pesan ini.",
-    waAdminInvoiceTemplate: settings.waAdminInvoiceTemplate || "Halo Kak! Pesanan Tata Warga Anda telah kami terima.\nNo Invoice: {{invoice}}\nPaket: {{paket}}\nTotal: Rp {{harga}}\n\nSilakan transfer ke rekening BCA 123456 a.n. Tata Warga, lalu balas pesan ini dengan menyertakan bukti transfer agar akun segera diaktifkan.",
-    waAdminTopupTemplate: settings.waAdminTopupTemplate || "Terima kasih Kak {{NAMA}}, pembayaran Anda di Tata Warga telah berhasil 🥳\nRincian Pembayaran:\nNo. Invoice: {{invoice}}\nTanggal Invoice: {{tanggal}}\nProduk: {{PRODUK}}\nJumlah Pembayaran: Rp {{HARGA}}\nLink Login: {{link_login}}\n\nTerima kasih telah memilih Tata Warga! Jika Anda memiliki pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.",
-    waAdminExpired7DaysTemplate: settings.waAdminExpired7DaysTemplate || "Peringatan! Paket {{paket}} Anda akan kedaluwarsa dalam 7 hari pada {{tanggal}}. Segera lakukan perpanjangan agar sistem tetap berjalan.",
-    waAdminExpiredTodayTemplate: settings.waAdminExpiredTodayTemplate || "Perhatian! Paket {{paket}} Anda telah KEDALUWARSA hari ini. Sistem telah dinonaktifkan sementara. Segera lakukan perpanjangan.",
-  };
+  return notifications;
 }
 
-export async function saveNotificationSettings(data: {
-  waAdminProvider: string;
-  waAdminApiKey: string;
-  waAdminWelcomeTemplate: string;
-  waAdminTemplate: string;
-  waAdminInvoiceTemplate: string;
-  waAdminTopupTemplate?: string;
-  waAdminExpired7DaysTemplate: string;
-  waAdminExpiredTodayTemplate: string;
-}) {
+export async function broadcastNotification(data: { title: string; message: string; targetTenantId?: string }) {
   try {
     const session = await auth();
     checkSuperAdmin(session);
 
-    let settings = await prisma.siteSettings.findFirst();
-    
-    if (settings) {
-      await prisma.siteSettings.update({
-        where: { id: settings.id },
+    if (data.targetTenantId && data.targetTenantId !== "ALL") {
+      // Send to specific tenant
+      await prisma.notification.create({
         data: {
-          waAdminProvider: data.waAdminProvider,
-          waAdminApiKey: data.waAdminApiKey,
-          waAdminWelcomeTemplate: data.waAdminWelcomeTemplate,
-          waAdminTemplate: data.waAdminTemplate,
-          waAdminInvoiceTemplate: data.waAdminInvoiceTemplate,
-          waAdminTopupTemplate: data.waAdminTopupTemplate,
-          waAdminExpired7DaysTemplate: data.waAdminExpired7DaysTemplate,
-          waAdminExpiredTodayTemplate: data.waAdminExpiredTodayTemplate,
+          title: data.title,
+          message: data.message,
+          tenantId: data.targetTenantId,
+          isGlobal: false
         }
       });
     } else {
-      await prisma.siteSettings.create({
-        data: {
-          waAdminProvider: data.waAdminProvider,
-          waAdminApiKey: data.waAdminApiKey,
-          waAdminWelcomeTemplate: data.waAdminWelcomeTemplate,
-          waAdminTemplate: data.waAdminTemplate,
-          waAdminInvoiceTemplate: data.waAdminInvoiceTemplate,
-          waAdminTopupTemplate: data.waAdminTopupTemplate,
-          waAdminExpired7DaysTemplate: data.waAdminExpired7DaysTemplate,
-          waAdminExpiredTodayTemplate: data.waAdminExpiredTodayTemplate,
-        }
-      });
+      // Send to ALL tenants individually so they can mark it read independently
+      const tenants = await prisma.tenant.findMany({ select: { id: true } });
+      const notifs = tenants.map(t => ({
+        title: data.title,
+        message: data.message,
+        tenantId: t.id,
+        isGlobal: true
+      }));
+
+      if (notifs.length > 0) {
+        await prisma.notification.createMany({ data: notifs });
+      }
     }
 
     revalidatePath("/admin/notifications");
+    // Also revalidate RT dashboard layout if possible, or just rely on client refresh
     return { success: true };
   } catch (error: any) {
-    console.error("Failed to save Notification Settings:", error);
-    return { success: false, error: error.message || "Gagal menyimpan konfigurasi notifikasi." };
+    console.error("Failed to broadcast notification:", error);
+    return { success: false, error: error.message || "Gagal mengirim notifikasi." };
+  }
+}
+
+export async function deleteNotification(id: string) {
+  try {
+    const session = await auth();
+    checkSuperAdmin(session);
+    await prisma.notification.delete({ where: { id } });
+    revalidatePath("/admin/notifications");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// -----------------------------------------------------------------------------
+// TENANT (RT) ACTIONS
+// -----------------------------------------------------------------------------
+export async function getTenantNotifications() {
+  const session = await auth();
+  if (!session?.user?.tenantId) return [];
+
+  const notifications = await prisma.notification.findMany({
+    where: { tenantId: session.user.tenantId },
+    orderBy: { createdAt: "desc" },
+    take: 50 // Limit to recent 50
+  });
+
+  return notifications;
+}
+
+export async function markNotificationRead(id: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.tenantId) return { success: false };
+
+    await prisma.notification.update({
+      where: { id, tenantId: session.user.tenantId },
+      data: { isRead: true }
+    });
+    
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
+}
+
+export async function markAllNotificationsRead() {
+  try {
+    const session = await auth();
+    if (!session?.user?.tenantId) return { success: false };
+
+    await prisma.notification.updateMany({
+      where: { tenantId: session.user.tenantId, isRead: false },
+      data: { isRead: true }
+    });
+    
+    return { success: true };
+  } catch (error) {
+    return { success: false };
   }
 }

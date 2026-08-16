@@ -30,6 +30,7 @@ export async function createWarga(formData: FormData) {
       noHp: formData.get("noHp") as string | null,
       email: formData.get("email") as string | null,
       statusWarga: (formData.get("statusWarga") as any) || "AKTIF",
+      hubunganKeluarga: (formData.get("hubunganKeluarga") as any) || "KEPALA_KELUARGA",
     };
 
     if (!data.nik || !data.namaLengkap) {
@@ -45,13 +46,7 @@ export async function createWarga(formData: FormData) {
     if (tenant.status === "NONAKTIF" || tenant.status === "INACTIVE") return { success: false, error: "Akun Tidak Aktif, Segera Hubungi Admin." };
     if (tenant.status === "KADALUARSA" || tenant.status === "EXPIRED") return { success: false, error: "Paket Langganan Sudah Kadaluarsa, Segera Hubungi Admin." };
 
-    // Check Quota Limit
-    if (tenant.maxWarga !== -1) {
-      const currentWargaCount = await prisma.warga.count({ where: { tenantId } });
-      if (currentWargaCount >= tenant.maxWarga) {
-        return { success: false, error: "Kuota maksimal Warga Anda telah habis. Silakan Upgrade Paket Langganan untuk menambah kapasitas." };
-      }
-    }
+    // No Quota Limit for Warga as requested
 
     await prisma.warga.create({
       data,
@@ -67,6 +62,50 @@ export async function createWarga(formData: FormData) {
     return { success: false, error: error.message || "Terjadi kesalahan sistem." };
   }
 }
+
+export async function createWargaBatch(dataArray: any[]) {
+  try {
+    const session = await auth();
+    if (!session?.user?.tenantId) {
+      return { success: false, error: "Unauthorized: No tenant ID found." };
+    }
+    const tenantId = session.user.tenantId;
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId }
+    });
+
+    if (!tenant) return { success: false, error: "Akun Tidak Ditemukan." };
+    if (tenant.status !== "AKTIF") return { success: false, error: "Akun Tidak Aktif." };
+
+    // Validate if any NIK exists first
+    const niks = dataArray.map(d => d.nik);
+    const existingWargas = await prisma.warga.findMany({
+      where: { tenantId, nik: { in: niks } }
+    });
+
+    if (existingWargas.length > 0) {
+      const duplicateNiks = existingWargas.map(w => w.nik).join(', ');
+      return { success: false, error: `Batal menyimpan: NIK berikut sudah terdaftar (${duplicateNiks}).` };
+    }
+
+    const payload = dataArray.map(d => ({
+      tenantId,
+      ...d
+    }));
+
+    await prisma.warga.createMany({
+      data: payload
+    });
+
+    revalidatePath("/dashboard/rt/warga");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to create warga batch:", error);
+    return { success: false, error: "Gagal menyimpan data kelompok." };
+  }
+}
+
 
 export async function updateWarga(id: string, formData: FormData) {
   try {
@@ -104,6 +143,7 @@ export async function updateWarga(id: string, formData: FormData) {
       noHp: formData.get("noHp") as string | null,
       email: formData.get("email") as string | null,
       statusWarga: (formData.get("statusWarga") as any) || "AKTIF",
+      hubunganKeluarga: (formData.get("hubunganKeluarga") as any) || "KEPALA_KELUARGA",
     };
 
     await prisma.warga.update({
@@ -150,3 +190,34 @@ export async function deleteWarga(id: string) {
     return { success: false, error: "Gagal menghapus warga." };
   }
 }
+
+export async function getKeluargaByNoKk(noKk: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.tenantId) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    if (!noKk || noKk.trim() === "") {
+      return { success: false, data: [] };
+    }
+
+    const wargas = await prisma.warga.findMany({
+      where: {
+        tenantId: session.user.tenantId,
+        noKk: noKk.trim()
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
+
+    console.log("getKeluargaByNoKk input:", noKk, "found:", wargas.length, "wargas");
+
+    return { success: true, data: wargas };
+  } catch (error: any) {
+    console.error("Failed to fetch keluarga by No KK:", error);
+    return { success: false, error: "Gagal mengambil data keluarga." };
+  }
+}
+

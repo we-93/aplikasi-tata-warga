@@ -2,7 +2,8 @@
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getCycleStart } from "@/lib/utils";
+import OpenAI from "openai";
+import { QdrantClient } from "@qdrant/js-client-rest";
 
 // Internal helper to get Tenant context and API keys
 export async function getAiConfigAndContext(passedTenantId?: string) {
@@ -46,29 +47,6 @@ export async function getAiConfigAndContext(passedTenantId?: string) {
     _sum: { amount: true }
   });
 
-  // Calculate AI Usage and Limits
-  const currentProduct = await prisma.product.findFirst({ where: { name: tenantInfo?.subscriptionPlan } });
-  const baseAi = currentProduct?.maxAiToken === -1 ? 9999999 : (currentProduct?.maxAiToken || 0);
-  const totalLimit = baseAi + (tenantInfo?.addonMaxAiToken || 0);
-
-  const cycleStart = getCycleStart(tenantInfo?.activeUntil, currentProduct?.masaAktifBulan || 30);
-  cycleStart.setHours(0, 0, 0, 0);
-
-  const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: cycleStart } } });
-  const aiChatLogs = await prisma.activityLog.findMany({ 
-    where: { 
-      tenantId, 
-      action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, 
-      createdAt: { gte: cycleStart } 
-    } 
-  });
-  const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
-  const aiUsed = notulens.reduce((acc, curr) => acc + curr.tokenUsed, 0) + aiChatUsed;
-
-  if (totalLimit !== 9999999 && aiUsed >= totalLimit) {
-    throw new Error("Kuota Token AI Anda telah habis. Silakan Upgrade Paket atau Topup Kuota untuk melanjutkan.");
-  }
-
   let saldo = 0;
   kasSummary.forEach((t: any) => {
     if (t.type === 'PEMASUKAN') saldo += Number(t._sum.amount || 0);
@@ -101,62 +79,95 @@ ${settings.aiMasterPrompt || ""}`;
 
   return { 
     openaiApiKey: settings.openaiApiKey, 
+    openaiApiModel: settings.openaiApiModel || "gpt-4o-mini",
+    qdrantUrl: settings.qdrantUrl,
+    qdrantApiKey: settings.qdrantApiKey,
     geminiApiKey: settings.geminiApiKey,
     chatApiUrl: settings.chatApiUrl || "https://weizerouter.web.id/v1",
     chatApiKey: settings.chatApiKey,
     chatApiModel: settings.chatApiModel || "wz/gemini-3.5-flash-low",
     systemContext, 
-    tenantId 
+    tenantId,
+    tenantInfo
   };
 }
 
 export async function chatWithAi(messages: any[]) {
   try {
-    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId } = await getAiConfigAndContext();
+    const { openaiApiKey, openaiApiModel, qdrantUrl, qdrantApiKey, systemContext, tenantId, tenantInfo } = await getAiConfigAndContext();
 
-    if (!chatApiKey) {
-      throw new Error("API Key Chat belum dikonfigurasi.");
+    if (!openaiApiKey) throw new Error("API Key OpenAI belum dikonfigurasi.");
+    if (tenantInfo && tenantInfo.aiChatCredits <= 0) {
+      throw new Error("Kredit Chat AI Anda habis. Silakan Top Up kredit Anda.");
+    }
+
+    const openai = new OpenAI({ apiKey: openaiApiKey });
+    let finalSystemContext = systemContext;
+
+    // RAG Implementation: Search Qdrant if user asks something and Qdrant is configured
+    if (qdrantUrl && qdrantApiKey) {
+      const qdrant = new QdrantClient({ url: qdrantUrl, apiKey: qdrantApiKey });
+      
+      // Get the last user message to use as search query
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.role === "user" && typeof lastMessage.content === "string") {
+        try {
+          // Get embedding for the query
+          const embeddingResponse = await openai.embeddings.create({
+            model: "text-embedding-3-small",
+            input: lastMessage.content,
+            encoding_format: "float",
+          });
+          const queryVector = embeddingResponse.data[0].embedding;
+
+          // Search Qdrant
+          const searchResult = await qdrant.search("tata_warga_knowledge", {
+            vector: queryVector,
+            limit: 3,
+            with_payload: true,
+            score_threshold: 0.5, // Only relevant matches
+          });
+
+          if (searchResult && searchResult.length > 0) {
+            const contextTexts = searchResult.map((res: any) => res.payload?.text).join("\n\n");
+            finalSystemContext += `\n\nREFERENSI PENGETAHUAN TAMBAHAN (Perda/Perbup/Dokumen):\nBerdasarkan pertanyaan pengguna, berikut adalah referensi dokumen resmi yang mungkin relevan:\n"""\n${contextTexts}\n"""\n\nGunakan referensi di atas untuk menjawab pertanyaan pengguna jika relevan. Jika tidak relevan, abaikan referensi tersebut.`;
+          }
+        } catch (ragError) {
+          console.error("RAG Search failed:", ragError);
+          // Fallback gracefully if Qdrant search fails
+        }
+      }
     }
 
     const payloadMessages = [
-      { role: "system", content: systemContext },
+      { role: "system", content: finalSystemContext },
       ...messages
     ];
 
-    const response = await fetch(`${chatApiUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + chatApiKey
-      },
-      body: JSON.stringify({
-        model: chatApiModel,
-        messages: payloadMessages,
-      })
+    const response = await openai.chat.completions.create({
+      model: openaiApiModel || "gpt-4o-mini",
+      messages: payloadMessages,
     });
     
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "Gagal menghubungi Chat API");
-    
-    const tokens = data.usage?.total_tokens || 100;
-    
     if (tenantId) {
+      await prisma.tenant.update({
+        where: { id: tenantId },
+        data: { aiChatCredits: { decrement: 1 } }
+      });
       await prisma.activityLog.create({
         data: {
           tenantId,
           action: "AI_CHAT_USAGE",
-          description: tokens.toString()
+          description: "Menggunakan 1 Kredit Chat"
         }
       });
     }
 
-    return { success: true, message: data.choices[0].message };
+    return { success: true, message: response.choices[0].message };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
-
-
 
 export async function transcribeImage(formData: FormData) {
   try {
@@ -166,16 +177,21 @@ export async function transcribeImage(formData: FormData) {
     const file = formData.get("file") as File;
     if (!file) throw new Error("Tidak ada file gambar yang diunggah.");
 
-    // Enforce quota check by using getAiConfigAndContext
-    const { tenantId, geminiApiKey, openaiApiKey } = await getAiConfigAndContext();
+    const { tenantId, geminiApiKey, openaiApiKey, tenantInfo } = await getAiConfigAndContext();
 
     if (!openaiApiKey && !geminiApiKey) {
       throw new Error("API Key Notulen (OpenAI/Gemini) belum dikonfigurasi.");
+    }
+    
+    if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
+      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
     }
 
     const buffer = await file.arrayBuffer();
     const base64 = Buffer.from(buffer).toString("base64");
     const mimeType = file.type || "image/jpeg";
+
+    let text = "";
 
     if (geminiApiKey) {
       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + geminiApiKey;
@@ -199,8 +215,7 @@ export async function transcribeImage(formData: FormData) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error?.message || "Gagal membaca teks dari gambar dengan Gemini");
       
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      return { success: true, text };
+      text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     } else if (openaiApiKey) {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -229,11 +244,20 @@ export async function transcribeImage(formData: FormData) {
 
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || "Gagal membaca teks dari gambar");
-
-      const tokens = result.usage?.total_tokens || 250;
-      if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_OCR_USAGE", description: tokens.toString() } });
-      return { success: true, text: result.choices[0].message.content };
+      text = result.choices[0].message.content;
     }
+
+    if (tenantId) {
+      await prisma.tenant.update({
+        where: { id: tenantId },
+        data: { aiDocCredits: { decrement: 1 } }
+      });
+      await prisma.activityLog.create({ 
+        data: { tenantId, action: "AI_OCR_USAGE", description: "Menggunakan 1 Kredit Notulen/Doc" } 
+      });
+    }
+
+    return { success: true, text };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -247,10 +271,11 @@ export async function generateAiBroadcast(data: {
   lokasi: string;
 }) {
   try {
-    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId } = await getAiConfigAndContext();
+    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId, tenantInfo } = await getAiConfigAndContext();
 
-    if (!chatApiKey) {
-      throw new Error("API Key Chat belum dikonfigurasi.");
+    if (!chatApiKey) throw new Error("API Key Chat belum dikonfigurasi.");
+    if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
+      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
     }
 
     const prompt = "Tolong buatkan draf pesan pengumuman WhatsApp untuk warga RT.\n" +
@@ -280,8 +305,15 @@ export async function generateAiBroadcast(data: {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error?.message || "Gagal memproses broadcast");
     
-    const tokens = result.usage?.total_tokens || 100;
-    if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_BROADCAST_USAGE", description: tokens.toString() } });
+    if (tenantId) {
+      await prisma.tenant.update({
+        where: { id: tenantId },
+        data: { aiDocCredits: { decrement: 1 } }
+      });
+      await prisma.activityLog.create({ 
+        data: { tenantId, action: "AI_BROADCAST_USAGE", description: "Menggunakan 1 Kredit Notulen/Doc" } 
+      });
+    }
     
     return { success: true, text: result.choices[0].message.content };
   } catch (error: any) {
@@ -291,10 +323,11 @@ export async function generateAiBroadcast(data: {
 
 export async function generateAiReport(month: number, year: number) {
   try {
-    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId } = await getAiConfigAndContext();
+    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId, tenantInfo } = await getAiConfigAndContext();
 
-    if (!chatApiKey) {
-      throw new Error("API Key Chat belum dikonfigurasi.");
+    if (!chatApiKey) throw new Error("API Key Chat belum dikonfigurasi.");
+    if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
+      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
     }
 
     const startDate = new Date(year, month - 1, 1);
@@ -333,39 +366,17 @@ kasText + "\n\n" +
     const result = await response.json();
     if (!response.ok) throw new Error(result.error?.message || "Gagal membuat laporan AI");
     
-    const tokens = result.usage?.total_tokens || 200;
-    if (tenantId) await prisma.activityLog.create({ data: { tenantId, action: "AI_REPORT_USAGE", description: tokens.toString() } });
+    if (tenantId) {
+      await prisma.tenant.update({
+        where: { id: tenantId },
+        data: { aiDocCredits: { decrement: 1 } }
+      });
+      await prisma.activityLog.create({ 
+        data: { tenantId, action: "AI_REPORT_USAGE", description: "Menggunakan 1 Kredit Notulen/Doc" } 
+      });
+    }
     
     return { success: true, text: result.choices[0].message.content };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
-
-export async function chatWithWaAi(tenantId: string, userMessage: string) {
-  try {
-    const { chatApiUrl, chatApiKey, chatApiModel, systemContext } = await getAiConfigAndContext(tenantId);
-
-    if (!chatApiKey) {
-      throw new Error("Tidak ada API Key yang dikonfigurasi.");
-    }
-
-    const res = await fetch(`${chatApiUrl}/chat/completions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${chatApiKey}` },
-      body: JSON.stringify({
-        model: chatApiModel,
-        messages: [
-          { role: "system", content: systemContext },
-          { role: "user", content: userMessage }
-        ]
-      })
-    });
-    
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || "Gagal memanggil Chat API");
-    
-    return { success: true, text: data.choices[0].message.content };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

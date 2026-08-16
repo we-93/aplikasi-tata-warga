@@ -24,10 +24,10 @@ async function getAiConfig() {
   const tenant = await prisma.tenant.findUnique({
     where: { id: user.tenantId },
     select: {
-      id: true, name: true, rt: true, rw: true,
-      addonMaxAiToken: true
+      id: true, name: true, rt: true, rw: true
     }
   });
+
   if (!tenant) throw new Error("Tenant tidak ditemukan.");
 
   return { 

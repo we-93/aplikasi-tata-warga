@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tata Warga</string>
+    <string name="title_activity_main">Tata Warga</string>
+    <string name="package_name">com.tatawarga.app</string>
+    <string name="custom_url_scheme">com.tatawarga.app</string>
+</resources>

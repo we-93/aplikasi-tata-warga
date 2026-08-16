@@ -5,7 +5,6 @@ export const dynamic = 'force-dynamic';
 
 export default async function RegisterPage() {
   let logoUrl = null;
-  let products: any[] = [];
   
   try {
     const settings = await prisma.siteSettings.findFirst({
@@ -19,21 +18,5 @@ export default async function RegisterPage() {
     console.error("Failed to fetch settings for register page", error);
   }
 
-  try {
-    const dbProducts = await prisma.product.findMany({ 
-      where: { isActive: true, type: 'NEW' },
-      orderBy: { price: 'asc' }
-    });
-
-    products = dbProducts.map(p => ({
-      ...p,
-      price: Number(p.price),
-      hargaPendaftaran: Number(p.hargaPendaftaran),
-      hargaPerpanjangan: Number(p.hargaPerpanjangan)
-    }));
-  } catch (error) {
-    console.error("Failed to fetch products for register page", error);
-  }
-
-  return <RegisterClient logoUrl={logoUrl} products={products} />;
+  return <RegisterClient logoUrl={logoUrl} />;
 }

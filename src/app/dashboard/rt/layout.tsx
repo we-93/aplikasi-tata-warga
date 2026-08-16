@@ -6,6 +6,24 @@ import { redirect } from "next/navigation";
 export default async function RTLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) redirect("/auth/login");
+  
+  // Jika Super Admin mencoba mengakses dashboard RT, redirect kembali ke admin
+  if (session.user.role === "SUPER_ADMIN" && !session.user.tenantId) {
+    redirect("/admin");
+  }
+
+  // Jika user biasa tapi tidak punya tenantId
+  if (!session.user.tenantId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-900">
+        <div className="max-w-md text-center p-8 bg-white rounded-xl border border-slate-200 shadow-sm">
+          <h2 className="text-xl font-bold mb-2">Akses Ditolak</h2>
+          <p className="text-sm text-slate-600 mb-6">Akun Anda belum terhubung dengan RT manapun.</p>
+          <a href="/" className="px-4 py-2 bg-[#6419c1] text-white rounded-md text-sm font-medium">Kembali ke Beranda</a>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch logo and footer text from site settings
   const settings = await prisma.siteSettings.findFirst({ select: { logoUrl: true, logoUrlDark: true, footerText: true, maintenanceMode: true } });
@@ -31,27 +49,27 @@ export default async function RTLayout({ children }: { children: React.ReactNode
     );
   }
 
-  // Fetch 3 recent logs for notification bell (for the specific tenant)
-  let recentLogs: any[] = [];
+  // Fetch notifications for the specific tenant
+  let notifications: any[] = [];
   if (session.user.tenantId) {
-    recentLogs = await prisma.activityLog.findMany({
-      where: { tenantId: session.user.tenantId },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: {
-        tenant: { select: { name: true } },
-        user: { select: { name: true } },
+    notifications = await prisma.notification.findMany({
+      where: { 
+        OR: [
+          { tenantId: session.user.tenantId },
+          { isGlobal: true }
+        ]
       },
+      orderBy: { createdAt: "desc" },
+      take: 10
     });
   }
 
-  const serializedLogs = recentLogs.map(l => ({
-    id: l.id,
-    action: l.action,
-    description: l.description,
-    createdAt: l.createdAt.toISOString(),
-    tenantName: l.tenant?.name || null,
-    userName: l.user?.name || null,
+  const serializedNotifs = notifications.map(n => ({
+    id: n.id,
+    title: n.title,
+    message: n.message,
+    isRead: n.isRead,
+    createdAt: n.createdAt.toISOString()
   }));
 
   // Fetch fresh user data for image (so we don't rely purely on stale JWT session)
@@ -68,7 +86,7 @@ export default async function RTLayout({ children }: { children: React.ReactNode
       userEmail={session.user.email || ""}
       userImage={userDb?.image || session.user.image || null}
       footerText={settings?.footerText || "© 2026 Tata Warga."}
-      recentLogs={serializedLogs}
+      notifications={serializedNotifs}
     >
       {children}
     </RTLayoutShell>

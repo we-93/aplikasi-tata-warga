@@ -4,142 +4,137 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { saveNotificationSettings } from "@/app/actions/notifications";
 import { toast } from "sonner";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Bell, Send, Trash2 } from "lucide-react";
+import { broadcastNotification, deleteNotification } from "@/app/actions/notifications";
 
-export function NotificationsClient({ settings }: { settings: any }) {
-  const [config, setConfig] = useState(settings);
-  const [isSaving, setIsSaving] = useState(false);
-  const [showToken, setShowToken] = useState(false);
+export function NotificationsClient({ initialNotifications, tenants }: { initialNotifications: any[], tenants: any[] }) {
+  const [notifications, setNotifications] = useState(initialNotifications);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    message: "",
+    targetTenantId: "ALL"
+  });
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    const res = await saveNotificationSettings(config);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title || !formData.message) {
+      toast.error("Judul dan isi pesan wajib diisi");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const res = await broadcastNotification(formData);
     if (res.success) {
-      toast.success("Pengaturan Notifikasi Pusat berhasil disimpan!");
+      toast.success("Notifikasi berhasil dikirim");
+      setFormData({ title: "", message: "", targetTenantId: "ALL" });
+      // In a real app, we'd fetch the updated list or let server action revalidatePath handle it.
+      // Since revalidatePath works, the page will refresh on next navigation or we can just reload.
+      window.location.reload();
     } else {
       toast.error(res.error);
     }
-    setIsSaving(false);
+    setIsSubmitting(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Hapus histori notifikasi ini?")) {
+      const res = await deleteNotification(id);
+      if (res.success) {
+        setNotifications(notifications.filter((n: any) => n.id !== id));
+        toast.success("Notifikasi dihapus");
+      }
+    }
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto w-full text-slate-900 dark:text-white">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
+    <div className="space-y-8 max-w-5xl mx-auto w-full text-slate-900 dark:text-white">
+      <div className="flex items-end justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Notifikasi Pusat</h1>
-          <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Konfigurasi notifikasi WhatsApp terpusat dari admin ke tenant.</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Sistem Notifikasi</h2>
+          <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Kirim pemberitahuan langsung ke dashboard RT.</p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#141229] rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] p-6 md:p-8 space-y-6 max-w-4xl">
-        <div className="space-y-3">
-          <Label className="text-slate-900 dark:text-white font-semibold">Provider Notifikasi Pusat</Label>
-          <div className="w-full md:w-1/3">
-            <Select value={config.waAdminProvider} onValueChange={(v) => setConfig({...config, waAdminProvider: v || "FONNTE"})}>
-              <SelectTrigger className="w-full h-12 bg-slate-50 dark:bg-black/20 border-slate-200 dark:border-white/10 rounded-xl focus:ring-[#6419c1] text-slate-900 dark:text-white"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="FONNTE">Fonnte</SelectItem>
-                <SelectItem value="APICOID">Api.co.id</SelectItem>
-                <SelectItem value="KIRIMCHAT">Kirim.chat</SelectItem>
-              </SelectContent>
-            </Select>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-1 space-y-6">
+          <div className="bg-white dark:bg-[#141229] rounded-2xl border border-slate-200 dark:border-white/5 p-6 shadow-sm">
+            <h3 className="font-bold mb-4 flex items-center gap-2"><Send className="w-4 h-4 text-[#6419c1]" /> Buat Pesan Baru</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Penerima</Label>
+                <Select value={formData.targetTenantId} onValueChange={v => setFormData({...formData, targetTenantId: v || "ALL"})}>
+                  <SelectTrigger className="w-full bg-slate-50 dark:bg-black/20">
+                    <SelectValue placeholder="Pilih Penerima" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">Semua RT (Global)</SelectItem>
+                    {tenants.map(t => (
+                      <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Judul Pesan</Label>
+                <Input 
+                  placeholder="Contoh: Info Update Sistem" 
+                  value={formData.title} 
+                  onChange={e => setFormData({...formData, title: e.target.value})} 
+                  className="bg-slate-50 dark:bg-black/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Isi Pesan</Label>
+                <textarea 
+                  className="w-full p-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm min-h-[120px]"
+                  placeholder="Ketik pesan Anda di sini..."
+                  value={formData.message}
+                  onChange={e => setFormData({...formData, message: e.target.value})}
+                />
+              </div>
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-[#6419c1] hover:bg-[#7735d4] text-white">
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Bell className="w-4 h-4 mr-2" />}
+                Kirim Notifikasi
+              </Button>
+            </form>
           </div>
         </div>
 
-        <div className="space-y-3">
-          <Label className="text-slate-900 dark:text-white font-semibold">Admin WA API Key (Token)</Label>
-          <div className="relative w-full md:w-1/2">
-            <input 
-              type={showToken ? "text" : "password"} 
-              placeholder="Token WA Pusat..." 
-              value={config.waAdminApiKey} 
-              onChange={e => setConfig({...config, waAdminApiKey: e.target.value})}
-              className="w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30 text-slate-900 dark:text-white"
-            />
-            <button
-              type="button"
-              onClick={() => setShowToken(!showToken)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1"
-            >
-              {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
+        <div className="md:col-span-2">
+          <div className="bg-white dark:bg-[#141229] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm">
+            <div className="p-4 md:p-6 border-b border-slate-200 dark:border-white/5">
+              <h3 className="font-bold">Histori Pengiriman</h3>
+            </div>
+            <div className="p-0">
+              {notifications.length === 0 ? (
+                <div className="p-8 text-center text-slate-500">Belum ada histori pengiriman notifikasi.</div>
+              ) : (
+                <div className="divide-y divide-slate-100 dark:divide-white/5">
+                  {notifications.map((n: any) => (
+                    <div key={n.id} className="p-4 md:p-6 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex justify-between items-start gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${n.isGlobal ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                            {n.isGlobal ? "Semua RT" : n.tenant?.name || "RT Spesifik"}
+                          </span>
+                          <span className="text-xs text-slate-400">{new Date(n.createdAt).toLocaleString('id-ID')}</span>
+                        </div>
+                        <h4 className="font-semibold text-sm md:text-base text-slate-900 dark:text-white mb-1">{n.title}</h4>
+                        <p className="text-xs md:text-sm text-slate-600 dark:text-white/70 whitespace-pre-wrap">{n.message}</p>
+                      </div>
+                      <button onClick={() => handleDelete(n.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-200 dark:border-white/10 mt-8">
-          <div className="space-y-3">
-            <Label className="text-blue-600 dark:text-blue-400 font-bold text-base">Template WA Selamat Datang (Pendaftar Baru)</Label>
-            <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all text-slate-900 dark:text-white font-light"
-              value={config.waAdminWelcomeTemplate}
-              onChange={e => setConfig({...config, waAdminWelcomeTemplate: e.target.value})}
-            />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{nama}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{produk}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{invoice}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{harga}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{bank}}`}</code></p>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-emerald-600 dark:text-emerald-400 font-bold text-base">Template ACC Registrasi</Label>
-            <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all text-slate-900 dark:text-white font-light"
-              value={config.waAdminTemplate}
-              onChange={e => setConfig({...config, waAdminTemplate: e.target.value})}
-            />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{invoice}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{email}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{password}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{bot_wa}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{link_login}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{link_grup}}`}</code></p>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-[#6419c1] dark:text-[#a064fa] font-bold text-base">Template Invoice Tagihan Baru</Label>
-            <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-[#6419c1]/50 focus:border-[#6419c1] outline-none transition-all text-slate-900 dark:text-white font-light"
-              value={config.waAdminInvoiceTemplate}
-              onChange={e => setConfig({...config, waAdminInvoiceTemplate: e.target.value})}
-            />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{invoice}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{paket}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{harga}}`}</code></p>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-teal-600 dark:text-teal-400 font-bold text-base">Template ACC Pembayaran (Topup & Perpanjang)</Label>
-            <textarea 
-              className="w-full h-40 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 outline-none transition-all text-slate-900 dark:text-white font-light"
-              value={config.waAdminTopupTemplate || ""}
-              onChange={e => setConfig({...config, waAdminTopupTemplate: e.target.value})}
-            />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{nama}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{invoice}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{tanggal}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{produk}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{harga}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{link_login}}`}</code></p>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-orange-500 font-bold text-base">Template Peringatan H-7 Expired</Label>
-            <textarea 
-              className="w-full h-32 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 outline-none transition-all text-slate-900 dark:text-white font-light"
-              value={config.waAdminExpired7DaysTemplate}
-              onChange={e => setConfig({...config, waAdminExpired7DaysTemplate: e.target.value})}
-            />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{paket}}`}</code>, <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{tanggal}}`}</code></p>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-red-500 font-bold text-base">Template Hari H Expired (Suspend)</Label>
-            <textarea 
-              className="w-full h-32 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-red-500/50 focus:border-red-500 outline-none transition-all text-slate-900 dark:text-white font-light"
-              value={config.waAdminExpiredTodayTemplate}
-              onChange={e => setConfig({...config, waAdminExpiredTodayTemplate: e.target.value})}
-            />
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1 bg-slate-50 dark:bg-black/20 p-2.5 rounded-lg border border-slate-100 dark:border-white/5">Variabel: <code className="text-[#6419c1] dark:text-[#a064fa] font-bold">{`{{paket}}`}</code></p>
-          </div>
-        </div>
-
-        <button 
-          onClick={handleSave} 
-          disabled={isSaving} 
-          className="w-full sm:w-auto px-8 py-3 mt-4 flex items-center justify-center gap-2 bg-[#6419c1] text-white rounded-xl shadow-md shadow-[#6419c1]/20 dark:shadow-[0_0_15px_rgba(100,25,193,0.4)] hover:bg-[#7735d4] transition-all text-sm font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-          Simpan Konfigurasi Notifikasi
-        </button>
       </div>
     </div>
   );

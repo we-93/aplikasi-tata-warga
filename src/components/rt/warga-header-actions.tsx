@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, FileSpreadsheet } from "lucide-react";
+import { Plus, Download, Upload, FileSpreadsheet, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
@@ -20,17 +20,25 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
       return;
     }
 
-    const dataToExport = wargas.map((w, index) => ({
+    // Urutkan berdasarkan No KK agar keluarga berkumpul
+    const sortedWargas = [...wargas].sort((a, b) => (a.noKk || "").localeCompare(b.noKk || ""));
+
+    const dataToExport = sortedWargas.map((w, index) => ({
       "No": index + 1,
       "NIK": w.nik,
       "No KK": w.noKk || "",
       "Nama Lengkap": w.namaLengkap,
+      "Hubungan Keluarga": w.hubunganKeluarga || "LAINNYA",
       "Jenis Kelamin": w.jenisKelamin === "LAKI_LAKI" ? "Laki-laki" : "Perempuan",
       "Tempat Lahir": w.tempatLahir || "",
-      "Tanggal Lahir": w.tanggalLahir ? new Date(w.tanggalLahir).toLocaleDateString("id-ID") : "",
+      "Tanggal Lahir": w.tanggalLahir ? new Date(w.tanggalLahir).toISOString().split('T')[0] : "",
       "Agama": w.agama || "",
+      "Pendidikan": w.pendidikan || "",
+      "Pekerjaan": w.pekerjaan || "",
+      "Status Perkawinan": w.statusNikah || "",
+      "Golongan Darah": w.golonganDarah || "",
       "No HP": w.noHp || "",
-      "Status": w.statusWarga,
+      "Status Warga": w.statusWarga,
       "Alamat": w.alamat || ""
     }));
 
@@ -46,11 +54,33 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
         "NIK": "1234567890123456",
         "No KK": "1234567890123450",
         "Nama Lengkap": "Budi Santoso",
+        "Hubungan Keluarga": "KEPALA_KELUARGA",
         "Jenis Kelamin": "L",
         "Tempat Lahir": "Jakarta",
         "Tanggal Lahir": "1990-01-01",
         "Agama": "Islam",
+        "Pendidikan": "SMA",
+        "Pekerjaan": "Pegawai Swasta",
+        "Status Perkawinan": "Kawin",
+        "Golongan Darah": "O",
         "No HP": "08123456789",
+        "Status Warga": "TETAP",
+        "Alamat": "Blok A No 1"
+      },
+      {
+        "NIK": "1234567890123457",
+        "No KK": "1234567890123450",
+        "Nama Lengkap": "Siti Aminah",
+        "Hubungan Keluarga": "ISTRI",
+        "Jenis Kelamin": "P",
+        "Tempat Lahir": "Bandung",
+        "Tanggal Lahir": "1992-05-15",
+        "Agama": "Islam",
+        "Pendidikan": "SMA",
+        "Pekerjaan": "Mengurus Rumah Tangga",
+        "Status Perkawinan": "Kawin",
+        "Golongan Darah": "A",
+        "No HP": "08123456788",
         "Status Warga": "TETAP",
         "Alamat": "Blok A No 1"
       }
@@ -77,10 +107,15 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
         nik: String(row["NIK"] || row["nik"] || ""),
         noKk: String(row["No KK"] || row["no_kk"] || row["nokk"] || ""),
         namaLengkap: String(row["Nama Lengkap"] || row["nama"] || ""),
+        hubunganKeluarga: String(row["Hubungan Keluarga"] || row["hubungan"] || "LAINNYA"),
         jenisKelamin: String(row["Jenis Kelamin"] || row["jk"] || ""),
         tempatLahir: String(row["Tempat Lahir"] || ""),
         tanggalLahir: row["Tanggal Lahir"] || "",
         agama: String(row["Agama"] || ""),
+        pendidikan: String(row["Pendidikan"] || ""),
+        pekerjaan: String(row["Pekerjaan"] || ""),
+        statusNikah: String(row["Status Perkawinan"] || row["status_nikah"] || ""),
+        golonganDarah: String(row["Golongan Darah"] || row["gol_darah"] || ""),
         noHp: String(row["No HP"] || row["no_hp"] || ""),
         statusWarga: String(row["Status Warga"] || row["status"] || "TETAP"),
         alamat: String(row["Alamat"] || "")
@@ -155,9 +190,9 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
         <Download className="w-4 h-4 mr-1 md:mr-2" /> Export
       </Button>
 
-      <Link href="/dashboard/rt/warga/create" className="flex-1 md:flex-none min-w-0">
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full text-xs md:text-sm px-2 md:px-4 whitespace-nowrap">
-          <Plus className="w-4 h-4 mr-1 md:mr-2" /> Tambah
+      <Link href="/dashboard/rt/warga/statistik" className="flex-1 md:flex-none min-w-0">
+        <Button className="w-full text-xs md:text-sm px-2 md:px-4 whitespace-nowrap text-black font-semibold hover:opacity-90" style={{ backgroundColor: "#fad900" }}>
+          Statistik <ArrowUpRight className="w-4 h-4 ml-1.5" />
         </Button>
       </Link>
     </div>

@@ -73,6 +73,9 @@ export async function getAiSettings() {
 
   return {
     openaiApiKey: settings.openaiApiKey || "",
+    openaiApiModel: settings.openaiApiModel || "gpt-4.1-nano",
+    qdrantUrl: settings.qdrantUrl || "",
+    qdrantApiKey: settings.qdrantApiKey || "",
     geminiApiKey: settings.geminiApiKey || "",
     aiMasterPrompt: settings.aiMasterPrompt || "",
     chatApiUrl: settings.chatApiUrl || "https://weizerouter.web.id/v1",
@@ -88,6 +91,9 @@ export async function getAiSettings() {
 
 export async function saveAiSettings(data: { 
   openaiApiKey: string; 
+  openaiApiModel: string;
+  qdrantUrl?: string;
+  qdrantApiKey?: string;
   geminiApiKey: string;
   aiMasterPrompt: string;
   chatApiUrl: string;
@@ -101,13 +107,16 @@ export async function saveAiSettings(data: {
     const session = await auth();
     checkSuperAdmin(session);
 
-    let settings = await prisma.siteSettings.findFirst();
+    const settings = await prisma.siteSettings.findFirst();
     
     if (settings) {
       await prisma.siteSettings.update({
         where: { id: settings.id },
         data: {
           openaiApiKey: data.openaiApiKey,
+          openaiApiModel: data.openaiApiModel,
+          qdrantUrl: data.qdrantUrl,
+          qdrantApiKey: data.qdrantApiKey,
           geminiApiKey: data.geminiApiKey,
           aiMasterPrompt: data.aiMasterPrompt,
           chatApiUrl: data.chatApiUrl,
@@ -122,6 +131,9 @@ export async function saveAiSettings(data: {
       await prisma.siteSettings.create({
         data: {
           openaiApiKey: data.openaiApiKey,
+          openaiApiModel: data.openaiApiModel,
+          qdrantUrl: data.qdrantUrl,
+          qdrantApiKey: data.qdrantApiKey,
           geminiApiKey: data.geminiApiKey,
           aiMasterPrompt: data.aiMasterPrompt,
           chatApiUrl: data.chatApiUrl,
@@ -139,5 +151,41 @@ export async function saveAiSettings(data: {
   } catch (error: any) {
     console.error("Failed to save AI Settings:", error);
     return { success: false, error: error.message || "Gagal menyimpan konfigurasi AI." };
+  }
+}
+
+export async function getTokenUsageLogs() {
+  try {
+    const session = await auth();
+    checkSuperAdmin(session);
+
+    const logs = await prisma.activityLog.findMany({
+      where: {
+        action: {
+          in: ["AI_CHAT_USAGE", "AI_REPORT_USAGE", "AI_BROADCAST_USAGE", "AI_DRAFT_USAGE", "AI_OCR_USAGE"]
+        }
+      },
+      include: {
+        tenant: {
+          select: { name: true }
+        }
+      },
+      orderBy: { createdAt: "desc" },
+      take: 100 // Limit to last 100 logs for performance
+    });
+
+    return {
+      success: true,
+      logs: logs.map(log => ({
+        id: log.id,
+        date: log.createdAt,
+        action: log.action,
+        tokens: parseInt(log.description || "0") || 0,
+        tenantName: log.tenant?.name || "Global"
+      }))
+    };
+  } catch (error: any) {
+    console.error("Failed to fetch token logs:", error);
+    return { success: false, error: error.message || "Gagal mengambil log token." };
   }
 }

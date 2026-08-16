@@ -1,23 +1,100 @@
-import { SettingsClient } from "./client";
-import prisma from "@/lib/prisma";
-import { auth } from "@/auth";
+"use client";
 
-export const dynamic = 'force-dynamic';
+import Link from "next/link";
+import { User, Building2, FileText, BookOpen, Info, HelpCircle, LogOut, ChevronRight } from "lucide-react";
+import { signOut } from "next-auth/react";
 
-export default async function RtSettingsPage() {
-  const session = await auth();
-  const tenant = await prisma.tenant.findUnique({
-    where: { id: session?.user?.tenantId || undefined }
-  });
-  
-  const user = await prisma.user.findUnique({
-    where: { id: session?.user?.id },
-    select: { name: true, email: true, phone: true, image: true }
-  });
+export default function SettingsHubPage() {
+  const handleLogout = async () => {
+    if (confirm("Yakin ingin keluar?")) {
+      await signOut({ callbackUrl: "/" });
+    }
+  };
 
-  if (!tenant) {
-    return <div>Data kepengurusan tidak ditemukan.</div>;
-  }
+  return (
+    <div className="max-w-lg mx-auto pb-6">
+      <div className="pt-2 mb-6">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Pengaturan</h1>
+      </div>
 
-  return <SettingsClient tenant={tenant} user={user} />;
+      <div className="space-y-3">
+        {/* Profil Saya */}
+        <Link href="/dashboard/rt/settings/akun" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <User className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">Profil Saya</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white" />
+        </Link>
+
+        {/* Profil RT */}
+        <Link href="/dashboard/rt/settings/profil" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">Profil RT</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white" />
+        </Link>
+
+        {/* Template Surat */}
+        <Link href="/dashboard/rt/surat/template" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <FileText className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">Template Surat</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white" />
+        </Link>
+
+        {/* Tutorial */}
+        <a href="https://docs.tatawarga.net/" target="_blank" rel="noreferrer" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">Tutorial Aplikasi</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white" />
+        </a>
+
+        {/* Tentang Aplikasi */}
+        <Link href="/dashboard/rt/about" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+              <Info className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">Tentang Aplikasi</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white" />
+        </Link>
+
+        {/* Bantuan */}
+        <a href="https://api.whatsapp.com/send?phone=6281934197955&text=Halo%20Admin%20Tata%20Warga%2C%20mohon%20dibantu%20untuk" target="_blank" rel="noreferrer" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 flex items-center justify-center">
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">Pusat Bantuan</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-white" />
+        </a>
+
+        {/* Logout */}
+        <button onClick={handleLogout} className="w-full flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-red-50 dark:hover:bg-red-500/10 mt-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center">
+              <LogOut className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-red-600 dark:text-red-400">Keluar (Logout)</span>
+          </div>
+        </button>
+
+      </div>
+    </div>
+  );
 }

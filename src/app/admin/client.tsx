@@ -17,17 +17,11 @@ import { useRouter } from "next/navigation";
 interface DashboardData {
   totalTenant: number; totalTenantGrowth: number;
   rtAktif: number; rtAktifGrowth: number;
-  totalTokensUsed: number;
-  pendapatan: number; pendapatanGrowth: number;
   totalSurat: number; totalSuratGrowth: number;
   totalWarga: number; totalWargaGrowth: number;
-  totalBot: number; botOnline: number;
   recentTenants: any[];
   growthMonthly: any[];
   growthYearly: any[];
-  revenueDaily: any[];
-  totalRevenueThisMonth: number;
-  subscriptionStatus: any[];
   recentActivities: any[];
   filterMonth?: number;
   filterYear?: number;
@@ -39,14 +33,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
   const router = useRouter();
   const d = data;
   const [chartMode, setChartMode] = useState<"Bulanan" | "Tahunan">("Bulanan");
-
-  const formatRupiah = (angka: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0
-    }).format(angka);
-  };
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("id-ID", {
@@ -73,7 +59,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
     const exportData = data.recentTenants.map(t => ({
       "Nama RT": t.name,
       "Tanggal Daftar": formatDate(new Date(t.createdAt)),
-      "Paket": t.subscriptionPlan || "Trial",
       "Status": t.status
     }));
 
@@ -85,7 +70,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
     const summaryData = [
       { Metric: "Total RT", Value: data.totalTenant },
       { Metric: "RT Aktif", Value: data.rtAktif },
-      { Metric: "Pendapatan Bulan Ini", Value: data.pendapatan },
       { Metric: "Total Warga", Value: data.totalWarga }
     ];
     const wsSummary = XLSX.utils.json_to_sheet(summaryData);
@@ -146,27 +130,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.rtAktif.toLocaleString("id-ID")}</h3>
         </div>
 
-        {/* Card 3 (Token Usage) */}
-        <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-400"><Bot className="w-5 h-5" /></div>
-            <span className="text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Global</span>
-          </div>
-          <p className="text-slate-500 dark:text-white/60 text-sm font-medium">Penggunaan Token</p>
-          <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.totalTokensUsed.toLocaleString("id-ID")}</h3>
-        </div>
-
-        {/* Card 4 */}
-        <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><Wallet className="w-5 h-5" /></div>
-            <GrowthBadge value={d.pendapatanGrowth} />
-          </div>
-          <p className="text-slate-500 dark:text-white/60 text-sm font-medium">Total Pendapatan</p>
-          <h3 className="text-xl md:text-2xl font-bold mt-1 text-slate-900 dark:text-white">{formatRupiah(d.pendapatan)}</h3>
-        </div>
-
-        {/* Card 5 */}
+        {/* Card 3 */}
         <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
           <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-700/20 flex items-center justify-center text-orange-600 dark:text-orange-500"><FileText className="w-5 h-5" /></div>
@@ -176,7 +140,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.totalSurat.toLocaleString("id-ID")}</h3>
         </div>
 
-        {/* Card 6 */}
+        {/* Card 4 */}
         <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
           <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-lg bg-[#6419c1]/10 dark:bg-[#6419c1]/20 flex items-center justify-center text-[#6419c1] dark:text-[#a064fa]"><Users className="w-5 h-5" /></div>
@@ -184,29 +148,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           </div>
           <p className="text-slate-500 dark:text-white/60 text-sm font-medium">Total Warga</p>
           <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.totalWarga.toLocaleString("id-ID")}</h3>
-        </div>
-
-        {/* Card 7 */}
-        <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-500/20 flex items-center justify-center text-slate-500 dark:text-slate-400"><Bot className="w-5 h-5" /></div>
-            <span className="text-slate-500 dark:text-white/50 text-[10px] font-bold bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full">Global</span>
-          </div>
-          <p className="text-slate-500 dark:text-white/60 text-sm font-medium">Total Bot</p>
-          <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.totalBot}</h3>
-        </div>
-
-        {/* Card 8 */}
-        <div className="bg-white dark:bg-[#141229] p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(100,25,193,0.25)] transition-all duration-300">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><Zap className="w-5 h-5" /></div>
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-          </div>
-          <p className="text-slate-500 dark:text-white/60 text-sm font-medium">Bot Online</p>
-          <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{d.botOnline}</h3>
         </div>
 
       </div>
@@ -253,112 +194,8 @@ export function DashboardClient({ data }: { data: DashboardData }) {
 
         </div>
 
-        {/* Right Column for Donut Chart */}
-        <div className="space-y-6 md:space-y-8 h-full">
-          <div className="bg-white dark:bg-[#141229] p-5 md:p-8 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] h-[400px] flex flex-col">
-            <h4 className="text-lg font-bold mb-2">Status Langganan</h4>
-            <p className="text-xs text-slate-500 dark:text-white/50 mb-4">Proporsi paket berlangganan pengguna.</p>
-            <div className="flex-1 w-full relative flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={d.subscriptionStatus.length > 0 ? d.subscriptionStatus : [{name: 'Empty', value: 1}]}
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {
-                      (d.subscriptionStatus.length > 0 ? d.subscriptionStatus : [{name: 'Empty', value: 1}]).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                      ))
-                    }
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '8px' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-bold">{d.totalTenant}</span>
-                <span className="text-slate-400 dark:text-white/50 text-[10px] font-bold uppercase tracking-widest mt-1">TOTAL RT</span>
-              </div>
-            </div>
-            {/* Custom Legend */}
-            <div className="grid grid-cols-2 gap-y-2 gap-x-2 mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-              {d.subscriptionStatus.map((entry, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}></div>
-                  <span className="text-[11px] text-slate-600 dark:text-white/70">{entry.name} ({Math.round((entry.value/d.totalTenant)*100 || 0)}%)</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Second Row Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          
-        {/* Revenue Distribution */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#141229] p-5 md:p-8 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] h-[350px] flex flex-col">
-          <div className="flex justify-between items-start md:items-center mb-6 flex-col md:flex-row gap-4">
-            <h4 className="text-lg font-bold">Distribusi Pendapatan</h4>
-            <div className="flex items-center gap-2">
-              <select 
-                value={d.filterMonth} 
-                onChange={(e) => {
-                  const url = new URL(window.location.href);
-                  url.searchParams.set("month", e.target.value);
-                  router.push(url.pathname + url.search);
-                }}
-                className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 dark:text-white/80 outline-none focus:ring-2 focus:ring-[#6419c1]/50 cursor-pointer"
-              >
-                {["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"].map((m, i) => (
-                  <option key={i+1} value={i+1} className="bg-white dark:bg-[#141229]">{m}</option>
-                ))}
-              </select>
-              <select 
-                value={d.filterYear} 
-                onChange={(e) => {
-                  const url = new URL(window.location.href);
-                  url.searchParams.set("year", e.target.value);
-                  router.push(url.pathname + url.search);
-                }}
-                className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 dark:text-white/80 outline-none focus:ring-2 focus:ring-[#6419c1]/50 cursor-pointer"
-              >
-                {Array.from({length: 5}, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
-                  <option key={y} value={y} className="bg-white dark:bg-[#141229]">{y}</option>
-                ))}
-              </select>
-              <div className="ml-2 hidden sm:block">
-                <p className="text-emerald-500 dark:text-emerald-400 text-sm font-bold bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-full">
-                  {formatRupiah(d.totalRevenueThisMonth)}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1 w-full h-full -ml-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={d.revenueDaily}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b830" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `Rp ${val/1000}k`} />
-                <Tooltip 
-                  cursor={{ fill: '#94a3b810' }}
-                  contentStyle={{ borderRadius: '8px' }}
-                  formatter={(value: any) => [formatRupiah(value || 0), "Pendapatan"]}
-                />
-                <Bar dataKey="Pendapatan" fill="#6419c1" radius={[4, 4, 0, 0]} barSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Recent Activity List */}
-        <div className="bg-white dark:bg-[#141229] p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] h-[350px] flex flex-col">
+        {/* Right Column for Recent Activity */}
+        <div className="bg-white dark:bg-[#141229] p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-[0_0_15px_rgba(100,25,193,0.1)] h-[400px] flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-bold">Aktivitas Terbaru</h4>
             <Link href="/admin/logs" className="text-[#6419c1] dark:text-[#a064fa] text-xs font-bold hover:underline">Lihat Semua</Link>
@@ -384,6 +221,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
             )}
           </div>
         </div>
+
       </div>
 
       {/* Modern Table */}
@@ -409,8 +247,8 @@ export function DashboardClient({ data }: { data: DashboardData }) {
               <tr className="bg-slate-50 dark:bg-black/20 border-b border-slate-200 dark:border-white/5">
                 <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">NAMA RT / TENANT</th>
                 <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">TANGGAL</th>
-                <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">PAKET</th>
                 <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">STATUS</th>
+                <th className="px-6 py-4 text-[11px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider">AKSI</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-white/5">
@@ -430,7 +268,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-white/60 whitespace-nowrap">{formatDate(new Date(t.createdAt))}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-[#6419c1] dark:text-[#a064fa]">{t.subscriptionPlan || "Trial"}</td>
                     <td className="px-6 py-4">
                       {t.status === "AKTIF" ? (
                         <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/20">Active</span>
@@ -439,6 +276,9 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                       ) : (
                         <span className="px-2.5 py-1 rounded-full bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-[11px] font-bold border border-red-200 dark:border-red-500/20">Suspended</span>
                       )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link href={`/admin/data/rts/${t.id}`} className="text-[#6419c1] dark:text-[#a064fa] text-xs font-bold hover:underline">Kelola Kredit</Link>
                     </td>
                   </tr>
                 ))

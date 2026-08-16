@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { WargaEditorForm } from "@/components/rt/warga-editor-form";
+import { WargaKkCheck } from "@/components/rt/warga-kk-check";
 
 export default function CreateWargaPage() {
   return (
@@ -13,12 +13,12 @@ export default function CreateWargaPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tambah Data Warga</h1>
-          <p className="text-muted-foreground mt-1">Masukkan data lengkap warga baru ke dalam sistem RT.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Pendaftaran Warga</h1>
+          <p className="text-muted-foreground mt-1">Cek atau tambahkan data Kartu Keluarga baru ke dalam sistem RT.</p>
         </div>
       </div>
 
-      <WargaEditorForm />
+      <WargaKkCheck />
     </div>
   );
 }

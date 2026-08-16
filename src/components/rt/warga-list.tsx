@@ -7,43 +7,40 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, FileText } from "lucide-react";
 import Link from "next/link";
-import { deleteWarga } from "@/app/actions/warga";
-import { toast } from "sonner";
 
 export function WargaListRt({ wargas }: { wargas: any[] }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("ALL");
-  const [gender, setGender] = useState("ALL");
-  const itemsPerPage = 20;
+  const itemsPerPage = 15;
 
-  // Filter wargas based on search, status, and gender
-  const filteredWargas = wargas.filter((w) => {
-    const matchSearch = w.namaLengkap?.toLowerCase().includes(search.toLowerCase()) || 
-                        (w.nik && w.nik.toLowerCase().includes(search.toLowerCase()));
-    const matchStatus = status === "ALL" || w.statusWarga === status;
-    const matchGender = gender === "ALL" || w.jenisKelamin === gender;
-    
-    return matchSearch && matchStatus && matchGender;
+  // 1. Group all wargas by noKk
+  const wargasByKk: Record<string, any[]> = {};
+  wargas.forEach(w => {
+    if (!w.noKk) return;
+    if (!wargasByKk[w.noKk]) wargasByKk[w.noKk] = [];
+    wargasByKk[w.noKk].push(w);
   });
 
-  const totalPages = Math.ceil(filteredWargas.length / itemsPerPage);
-  const currentData = filteredWargas.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // 2. Filter KKs based on search query
+  // A KK is included if ANY of its members matches the search query
+  const filteredKkKeys = Object.keys(wargasByKk).filter(noKk => {
+    if (!search) return true;
+    const members = wargasByKk[noKk];
+    return members.some(w => 
+      w.namaLengkap?.toLowerCase().includes(search.toLowerCase()) || 
+      (w.nik && w.nik.toLowerCase().includes(search.toLowerCase())) ||
+      (w.noKk && w.noKk.toLowerCase().includes(search.toLowerCase()))
+    );
+  });
 
-  // Reset page to 1 when filters change
+  const totalPages = Math.ceil(filteredKkKeys.length / itemsPerPage);
+  const currentKkKeys = filteredKkKeys.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, status, gender]);
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Yakin ingin menghapus data warga ini? Data surat yang terkait akan kehilangan referensi nama.")) return;
-    const res = await deleteWarga(id);
-    if (res.success) toast.success("Data warga dihapus.");
-    else toast.error(res.error);
-  };
+  }, [search]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -58,36 +55,11 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
-            placeholder="Cari nama atau NIK..." 
+            placeholder="Cari berdasarkan Nama, NIK Anggota, atau No KK..." 
             className="pl-9 bg-card border-slate-200 dark:border-white/10"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-        </div>
-        <div className="flex gap-3 w-full sm:w-auto">
-          <Select value={status} onValueChange={(v) => setStatus(v || "ALL")}>
-            <SelectTrigger className="w-full sm:w-[150px] bg-card border-slate-200 dark:border-white/10">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Semua Status</SelectItem>
-              <SelectItem value="TETAP">Tetap</SelectItem>
-              <SelectItem value="KONTRAK_KOST">Kontrak/Kost</SelectItem>
-              <SelectItem value="PINDAH">Pindah Domisili</SelectItem>
-              <SelectItem value="MENINGGAL">Meninggal Dunia</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={gender} onValueChange={(v) => setGender(v || "ALL")}>
-            <SelectTrigger className="w-full sm:w-[150px] bg-card border-slate-200 dark:border-white/10">
-              <SelectValue placeholder="Jenis Kelamin" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Semua Gender</SelectItem>
-              <SelectItem value="LAKI_LAKI">Laki-laki</SelectItem>
-              <SelectItem value="PEREMPUAN">Perempuan</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -96,59 +68,56 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
           <TableHeader className="bg-slate-50/80 dark:bg-slate-900/50 backdrop-blur-sm">
             <TableRow className="border-b-slate-200 dark:border-white/10">
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 w-12 text-center">No</TableHead>
-              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Nama Lengkap</TableHead>
-              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">NIK / No. KK</TableHead>
-              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">L/P</TableHead>
-              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">No. HP</TableHead>
-              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">No. KK</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Kepala Keluarga</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Jml Anggota</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Alamat</TableHead>
               <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentData.length === 0 ? (
+            {currentKkKeys.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center h-32 text-muted-foreground">
-                  Belum ada data warga terdaftar atau tidak ada hasil pencarian.
+                <TableCell colSpan={6} className="text-center h-32 text-muted-foreground">
+                  Belum ada data Kartu Keluarga atau tidak ada hasil pencarian.
                 </TableCell>
               </TableRow>
             ) : (
-              currentData.map((w, index) => (
-                <TableRow key={w.id} className="border-b-slate-100 dark:border-white/5 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                  <TableCell className="text-center font-medium text-slate-500 dark:text-slate-400">
-                    {(currentPage - 1) * itemsPerPage + index + 1}
-                  </TableCell>
-                  <TableCell className="font-medium text-slate-900 dark:text-slate-100">{w.namaLengkap}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col text-sm">
-                      <span className="text-slate-800 dark:text-slate-200 font-medium">{w.nik}</span>
-                      <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium tracking-wide">KK: {w.noKk}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-slate-600 dark:text-slate-300">{w.jenisKelamin === "LAKI_LAKI" ? "L" : "P"}</TableCell>
-                  <TableCell className="text-slate-600 dark:text-slate-300">{w.noHp || "-"}</TableCell>
-                  <TableCell>
-                    {w.statusWarga === "TETAP" ? (
-                      <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20 font-medium">Tetap</Badge>
-                    ) : w.statusWarga === "KONTRAK_KOST" ? (
-                      <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border-blue-500/20 font-medium">Kontrak/Kost</Badge>
-                    ) : w.statusWarga === "PINDAH" ? (
-                      <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">Pindah</Badge>
-                    ) : (
-                      <Badge variant="destructive" className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 hover:bg-red-500/20">Meninggal</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1.5">
-                      <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-500/10 rounded-lg transition-colors">
-                        <Link href={`/dashboard/rt/warga/${w.id}/edit`}><Pencil className="w-3.5 h-3.5" /></Link>
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(w.id)} className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+              currentKkKeys.map((noKk, index) => {
+                const members = wargasByKk[noKk];
+                // Try to find the actual kepala keluarga, fallback to the first member if not explicitly defined
+                const kepalaKeluarga = members.find(m => m.hubunganKeluarga === "KEPALA_KELUARGA") || members[0];
+
+                return (
+                  <TableRow key={noKk} className="border-b-slate-100 dark:border-white/5 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                    <TableCell className="text-center font-medium text-slate-500 dark:text-slate-400">
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </TableCell>
+                    <TableCell className="font-medium tracking-wide text-slate-900 dark:text-slate-100">{noKk}</TableCell>
+                    <TableCell className="font-medium text-[#6419c1] dark:text-[#8b3ced]">
+                      {kepalaKeluarga.namaLengkap}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800">
+                        {members.length} Orang
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-slate-600 dark:text-slate-300 max-w-[200px] truncate">
+                      {kepalaKeluarga.alamat || "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1.5">
+                        <Button variant="outline" size="sm" asChild className="h-8 hover:bg-[#6419c1]/10 hover:text-[#6419c1] hover:border-[#6419c1]/30 transition-colors">
+                          <Link href={`/dashboard/rt/warga/kk/${noKk}`}>
+                            <FileText className="w-3.5 h-3.5 mr-1.5" />
+                            Detail
+                          </Link>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
@@ -158,7 +127,7 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2">
           <p className="text-xs text-muted-foreground font-medium">
-            Menampilkan <span className="text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-foreground">{Math.min(currentPage * itemsPerPage, filteredWargas.length)}</span> dari <span className="text-foreground">{filteredWargas.length}</span> warga
+            Menampilkan <span className="text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-foreground">{Math.min(currentPage * itemsPerPage, filteredKkKeys.length)}</span> dari <span className="text-foreground">{filteredKkKeys.length}</span> KK
           </p>
           <div className="flex items-center gap-1 bg-card border border-border p-1 rounded-xl shadow-sm">
             <Button
@@ -174,7 +143,6 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
             <div className="flex items-center px-1">
               {Array.from({ length: totalPages }).map((_, idx) => {
                 const page = idx + 1;
-                // Show a small window around current page
                 if (
                   page === 1 || 
                   page === totalPages || 
@@ -188,7 +156,7 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
                       onClick={() => handlePageChange(page)}
                       className={`h-8 w-8 p-0 rounded-lg font-medium text-xs transition-all ${
                         currentPage === page 
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
+                          ? "bg-[#6419c1] hover:bg-[#6419c1]/90 text-white shadow-md shadow-[#6419c1]/20" 
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >

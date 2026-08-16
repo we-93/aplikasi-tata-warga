@@ -19,27 +19,7 @@ export async function importWargaBulk(data: any[]) {
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
     if (!tenant) throw new Error("Tenant tidak ditemukan");
 
-    // Check Quota Limit
-    if (tenant.maxWarga !== -1) {
-      const existingWargas = await prisma.warga.findMany({ where: { tenantId }, select: { nik: true } });
-      const existingNiks = new Set(existingWargas.map(w => w.nik));
-      
-      let newWargaCount = 0;
-      const uniqueIncomingNiks = new Set();
-      
-      for (const row of data) {
-        if (!row.nik || !row.namaLengkap) continue;
-        const nik = String(row.nik).trim();
-        if (!existingNiks.has(nik) && !uniqueIncomingNiks.has(nik)) {
-          uniqueIncomingNiks.add(nik);
-          newWargaCount++;
-        }
-      }
-
-      if (existingWargas.length + newWargaCount > tenant.maxWarga) {
-        throw new Error(`Gagal Import: Kuota maksimal Warga Anda adalah ${tenant.maxWarga}. Anda mencoba memasukkan ${newWargaCount} warga baru (Total: ${existingWargas.length + newWargaCount}). Silakan Upgrade Paket Langganan.`);
-      }
-    }
+    // No quota limit for Warga
 
     let successCount = 0;
 
@@ -80,6 +60,27 @@ export async function importWargaBulk(data: any[]) {
 
       const alamat = row.alamat ? String(row.alamat) : null;
 
+      let hubunganKeluarga: any = "LAINNYA";
+      const rawHub = String(row.hubunganKeluarga || "").toUpperCase().replace(/\s+/g, '_');
+      const validHubungan = [
+        "KEPALA_KELUARGA", "ISTRI", "SUAMI", "ANAK", "MENANTU", 
+        "CUCU", "ORANG_TUA", "MERTUA", "FAMILI_LAIN", "PEMBANTU", "LAINNYA"
+      ];
+      if (validHubungan.includes(rawHub)) {
+        hubunganKeluarga = rawHub;
+      } else if (rawHub.includes("KEPALA")) {
+        hubunganKeluarga = "KEPALA_KELUARGA";
+      } else if (rawHub.includes("FAMILI")) {
+        hubunganKeluarga = "FAMILI_LAIN";
+      } else if (rawHub.includes("ORANG")) {
+        hubunganKeluarga = "ORANG_TUA";
+      }
+
+      const pendidikan = row.pendidikan ? String(row.pendidikan) : null;
+      const pekerjaan = row.pekerjaan ? String(row.pekerjaan) : null;
+      const statusNikah = row.statusNikah ? String(row.statusNikah) : null;
+      const golonganDarah = row.golonganDarah ? String(row.golonganDarah) : null;
+
       // Upsert: Create or Update based on unique NIK per tenant
       await prisma.warga.upsert({
         where: {
@@ -91,10 +92,15 @@ export async function importWargaBulk(data: any[]) {
         update: {
           noKk,
           namaLengkap,
+          hubunganKeluarga,
           tempatLahir,
           tanggalLahir,
           jenisKelamin,
           agama,
+          pendidikan,
+          pekerjaan,
+          statusNikah,
+          golonganDarah,
           noHp,
           statusWarga,
           alamat
@@ -104,10 +110,15 @@ export async function importWargaBulk(data: any[]) {
           nik,
           noKk,
           namaLengkap,
+          hubunganKeluarga,
           tempatLahir,
           tanggalLahir,
           jenisKelamin,
           agama,
+          pendidikan,
+          pekerjaan,
+          statusNikah,
+          golonganDarah,
           noHp,
           statusWarga,
           alamat
