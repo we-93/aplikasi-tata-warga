@@ -5,10 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Tata Warga',
   webDir: 'out',
   server: {
-    // Ganti URL ini dengan domain VPS CyberPanel Anda nanti
-    // Contoh: url: 'https://tatawarga.yourdomain.com'
-    url: 'http://10.0.2.2:3000', 
-    cleartext: true
+    url: 'https://tatawarga.web.id',
+    cleartext: false
   }
 };
 
