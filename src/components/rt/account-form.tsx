@@ -90,7 +90,7 @@ export function AccountForm({ initialData }: { initialData: any }) {
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button type="submit" disabled={isPending} className="bg-[#6519c2] hover:bg-[#6519c2]/90 text-[#fad700] min-w-[150px] w-full md:w-auto">
+        <Button type="submit" disabled={isPending} className="bg-[#6519c2] hover:bg-[#6519c2]/90 text-[#fad700] min-w-[150px]">
           {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
           Simpan Profil
         </Button>
