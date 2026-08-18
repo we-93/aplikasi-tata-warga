@@ -50,10 +50,10 @@ export async function generateNotulen(data: {
   rawInput: string; // transkripsi audio atau catatan manual
 }) {
   try {
-    const { chatApiUrl, chatApiKey, chatApiModel, tenant, tenantId } = await getAiConfig();
+    const { chatApiUrl, chatApiKey, chatApiModel, openaiApiKey, geminiApiKey, tenant, tenantId } = await getAiConfig();
 
-    if (!chatApiKey) {
-      throw new Error("API Key Chat belum dikonfigurasi.");
+    if (!chatApiKey && !openaiApiKey && !geminiApiKey) {
+      throw new Error("API Key AI belum dikonfigurasi. Silakan atur di Pengaturan Integrasi.");
     }
 
     const systemPrompt = `Anda adalah Sekretaris RT profesional dan cermat. Tugas Anda adalah menganalisis transkripsi atau catatan rapat RT yang diberikan, lalu menyusunnya menjadi Notulen Rapat resmi yang terstruktur dalam format JSON yang valid.
@@ -61,7 +61,7 @@ export async function generateNotulen(data: {
 Output HARUS berupa JSON murni (tanpa markdown, tanpa komentar, tanpa penjelasan tambahan), dengan struktur tepat seperti ini:
 {
   "peserta": "Daftar nama peserta yang disebutkan dalam teks, pisahkan dengan koma. Jika tidak ada, tulis 'Tidak disebutkan'.",
-  "agendaRapat": "Poin-poin agenda atau topik yang dibahas. Gunakan format nomor. Contoh: 1. Pembahasan iuran bulanan\n2. Rencana kerja bakti",
+  "agendaRapat": "Poin-poin agenda atau topik yang dibahas. Gunakan format nomor. Contoh: 1. Pembahasan iuran bulanan\\n2. Rencana kerja bakti",
   "hasilRapat": "Keputusan dan kesepakatan yang dicapai dalam rapat. Gunakan format nomor.",
   "tindakLanjut": "Action items / tindak lanjut beserta penanggung jawabnya jika disebutkan. Gunakan format nomor.",
   "fullNotulen": "Notulen lengkap dalam format dokumen resmi yang bisa langsung dicetak. Gunakan gaya bahasa formal-resmi. Sertakan judul rapat, tanggal, peserta, hasil, dan penutup. Format dengan rapi menggunakan baris baru."
@@ -80,27 +80,49 @@ Tolong buat notulen resminya dalam format JSON seperti yang diminta.`;
 
     let parsed = null;
     let tokenUsed = 0;
+    let rawText = "{}";
 
-    const response = await fetch(`${chatApiUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${chatApiKey}`
-      },
-      body: JSON.stringify({
-        model: chatApiModel,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ]
-      })
-    });
+    if (chatApiKey && chatApiUrl) {
+      const response = await fetch(`${chatApiUrl}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${chatApiKey}` },
+        body: JSON.stringify({
+          model: chatApiModel || "wz/gemini-3.5-flash-low",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error?.message || "Gagal menghubungi API WeizeRouter");
+      tokenUsed = result.usage?.total_tokens || 500;
+      rawText = result.choices[0].message.content || "{}";
+    } else if (openaiApiKey) {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiApiKey}` },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error?.message || "Gagal menghubungi OpenAI");
+      tokenUsed = result.usage?.total_tokens || 500;
+      rawText = result.choices[0].message.content || "{}";
+    } else if (geminiApiKey) {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: "user", parts: [{ text: userPrompt }] }]
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error?.message || "Gagal menghubungi Gemini API");
+      tokenUsed = result.usageMetadata?.totalTokenCount || 500;
+      rawText = result.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    }
 
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error?.message || "Gagal menghubungi WeizeRouter API");
-
-    tokenUsed = result.usage?.total_tokens || 500;
-    const rawText = result.choices[0].message.content || "{}";
     const cleanText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
     parsed = JSON.parse(cleanText);
 

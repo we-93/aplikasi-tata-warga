@@ -208,13 +208,13 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
             <Label className="text-base font-semibold">Metode Input Catatan Mentah</Label>
             <div className="flex bg-muted p-1 rounded-xl">
               <button
-                className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${inputMode === "text" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${inputMode === "text" ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground"}`}
                 onClick={() => setInputMode("text")}
               >
                 <Type className="w-4 h-4"/> Teks Manual
               </button>
               <button
-                className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${inputMode === "image" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${inputMode === "image" ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground"}`}
                 onClick={() => setInputMode("image")}
               >
                 <ImageIcon className="w-4 h-4"/> Gambar
@@ -296,7 +296,7 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
               />
 
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button variant="outline" className="flex-1 border-primary/20 text-primary hover:bg-primary/5" onClick={handleCopyText}>
+                <Button variant="outline" className="flex-1" onClick={handleCopyText}>
                   <Copy className="w-4 h-4 mr-2" /> Salin Teks (WhatsApp)
                 </Button>
                 <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSave} disabled={isSaving}>

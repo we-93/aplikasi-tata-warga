@@ -143,7 +143,7 @@ export function BroadcastClient({ initialPengumuman = [] }: { initialPengumuman?
                 className="flex-1 min-h-[300px] resize-none font-mono text-sm" 
               />
               <div className="flex gap-2">
-                <Button onClick={() => copyToClipboard(broadcastResult)} className="flex-1 bg-card border border-border-card-foreground">
+                <Button variant="outline" onClick={() => copyToClipboard(broadcastResult)} className="flex-1">
                   <Copy className="w-4 h-4 mr-2" /> Salin WA
                 </Button>
                 <Button onClick={handlePublishBroadcast} disabled={isPublishing} className="flex-1 bg-primary text-primary-foreground">
@@ -214,7 +214,7 @@ export function BroadcastClient({ initialPengumuman = [] }: { initialPengumuman?
           {viewItem?.content}
         </div>
         <div className="flex justify-end mt-4">
-          <Button onClick={() => copyToClipboard(viewItem?.content || "")} className="bg-card border border-border-card-foreground">
+          <Button variant="outline" onClick={() => copyToClipboard(viewItem?.content || "")}>
             <Copy className="w-4 h-4 mr-2" /> Salin WA
           </Button>
         </div>
