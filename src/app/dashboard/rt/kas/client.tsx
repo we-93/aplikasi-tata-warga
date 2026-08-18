@@ -779,14 +779,14 @@ export function KasClient({
       </Dialog>
 
       <Dialog open={isAiReportOpen} onOpenChange={setIsAiReportOpen}>
-        <DialogContent className="max-w-4xl h-[90vh] md:h-auto overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Laporan Analisis AI</DialogTitle>
             <DialogDescription>
               Buat dan terbitkan laporan kas bulanan otomatis menggunakan AI untuk bagikan ke warga.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6 mt-2">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Bulan</Label>
@@ -813,13 +813,13 @@ export function KasClient({
               </Button>
             </div>
 
-            <div className="flex flex-col min-h-[400px]">
+            <div className="flex flex-col min-h-[300px]">
               {reportResult ? (
                 <div className="flex-1 flex flex-col gap-4">
                   <Textarea 
                     value={reportResult} 
                     onChange={(e) => setReportResult(e.target.value)}
-                    className="flex-1 min-h-[300px] resize-none font-mono text-sm leading-relaxed" 
+                    className="flex-1 min-h-[200px] md:min-h-[250px] resize-none font-mono text-sm leading-relaxed" 
                   />
                   <div className="flex gap-2">
                     <Button onClick={() => copyToClipboard(reportResult)} className="flex-1 bg-card border border-border-card-foreground">
