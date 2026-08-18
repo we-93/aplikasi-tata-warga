@@ -121,7 +121,7 @@ export async function chatWithAi(messages: any[]) {
           const queryVector = embeddingResponse.data[0].embedding;
 
           // Search Qdrant
-          const searchResult = await qdrant.search("tata_warga_knowledge", {
+          const searchResult = await (qdrant as any).search("tata_warga_knowledge", {
             vector: queryVector,
             limit: 3,
             with_payload: true,
