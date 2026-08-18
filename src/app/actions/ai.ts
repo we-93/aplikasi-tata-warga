@@ -271,9 +271,11 @@ export async function generateAiBroadcast(data: {
   lokasi: string;
 }) {
   try {
-    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId, tenantInfo } = await getAiConfigAndContext();
+    const { chatApiUrl, chatApiKey, chatApiModel, openaiApiKey, openaiApiModel, geminiApiKey, systemContext, tenantId, tenantInfo } = await getAiConfigAndContext();
 
-    if (!chatApiKey) throw new Error("API Key Chat belum dikonfigurasi.");
+    if (!chatApiKey && !openaiApiKey && !geminiApiKey) {
+      throw new Error("API Key AI belum dikonfigurasi. Silakan atur di Pengaturan Integrasi.");
+    }
     if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
       throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
     }
@@ -287,24 +289,42 @@ export async function generateAiBroadcast(data: {
 "- Gaya Bahasa: " + data.tone + "\n\n" +
 "Buat formatnya menarik, gunakan emoji yang relevan, dan pastikan jelas dibaca di WhatsApp. Jangan tambahkan penjelasan apa-apa, cukup langsung berikan teks pengumumannya saja.";
 
-    const response = await fetch(`${chatApiUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + chatApiKey
-      },
-      body: JSON.stringify({
-        model: chatApiModel,
-        messages: [
-          { role: "system", content: systemContext },
-          { role: "user", content: prompt }
-        ],
-      })
-    });
-    
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error?.message || "Gagal memproses broadcast");
-    
+    let resultText = "";
+
+    if (chatApiKey && chatApiUrl) {
+      const response = await fetch(`${chatApiUrl}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + chatApiKey },
+        body: JSON.stringify({
+          model: chatApiModel || "wz/gemini-3.5-flash-low",
+          messages: [{ role: "system", content: systemContext }, { role: "user", content: prompt }]
+        })
+      });
+      const resData = await response.json();
+      if (!response.ok) throw new Error(resData.error?.message || "Gagal memproses broadcast");
+      resultText = resData.choices[0].message.content;
+    } else if (openaiApiKey) {
+      const openai = new OpenAI({ apiKey: openaiApiKey });
+      const response = await openai.chat.completions.create({
+        model: openaiApiModel || "gpt-4o-mini",
+        messages: [{ role: "system", content: systemContext }, { role: "user", content: prompt }]
+      });
+      resultText = response.choices[0].message.content || "";
+    } else if (geminiApiKey) {
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemContext }] },
+          contents: [{ role: "user", parts: [{ text: prompt }] }]
+        })
+      });
+      const resData = await response.json();
+      if (!response.ok) throw new Error(resData.error?.message || "Gagal memproses broadcast dengan Gemini");
+      resultText = resData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    }
+
     if (tenantId) {
       await prisma.tenant.update({
         where: { id: tenantId },
@@ -315,7 +335,7 @@ export async function generateAiBroadcast(data: {
       });
     }
     
-    return { success: true, text: result.choices[0].message.content };
+    return { success: true, text: resultText };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
