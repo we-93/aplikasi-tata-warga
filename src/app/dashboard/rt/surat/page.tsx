@@ -25,8 +25,18 @@ export default async function RtSuratPage() {
           <h1 className="text-3xl font-bold tracking-tight">Pelayanan Surat</h1>
           <p className="text-muted-foreground mt-1">Buat surat pengantar otomatis dan lihat riwayat pembuatan dokumen warga.</p>
         </div>
-
-      </div>
+        <div className="hidden md:flex flex-wrap items-center gap-2">
+          <Link href="/dashboard/rt/surat/template">
+            <Button variant="outline" className="text-xs md:text-sm h-9">
+              <Settings2 className="w-4 h-4 mr-2" /> Kelola Template
+            </Button>
+          </Link>
+          <Link href="/dashboard/rt/surat/create">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs md:text-sm h-9">
+              <Plus className="w-4 h-4 mr-2" /> Buat Surat
+            </Button>
+          </Link>
+        </div>
 
       <SuratArsipList arsips={arsips} />
     </div>

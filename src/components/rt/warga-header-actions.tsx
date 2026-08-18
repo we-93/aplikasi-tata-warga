@@ -186,6 +186,16 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
         </DialogContent>
       </Dialog>
 
+      <Link href="/dashboard/rt/warga/create" className="hidden md:flex flex-1 md:flex-none min-w-0">
+        <Button className="w-full text-xs md:text-sm px-2 md:px-4 whitespace-nowrap bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Plus className="w-4 h-4 mr-1 md:mr-2" /> Tambah Warga
+        </Button>
+      </Link>
+
+      <Button variant="outline" className="flex-1 md:flex-none text-xs md:text-sm px-2 md:px-4 whitespace-nowrap" onClick={() => setIsDialogOpen(true)}>
+        <Upload className="w-4 h-4 mr-1 md:mr-2" /> Import
+      </Button>
+
       <Button variant="outline" className="flex-1 md:flex-none text-xs md:text-sm px-2 md:px-4 whitespace-nowrap" onClick={handleExport}>
         <Download className="w-4 h-4 mr-1 md:mr-2" /> Export
       </Button>
