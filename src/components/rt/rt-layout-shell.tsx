@@ -350,7 +350,7 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
             <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">Tindakan Cepat</h3>
             
             <div className="grid grid-cols-3 gap-4">
-              <Link href="/dashboard/rt/warga/tambah" onClick={() => setIsBottomSheetOpen(false)} className="flex flex-col items-center text-center gap-2">
+              <Link href="/dashboard/rt/warga/create" onClick={() => setIsBottomSheetOpen(false)} className="flex flex-col items-center text-center gap-2">
                 <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                   <UserPlus className="w-6 h-6" />
                 </div>
@@ -364,7 +364,7 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
                 <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Buat Surat</span>
               </Link>
               
-              <Link href="/dashboard/rt/kas/tambah" onClick={() => setIsBottomSheetOpen(false)} className="flex flex-col items-center text-center gap-2">
+              <Link href="/dashboard/rt/kas?action=create" onClick={() => setIsBottomSheetOpen(false)} className="flex flex-col items-center text-center gap-2">
                 <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                   <Wallet className="w-6 h-6" />
                 </div>

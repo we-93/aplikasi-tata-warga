@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -125,6 +125,17 @@ export function KasClient({
   const [isSaving, setIsSaving] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto open create dialog if action=create is in URL
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("action") === "create") {
+        setDialogOpen(true);
+        window.history.replaceState({}, '', '/dashboard/rt/kas');
+      }
+    }
+  }, []);
 
   // AI Report State
   const [reportForm, setReportForm] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
@@ -462,7 +473,7 @@ export function KasClient({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 md:flex-none" onClick={openCreate}>
+          <Button className="hidden md:flex bg-primary hover:bg-primary/90 text-primary-foreground flex-1 md:flex-none" onClick={openCreate}>
             <Plus className="w-4 h-4 mr-2" /> Catat Kas
           </Button>
         </div>
