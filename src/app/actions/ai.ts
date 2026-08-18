@@ -380,6 +380,7 @@ kasText + "\n\n" +
 "Berikan pembuka yang hangat, rangkum total pemasukan dan pengeluaran secara jelas, lalu berikan kalimat penutup yang membangun semangat gotong royong warga. Jangan tambahkan penjelasan lain di luar surat laporan.";
 
     let resultText = "";
+    let tokens = 0;
 
     if (chatApiKey && chatApiUrl) {
       const response = await fetch(`${chatApiUrl}/chat/completions`, {
