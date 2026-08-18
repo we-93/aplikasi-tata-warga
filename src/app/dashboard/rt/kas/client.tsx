@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from "sonner";
 import {
   Loader2, Plus, Trash2, Wallet, ArrowDownRight, ArrowUpRight,
-  FileDown, Pencil, Search, Filter, FileSpreadsheet, FileText, Upload, ChevronDown, ChevronLeft, ChevronRight
+  FileDown, Pencil, Search, Filter, FileSpreadsheet, FileText, Upload, ChevronDown, ChevronLeft, ChevronRight,
+  Bot, Copy, Save
 } from "lucide-react";
 import { 
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger 
@@ -17,6 +18,9 @@ import {
 import * as XLSX from "xlsx";
 import { createKasTransaction, deleteKasTransaction, updateKasTransaction } from "@/app/actions/kas";
 import { importKasBulk } from "@/app/actions/kas-excel";
+import { generateAiReport } from "@/app/actions/ai";
+import { terbitkanPengumuman, hapusPengumuman } from "@/app/actions/pengumuman";
+import { Textarea } from "@/components/ui/textarea";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tx = {
@@ -100,26 +104,77 @@ function KasChart({ data, title }: { data: ChartPoint[], title: string }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export function KasClient({
-  initialSummary, initialTransactions, chartData
-}: {
-  initialSummary: { saldoSaatIni: number; pemasukanBulanIni: number; pengeluaranBulanIni: number };
-  initialTransactions: Tx[];
+export function KasClient({ 
+  initialSummary, 
+  initialTransactions, 
+  chartData,
+  initialPengumuman = []
+}: { 
+  initialSummary: any; 
+  initialTransactions: Tx[]; 
   chartData: ChartPoint[];
+  initialPengumuman?: any[];
 }) {
   const [transactions, setTransactions] = useState<Tx[]>(initialTransactions);
-  const [summary] = useState(initialSummary);
-
-  // Dialog state
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Tx | null>(null);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isImportDialogOpen, setImportDialogOpen] = useState(false);
+  const [isAiReportOpen, setIsAiReportOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm());
+  const [editTarget, setEditTarget] = useState<Tx | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Import Dialog state
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // AI Report State
+  const [reportForm, setReportForm] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
+  const [reportResult, setReportResult] = useState("");
+  const [isReportLoading, setIsReportLoading] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [pengumumans, setPengumumans] = useState<any[]>(initialPengumuman);
+
+  const handleGenerateReport = async () => {
+    setIsReportLoading(true);
+    setReportResult("");
+    
+    const res = await generateAiReport(reportForm.month, reportForm.year);
+    if (res.success) {
+      setReportResult(res.text);
+      toast.success("Draf laporan berhasil dibuat!");
+    } else {
+      toast.error(res.error);
+    }
+    setIsReportLoading(false);
+  };
+
+  const handlePublishReport = async () => {
+    if (!reportResult) return;
+    setIsPublishing(true);
+    const id = toast.loading("Menerbitkan laporan ke pengumuman...");
+    const monthName = new Date(0, reportForm.month - 1).toLocaleString('id-ID', { month: 'long' });
+    const title = `Laporan Kas Bulan ${monthName} ${reportForm.year}`;
+    
+    const res = await terbitkanPengumuman({ title, content: reportResult });
+    if (res.success) {
+      toast.success("Laporan berhasil diterbitkan ke Dashboard RT!", { id });
+      
+      const newP = {
+        id: Math.random().toString(),
+        title,
+        content: reportResult,
+        createdAt: new Date().toISOString()
+      };
+      setPengumumans([newP, ...pengumumans]);
+      setReportResult("");
+    } else {
+      toast.error(res.error || "Gagal menerbitkan laporan", { id });
+    }
+    setIsPublishing(false);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Teks disalin ke clipboard");
+  };
 
   // Filter state
   const currentYear = new Date().getFullYear().toString();
@@ -400,6 +455,9 @@ export function KasClient({
               </DropdownMenuItem>
               <DropdownMenuItem onClick={exportPDF}>
                 <FileText className="w-4 h-4 mr-2 text-red-500" /> PDF / Cetak
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsAiReportOpen(true)}>
+                <Bot className="w-4 h-4 mr-2 text-emerald-600" /> Analisis AI (Laporan)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -714,6 +772,69 @@ export function KasClient({
               >
                 {isImporting ? "Mengimpor..." : "Pilih File & Import"}
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAiReportOpen} onOpenChange={setIsAiReportOpen}>
+        <DialogContent className="max-w-4xl h-[90vh] md:h-auto overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Laporan Analisis AI</DialogTitle>
+            <DialogDescription>
+              Buat dan terbitkan laporan kas bulanan otomatis menggunakan AI untuk bagikan ke warga.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6 mt-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Bulan</Label>
+                <Select value={reportForm.month.toString()} onValueChange={(v) => setReportForm({...reportForm, month: parseInt(v || "1")})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <SelectItem key={i+1} value={(i+1).toString()}>
+                        {new Date(0, i).toLocaleString('id-ID', { month: 'long' })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tahun</Label>
+                <Input type="number" value={reportForm.year} onChange={e => setReportForm({...reportForm, year: parseInt(e.target.value)})} />
+              </div>
+
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground mt-4" onClick={handleGenerateReport} disabled={isReportLoading}>
+                {isReportLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Bot className="w-4 h-4 mr-2" />}
+                Buat Laporan AI
+              </Button>
+            </div>
+
+            <div className="flex flex-col min-h-[400px]">
+              {reportResult ? (
+                <div className="flex-1 flex flex-col gap-4">
+                  <Textarea 
+                    value={reportResult} 
+                    onChange={(e) => setReportResult(e.target.value)}
+                    className="flex-1 min-h-[300px] resize-none font-mono text-sm leading-relaxed" 
+                  />
+                  <div className="flex gap-2">
+                    <Button onClick={() => copyToClipboard(reportResult)} className="flex-1 bg-card border border-border-card-foreground">
+                      <Copy className="w-4 h-4 mr-2" /> Salin
+                    </Button>
+                    <Button onClick={handlePublishReport} disabled={isPublishing} className="flex-1 bg-primary text-primary-foreground">
+                      {isPublishing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                      Terbitkan
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-muted-foreground text-center px-8 border border-dashed rounded-xl">
+                  Pilih bulan dan tahun, lalu AI akan merangkum seluruh transaksi kas Anda menjadi laporan naratif yang siap dibagikan ke warga.
+                </div>
+              )}
             </div>
           </div>
         </DialogContent>
