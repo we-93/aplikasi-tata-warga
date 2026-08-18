@@ -323,9 +323,11 @@ export async function generateAiBroadcast(data: {
 
 export async function generateAiReport(month: number, year: number) {
   try {
-    const { chatApiUrl, chatApiKey, chatApiModel, systemContext, tenantId, tenantInfo } = await getAiConfigAndContext();
+    const { chatApiUrl, chatApiKey, chatApiModel, openaiApiKey, openaiApiModel, geminiApiKey, systemContext, tenantId, tenantInfo } = await getAiConfigAndContext();
 
-    if (!chatApiKey) throw new Error("API Key Chat belum dikonfigurasi.");
+    if (!chatApiKey && !openaiApiKey && !geminiApiKey) {
+      throw new Error("API Key AI belum dikonfigurasi. Silakan atur di Pengaturan Integrasi.");
+    }
     if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
       throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
     }
@@ -348,24 +350,42 @@ export async function generateAiReport(month: number, year: number) {
 kasText + "\n\n" +
 "Berikan pembuka yang hangat, rangkum total pemasukan dan pengeluaran secara jelas, lalu berikan kalimat penutup yang membangun semangat gotong royong warga. Jangan tambahkan penjelasan lain di luar surat laporan.";
 
-    const response = await fetch(`${chatApiUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + chatApiKey
-      },
-      body: JSON.stringify({
-        model: chatApiModel,
-        messages: [
-          { role: "system", content: systemContext },
-          { role: "user", content: prompt }
-        ],
-      })
-    });
-    
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error?.message || "Gagal membuat laporan AI");
-    
+    let resultText = "";
+
+    if (chatApiKey && chatApiUrl) {
+      const response = await fetch(`${chatApiUrl}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + chatApiKey },
+        body: JSON.stringify({
+          model: chatApiModel || "wz/gemini-3.5-flash-low",
+          messages: [{ role: "system", content: systemContext }, { role: "user", content: prompt }]
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || "Gagal membuat laporan AI");
+      resultText = data.choices[0].message.content;
+    } else if (openaiApiKey) {
+      const openai = new OpenAI({ apiKey: openaiApiKey });
+      const response = await openai.chat.completions.create({
+        model: openaiApiModel || "gpt-4o-mini",
+        messages: [{ role: "system", content: systemContext }, { role: "user", content: prompt }]
+      });
+      resultText = response.choices[0].message.content || "";
+    } else if (geminiApiKey) {
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemContext }] },
+          contents: [{ role: "user", parts: [{ text: prompt }] }]
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || "Gagal membuat laporan dengan Gemini");
+      resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    }
+
     if (tenantId) {
       await prisma.tenant.update({
         where: { id: tenantId },
@@ -376,7 +396,7 @@ kasText + "\n\n" +
       });
     }
     
-    return { success: true, text: result.choices[0].message.content };
+    return { success: true, text: resultText };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
