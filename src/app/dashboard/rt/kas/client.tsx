@@ -117,8 +117,8 @@ export function KasClient({
 }) {
   const [transactions, setTransactions] = useState<Tx[]>(initialTransactions);
   const [summary] = useState(initialSummary);
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [isImportDialogOpen, setImportDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [isAiReportOpen, setIsAiReportOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm());
   const [editTarget, setEditTarget] = useState<Tx | null>(null);
