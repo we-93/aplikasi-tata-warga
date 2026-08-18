@@ -80,7 +80,11 @@ export async function getTenantUsageStats(tenantId: string) {
   const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: startOfMonth } } });
   const aiChatLogs = await prisma.activityLog.findMany({ where: { tenantId, action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, createdAt: { gte: startOfMonth } } });
   
-  const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
+  const aiChatUsed = aiChatLogs.reduce((acc, curr) => {
+    const match = curr.description?.match(/\d+/);
+    const amount = match ? parseInt(match[0]) : 1;
+    return acc + amount;
+  }, 0);
   const totalAi = notulens.reduce((acc, curr) => acc + curr.tokenUsed, 0) + aiChatUsed;
   
   const allKas = await prisma.kasTransaction.findMany({ where: { tenantId } });

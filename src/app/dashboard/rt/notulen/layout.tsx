@@ -11,7 +11,7 @@ export default function NotulenDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="max-w-6xl mx-auto space-y-6 flex flex-col h-[calc(100vh-8rem)]">
+    <div className="max-w-6xl mx-auto space-y-6 flex flex-col min-h-full">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-[#1b264f] dark:text-foreground">Notulen & Pengumuman</h1>
         <p className="text-muted-foreground mt-1">
@@ -19,7 +19,7 @@ export default function NotulenDashboardLayout({
         </p>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         <NotulenTabsNav />
         {children}
       </div>
