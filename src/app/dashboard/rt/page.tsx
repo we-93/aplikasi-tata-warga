@@ -23,9 +23,9 @@ export default async function RTDashboardPage() {
   
   if (!tenant) return <div>Data Tenant Tidak Ditemukan</div>;
 
-  const currentProduct = await prisma.product.findFirst({
-    where: { name: tenant.subscriptionPlan }
-  });
+  // const currentProduct = await prisma.product.findFirst({
+  //   where: { name: tenant.subscriptionPlan }
+  // });
   
   const planName = tenant.subscriptionPlan || "Free Plan";
   let statusText = "Inactive";
@@ -36,9 +36,9 @@ export default async function RTDashboardPage() {
   let planExpiry = "Selamanya";
   if (tenant.activeUntil) {
     planExpiry = new Date(tenant.activeUntil).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-  } else if (tenant.status === "PENDING" && currentProduct?.masaAktifBulan) {
+  } else if (tenant.status === "PENDING") {
     const future = new Date();
-    future.setDate(future.getDate() + currentProduct.masaAktifBulan);
+    future.setDate(future.getDate() + 30);
     planExpiry = future.toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) + " (Estimasi)";
   }
 
@@ -46,7 +46,7 @@ export default async function RTDashboardPage() {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const cycleStart = getCycleStart(tenant.activeUntil, currentProduct?.masaAktifBulan || 30);
+  const cycleStart = getCycleStart(tenant.activeUntil, 30);
   cycleStart.setHours(0, 0, 0, 0);
 
   const totalWarga = await prisma.warga.count({ where: { tenantId } });
@@ -54,15 +54,15 @@ export default async function RTDashboardPage() {
   const wargaGrowth = totalWarga > 0 ? Math.round((wargaBaru / totalWarga) * 100) : 0;
 
   const totalSurat = await prisma.suratArsip.count({ where: { tenantId, createdAt: { gte: cycleStart } } });
-  const baseSurat = currentProduct?.maxSurat === -1 ? 999999 : (currentProduct?.maxSurat ?? 20);
-  const suratLimit = baseSurat + tenant.addonMaxSurat; 
+  const baseSurat = 999999;
+  const suratLimit = baseSurat + tenant.addonMaxSurat;
 
   const notulens = await prisma.notulenAi.findMany({ where: { tenantId, createdAt: { gte: cycleStart } } });
   const aiChatLogs = await prisma.activityLog.findMany({ where: { tenantId, action: { in: ["AI_CHAT_USAGE", "AI_BROADCAST_USAGE", "AI_REPORT_USAGE", "AI_OCR_USAGE", "AI_AUDIO_USAGE", "AI_DRAFT_USAGE"] }, createdAt: { gte: cycleStart } } });
   const aiChatUsed = aiChatLogs.reduce((acc, curr) => acc + (parseInt(curr.description || "0") || 0), 0);
   const aiUsed = notulens.reduce((acc, curr) => acc + curr.tokenUsed, 0) + aiChatUsed;
   
-  const baseAi = currentProduct?.maxAiToken === -1 ? 999999 : (currentProduct?.maxAiToken ?? 2000);
+  const baseAi = 999999;
   const aiLimit = baseAi + tenant.addonMaxAiToken;
 
   // 3. Fetch Kas RT (Last 6 Months & Total)
