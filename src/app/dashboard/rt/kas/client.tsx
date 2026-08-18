@@ -779,7 +779,7 @@ export function KasClient({
       </Dialog>
 
       <Dialog open={isAiReportOpen} onOpenChange={setIsAiReportOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl w-[95vw] md:w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Laporan Analisis AI</DialogTitle>
             <DialogDescription>
