@@ -192,9 +192,7 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
         </Button>
       </Link>
 
-      <Button variant="outline" className="flex-1 md:flex-none text-xs md:text-sm px-2 md:px-4 whitespace-nowrap" onClick={() => setIsDialogOpen(true)}>
-        <Upload className="w-4 h-4 mr-1 md:mr-2" /> Import
-      </Button>
+
 
       <Button variant="outline" className="flex-1 md:flex-none text-xs md:text-sm px-2 md:px-4 whitespace-nowrap" onClick={handleExport}>
         <Download className="w-4 h-4 mr-1 md:mr-2" /> Export
