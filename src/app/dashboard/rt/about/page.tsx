@@ -9,8 +9,8 @@ export default function AboutPage() {
   return (
     <div className="max-w-md mx-auto pb-8 pt-6 flex flex-col min-h-[70vh] justify-center items-center text-center">
       
-      <div className="w-24 h-24 bg-gradient-to-br from-[#6419c1] to-[#a064fa] rounded-3xl shadow-xl flex items-center justify-center mb-6">
-        <span className="text-white font-extrabold text-5xl leading-none">T</span>
+      <div className="w-24 h-24 flex items-center justify-center mb-6">
+        <Image src="/favicon-tata-warga.png" alt="Tata Warga Logo" width={96} height={96} className="object-contain drop-shadow-xl" />
       </div>
 
       <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-2">

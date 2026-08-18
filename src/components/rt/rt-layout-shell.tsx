@@ -29,7 +29,8 @@ import {
   HelpCircle,
   BookOpen,
   Home,
-  Plus
+  Plus,
+  UserPlus
 } from "lucide-react";
 
 import {
@@ -108,22 +109,30 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
   return (
     <div className="flex flex-col h-screen bg-slate-50 dark:bg-black font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
         {/* Header */}
-        <header className="h-20 bg-white/80 dark:bg-[#141229]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
+        <header className="h-14 md:h-20 bg-[#6519c2] md:bg-white/80 dark:md:bg-[#141229]/80 backdrop-blur-md border-b border-[#6519c2] md:border-slate-200 dark:border-white/10 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
           <div className="flex items-center gap-3">
-              {logoUrl || logoUrlDark ? (
-                <>
-                  {(!logoUrlDark || !isDark) && logoUrl && (
-                    <Image src={logoUrl} alt="Logo" width={100} height={32} className="h-7 w-auto object-contain" />
-                  )}
-                  {isDark && logoUrlDark && (
-                    <Image src={logoUrlDark} alt="Logo" width={100} height={32} className="h-7 w-auto object-contain" />
-                  )}
-                </>
-              ) : (
-                <Link href="/dashboard/rt" className="flex items-center">
-                  <Image src="/logo-tata-waga.png" alt="Logo Tata Warga" width={100} height={32} className="h-7 w-auto object-contain" />
-                </Link>
-              )}
+              {/* Desktop Logo */}
+              <div className="hidden md:flex items-center">
+                {logoUrl || logoUrlDark ? (
+                  <>
+                    {(!logoUrlDark || !isDark) && logoUrl && (
+                      <Image src={logoUrl} alt="Logo" width={100} height={32} className="h-7 w-auto object-contain" />
+                    )}
+                    {isDark && logoUrlDark && (
+                      <Image src={logoUrlDark} alt="Logo" width={100} height={32} className="h-7 w-auto object-contain" />
+                    )}
+                  </>
+                ) : (
+                  <Link href="/dashboard/rt" className="flex items-center">
+                    <Image src="/logo-tata-waga.png" alt="Logo Tata Warga" width={100} height={32} className="h-7 w-auto object-contain" />
+                  </Link>
+                )}
+              </div>
+              
+              {/* Mobile Logo (Always Dark/White text version for purple bg) */}
+              <Link href="/dashboard/rt" className="flex items-center md:hidden">
+                <Image src="/logo-tata-waga-dark.png" alt="Logo Tata Warga" width={100} height={32} className="h-6 w-auto object-contain" />
+              </Link>
             </div>
 
           <div className="flex items-center gap-4">
@@ -148,10 +157,10 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
             
             {/* Notifications */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative p-2 rounded-full text-slate-600 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-colors">
+              <DropdownMenuTrigger className="relative p-2 rounded-full text-white md:text-slate-600 dark:text-white/70 hover:bg-white/10 md:hover:bg-slate-100 dark:hover:bg-white/5 md:hover:text-slate-900 dark:hover:text-white transition-colors">
                 <Bell className="h-5 w-5" />
                 {hasNewNotifs && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm border-2 border-white dark:border-[#141229]">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm border-2 border-[#6519c2] md:border-white dark:border-[#141229]">
                     {unreadCount}
                   </span>
                 )}

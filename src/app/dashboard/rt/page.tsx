@@ -175,6 +175,10 @@ export default async function RTDashboardPage() {
 
   const rtName = tenant.name || "RT/RW";
 
+  // 7. Hitung Progress Pengaturan Profil
+  const mandatoryFields = ['province', 'city', 'district', 'village', 'rt', 'rw', 'address', 'ketuaName', 'noHpRt'];
+  const filledFields = mandatoryFields.filter(field => !!tenant[field as keyof typeof tenant]);
+  const profilProgress = Math.round((filledFields.length / mandatoryFields.length) * 100);
 
   return (
     <>
@@ -189,7 +193,21 @@ export default async function RTDashboardPage() {
         <DashboardHeaderClient kasData={serializedAllKas as any} />
       </div>
 
-      {/* Subscription Banner */}
+      {/* Subscription Banner & Progress */}
+      {profilProgress < 100 && (
+        <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-5 flex items-center justify-between gap-4">
+          <div className="flex-1">
+            <h3 className="text-amber-800 dark:text-amber-400 font-bold mb-1">Lengkapi Profil RT Anda ({profilProgress}%)</h3>
+            <div className="w-full bg-amber-200/50 dark:bg-amber-900/30 rounded-full h-2.5 mt-2">
+              <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: `${profilProgress}%` }}></div>
+            </div>
+          </div>
+          <Button variant="outline" className="shrink-0 bg-white dark:bg-[#141229] border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20" asChild>
+            <Link href="/dashboard/rt/settings/profil">Lengkapi Sekarang <ChevronRight className="w-4 h-4 ml-1" /></Link>
+          </Button>
+        </div>
+      )}
+
       <div className="bg-[#6419c1] text-white rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-lg shadow-[#6419c1]/20">
         <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="flex items-center gap-4 relative z-10">
@@ -477,6 +495,24 @@ export default async function RTDashboardPage() {
           {todayFormatted}
         </p>
       </div>
+
+      {profilProgress < 100 && (
+        <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-4 shadow-sm flex flex-col gap-3 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold text-amber-800 dark:text-amber-400 mb-0.5">Lengkapi Profil RT</p>
+              <p className="text-[10px] text-amber-600 dark:text-amber-500">Agar fitur surat & layanan maksimal</p>
+            </div>
+            <div className="text-amber-600 dark:text-amber-400 font-extrabold text-lg">{profilProgress}%</div>
+          </div>
+          <div className="w-full bg-amber-200/50 dark:bg-amber-900/30 rounded-full h-2">
+            <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${profilProgress}%` }}></div>
+          </div>
+          <Link href="/dashboard/rt/settings/profil" className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl text-center mt-1 flex items-center justify-center">
+            Pengaturan Profil <ChevronRight className="w-3 h-3 ml-1" />
+          </Link>
+        </div>
+      )}
 
       {/* CARD 1: KARTU TOTAL WARGA */}
       <div className="bg-gradient-to-br from-[#6419c1] to-[#a064fa] rounded-3xl p-6 text-white shadow-lg shadow-[#6419c1]/20 relative overflow-hidden">
