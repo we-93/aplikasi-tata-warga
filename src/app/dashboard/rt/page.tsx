@@ -1,6 +1,6 @@
 import { DashboardHeaderClient } from "@/components/rt/dashboard-header-client";
 import { DashboardCharts } from "@/components/rt/dashboard-charts";
-import { Users, FileText, MessageSquare, Sparkles, ChevronRight, Plus, CheckCircle2, UserPlus, Info, CreditCard, Bot } from "lucide-react";
+import { Users, FileText, MessageSquare, Sparkles, ChevronRight, Plus, CheckCircle2, UserPlus, Info, CreditCard, Bot, BarChart3, Wallet, Database, Bell, Activity, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import { getCycleStart } from "@/lib/utils";
