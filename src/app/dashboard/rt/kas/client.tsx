@@ -116,6 +116,7 @@ export function KasClient({
   initialPengumuman?: any[];
 }) {
   const [transactions, setTransactions] = useState<Tx[]>(initialTransactions);
+  const [summary] = useState(initialSummary);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [isImportDialogOpen, setImportDialogOpen] = useState(false);
   const [isAiReportOpen, setIsAiReportOpen] = useState(false);
