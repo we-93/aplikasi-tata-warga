@@ -37,6 +37,7 @@ export default async function RtSuratPage() {
             </Button>
           </Link>
         </div>
+      </div>
 
       <SuratArsipList arsips={arsips} />
     </div>
