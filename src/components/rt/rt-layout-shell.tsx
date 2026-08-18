@@ -131,7 +131,7 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
               
               {/* Mobile Logo (Always Dark/White text version for purple bg) */}
               <Link href="/dashboard/rt" className="flex items-center md:hidden">
-                <Image src="/logo-tata-waga-dark.png" alt="Logo Tata Warga" width={100} height={32} className="h-6 w-auto object-contain" />
+                <Image src="/logo-tata-waga-dark.png" alt="Logo Tata Warga" width={140} height={36} className="h-9 w-auto object-contain drop-shadow-md" />
               </Link>
             </div>
 

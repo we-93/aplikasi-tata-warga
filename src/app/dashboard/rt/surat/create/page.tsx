@@ -39,16 +39,11 @@ export default async function CreateSuratPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
-          <Link href="/dashboard/rt/surat">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Buat Surat Baru</h1>
-          <p className="text-muted-foreground mt-1">Pilih jenis surat dan warga untuk meng-generate dokumen PDF secara otomatis.</p>
-        </div>
+      <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-white/10 w-full">
+        <Link href="/dashboard/rt/surat" className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <h1 className="text-lg font-bold text-[#6519c2]">Buat Surat Baru</h1>
       </div>
 
       <SuratCreator templates={templates} wargas={wargas} tenant={tenant} />

@@ -1,5 +1,6 @@
-import { Info } from "lucide-react";
+import { Info, ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export const metadata = {
   title: "Tentang Aplikasi - Tata Warga",
@@ -7,7 +8,15 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="max-w-md mx-auto pb-8 pt-6 flex flex-col min-h-[70vh] justify-center items-center text-center">
+    <div className="space-y-6 max-w-md mx-auto">
+      <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-white/10 w-full mt-4">
+        <Link href="/dashboard/rt/settings" className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <h1 className="text-lg font-bold text-[#6519c2]">Tentang Aplikasi</h1>
+      </div>
+      
+      <div className="pb-8 pt-6 flex flex-col min-h-[60vh] justify-center items-center text-center">
       
       <div className="w-24 h-24 flex items-center justify-center mb-6">
         <Image src="/favicon-tata-warga.png" alt="Tata Warga Logo" width={96} height={96} className="object-contain drop-shadow-xl" />
@@ -33,6 +42,7 @@ export default function AboutPage() {
         </p>
       </div>
 
+    </div>
     </div>
   );
 }

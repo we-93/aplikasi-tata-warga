@@ -4,6 +4,9 @@ import { auth } from "@/auth";
 
 export const dynamic = 'force-dynamic';
 
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 export default async function RtLettersPage() {
   const session = await auth();
   const tenantId = session?.user?.tenantId;
@@ -18,12 +21,12 @@ export default async function RtLettersPage() {
   });
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto w-full text-slate-900 dark:text-white pb-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Template Surat Kustom</h1>
-          <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Buat format surat sendiri yang hanya bisa digunakan oleh RT Anda.</p>
-        </div>
+    <div className="space-y-6 max-w-7xl mx-auto w-full text-slate-900 dark:text-white pb-10">
+      <div className="flex items-center gap-3 pb-2 border-b border-slate-100 dark:border-white/10 w-full">
+        <Link href="/dashboard/rt/settings" className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <h1 className="text-lg font-bold text-[#6519c2]">Template Surat Kustom</h1>
       </div>
       <RtLetterList templates={templates as any} />
     </div>

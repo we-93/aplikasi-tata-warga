@@ -337,7 +337,7 @@ export function SettingsForm({ initialData }: { initialData: any }) {
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isPending} className="bg-[#1b264f] hover:bg-[#1b264f]/90 text-white min-w-[150px]">
+        <Button type="submit" disabled={isPending} className="bg-[#6519c2] hover:bg-[#6519c2]/90 text-[#fad700] min-w-[150px]">
           {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
           Simpan Pengaturan
         </Button>
