@@ -9,9 +9,9 @@ export const metadata = {
 
 export default async function KnowledgePage() {
   const session = await auth();
-  if (!session) redirect("/auth/login");
+  if (!session?.user?.email) redirect("/auth/login");
   
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+  const user = await prisma.user.findUnique({ where: { email: session.user.email! } });
   if (!user || user.role !== "SUPER_ADMIN") redirect("/dashboard/rt");
 
   const settings = await prisma.siteSettings.findFirst();

@@ -98,8 +98,8 @@ export default function AiChatPage() {
       // Optimasi: Hanya kirim 6 pesan terakhir (3 sesi tanya jawab) agar token tidak bengkak
       const historyToSend = newMessages.slice(-6);
       const res = await chatWithAi(historyToSend);
-      if (res.success) {
-        setMessages([...newMessages, res.message]);
+      if (res.success && res.message) {
+        setMessages([...newMessages, res.message as any]);
       } else {
         toast.error(res.error || "Gagal menghubungi AI");
       }

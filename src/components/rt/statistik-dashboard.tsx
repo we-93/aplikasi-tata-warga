@@ -233,7 +233,7 @@ export function StatistikDashboard({ wargas }: { wargas: any[] }) {
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg text-slate-700">Distribusi Kelompok Umur</CardTitle>
             <div className="w-48">
-              <Select value={umurFilter} onValueChange={setUmurFilter}>
+              <Select value={umurFilter} onValueChange={(v) => setUmurFilter(v ?? "")}>  
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder="Pilih Filter" />
                 </SelectTrigger>

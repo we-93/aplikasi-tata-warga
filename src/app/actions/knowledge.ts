@@ -20,9 +20,9 @@ function chunkText(text: string, chunkSize: number = 2000): string[] {
 export async function uploadKnowledgeDocument(formData: FormData) {
   try {
     const session = await auth();
-    if (!session) throw new Error("Unauthorized");
+    if (!session?.user?.email) throw new Error("Unauthorized");
     
-    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    const user = await prisma.user.findUnique({ where: { email: session.user.email! } });
     if (!user || user.role !== "SUPER_ADMIN") throw new Error("Unauthorized");
 
     const file = formData.get("file") as File;
@@ -115,9 +115,9 @@ export async function uploadKnowledgeDocument(formData: FormData) {
 export async function deleteKnowledgeDocument(id: string) {
   try {
     const session = await auth();
-    if (!session) throw new Error("Unauthorized");
+    if (!session?.user?.email) throw new Error("Unauthorized");
     
-    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    const user = await prisma.user.findUnique({ where: { email: session.user.email! } });
     if (!user || user.role !== "SUPER_ADMIN") throw new Error("Unauthorized");
 
     const settings = await prisma.siteSettings.findFirst();

@@ -182,7 +182,7 @@ export function SettingsForm({ initialData }: { initialData: any }) {
             <Select 
               value={selectedDistrict} 
               onValueChange={(val) => {
-                setSelectedDistrict(val);
+                setSelectedDistrict(val ?? "");
                 setSelectedVillage(""); // Reset village when district changes
               }}
             >
@@ -197,14 +197,14 @@ export function SettingsForm({ initialData }: { initialData: any }) {
           <div className="space-y-2">
             <Label>Desa / Kelurahan <span className="text-red-500">*</span></Label>
             <div className="flex gap-2">
-              <Select value={villagePrefix} onValueChange={setVillagePrefix}>
+              <Select value={villagePrefix} onValueChange={(v) => setVillagePrefix(v ?? "")}>
                 <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Desa">Desa</SelectItem>
                   <SelectItem value="Kelurahan">Kelurahan</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={selectedVillage} onValueChange={setSelectedVillage} disabled={!selectedDistrict}>
+              <Select value={selectedVillage} onValueChange={(v) => setSelectedVillage(v ?? "")} disabled={!selectedDistrict}>
                 <SelectTrigger className="flex-1"><SelectValue placeholder="Pilih Desa/Kel." /></SelectTrigger>
                 <SelectContent>
                   {availableVillages.map((vil) => (

@@ -15,7 +15,7 @@ export default async function IntegrationsPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <IntegrationsClient aiSettings={aiSettings} initialTokenLogs={tokenLogs} />
+      <IntegrationsClient aiSettings={aiSettings} initialTokenLogs={tokenLogs || []} />
     </div>
   );
 }

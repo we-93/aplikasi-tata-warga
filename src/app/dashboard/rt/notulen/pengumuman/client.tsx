@@ -30,7 +30,7 @@ export function BroadcastClient({ initialPengumuman = [] }: { initialPengumuman?
     
     const res = await generateAiBroadcast(broadcastForm);
     if (res.success) {
-      setBroadcastResult(res.text);
+      setBroadcastResult(res.text || "");
       toast.success("Draf pengumuman berhasil dibuat!");
     } else {
       toast.error(res.error);

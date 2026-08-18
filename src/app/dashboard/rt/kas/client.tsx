@@ -150,7 +150,7 @@ export function KasClient({
     
     const res = await generateAiReport(reportForm.month, reportForm.year);
     if (res.success) {
-      setReportResult(res.text);
+      setReportResult(res.text || "");
       toast.success("Draf laporan berhasil dibuat!");
     } else {
       toast.error(res.error);
