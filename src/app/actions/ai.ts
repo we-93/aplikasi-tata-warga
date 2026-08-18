@@ -149,6 +149,8 @@ export async function chatWithAi(messages: any[]) {
       messages: payloadMessages,
     });
     
+    const tokens = response.usage?.total_tokens || 0;
+
     if (tenantId) {
       await prisma.tenant.update({
         where: { id: tenantId },
@@ -158,7 +160,7 @@ export async function chatWithAi(messages: any[]) {
         data: {
           tenantId,
           action: "AI_CHAT_USAGE",
-          description: "Menggunakan 1 Kredit Chat"
+          description: `${tokens} Tokens (Menggunakan 1 Kredit Chat)`
         }
       });
     }
@@ -192,6 +194,7 @@ export async function transcribeImage(formData: FormData) {
     const mimeType = file.type || "image/jpeg";
 
     let text = "";
+    let tokens = 0;
 
     if (geminiApiKey) {
       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + geminiApiKey;
@@ -216,6 +219,7 @@ export async function transcribeImage(formData: FormData) {
       if (!response.ok) throw new Error(data.error?.message || "Gagal membaca teks dari gambar dengan Gemini");
       
       text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      tokens = data.usageMetadata?.totalTokenCount || 0;
     } else if (openaiApiKey) {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -245,6 +249,7 @@ export async function transcribeImage(formData: FormData) {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || "Gagal membaca teks dari gambar");
       text = result.choices[0].message.content;
+      tokens = result.usage?.total_tokens || 0;
     }
 
     if (tenantId) {
@@ -253,7 +258,7 @@ export async function transcribeImage(formData: FormData) {
         data: { aiDocCredits: { decrement: 1 } }
       });
       await prisma.activityLog.create({ 
-        data: { tenantId, action: "AI_OCR_USAGE", description: "Menggunakan 1 Kredit Notulen/Doc" } 
+        data: { tenantId, action: "AI_OCR_USAGE", description: `${tokens} Tokens (Menggunakan 1 Kredit Notulen/Doc)` } 
       });
     }
 
@@ -290,6 +295,7 @@ export async function generateAiBroadcast(data: {
 "Buat formatnya menarik, gunakan emoji yang relevan, dan pastikan jelas dibaca di WhatsApp. Jangan tambahkan penjelasan apa-apa, cukup langsung berikan teks pengumumannya saja.";
 
     let resultText = "";
+    let tokens = 0;
 
     if (chatApiKey && chatApiUrl) {
       const response = await fetch(`${chatApiUrl}/chat/completions`, {
@@ -303,6 +309,7 @@ export async function generateAiBroadcast(data: {
       const resData = await response.json();
       if (!response.ok) throw new Error(resData.error?.message || "Gagal memproses broadcast");
       resultText = resData.choices[0].message.content;
+      tokens = resData.usage?.total_tokens || 0;
     } else if (openaiApiKey) {
       const openai = new OpenAI({ apiKey: openaiApiKey });
       const response = await openai.chat.completions.create({
@@ -310,6 +317,7 @@ export async function generateAiBroadcast(data: {
         messages: [{ role: "system", content: systemContext }, { role: "user", content: prompt }]
       });
       resultText = response.choices[0].message.content || "";
+      tokens = response.usage?.total_tokens || 0;
     } else if (geminiApiKey) {
       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
       const response = await fetch(url, {
@@ -323,6 +331,7 @@ export async function generateAiBroadcast(data: {
       const resData = await response.json();
       if (!response.ok) throw new Error(resData.error?.message || "Gagal memproses broadcast dengan Gemini");
       resultText = resData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      tokens = resData.usageMetadata?.totalTokenCount || 0;
     }
 
     if (tenantId) {
@@ -331,7 +340,7 @@ export async function generateAiBroadcast(data: {
         data: { aiDocCredits: { decrement: 1 } }
       });
       await prisma.activityLog.create({ 
-        data: { tenantId, action: "AI_BROADCAST_USAGE", description: "Menggunakan 1 Kredit Notulen/Doc" } 
+        data: { tenantId, action: "AI_BROADCAST_USAGE", description: `${tokens} Tokens (Menggunakan 1 Kredit Notulen/Doc)` } 
       });
     }
     
@@ -384,6 +393,7 @@ kasText + "\n\n" +
       const data = await response.json();
       if (!response.ok) throw new Error(data.error?.message || "Gagal membuat laporan AI");
       resultText = data.choices[0].message.content;
+      tokens = data.usage?.total_tokens || 0;
     } else if (openaiApiKey) {
       const openai = new OpenAI({ apiKey: openaiApiKey });
       const response = await openai.chat.completions.create({
@@ -391,6 +401,7 @@ kasText + "\n\n" +
         messages: [{ role: "system", content: systemContext }, { role: "user", content: prompt }]
       });
       resultText = response.choices[0].message.content || "";
+      tokens = response.usage?.total_tokens || 0;
     } else if (geminiApiKey) {
       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
       const response = await fetch(url, {
@@ -404,6 +415,7 @@ kasText + "\n\n" +
       const data = await response.json();
       if (!response.ok) throw new Error(data.error?.message || "Gagal membuat laporan dengan Gemini");
       resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      tokens = data.usageMetadata?.totalTokenCount || 0;
     }
 
     if (tenantId) {
@@ -412,7 +424,7 @@ kasText + "\n\n" +
         data: { aiDocCredits: { decrement: 1 } }
       });
       await prisma.activityLog.create({ 
-        data: { tenantId, action: "AI_REPORT_USAGE", description: "Menggunakan 1 Kredit Notulen/Doc" } 
+        data: { tenantId, action: "AI_REPORT_USAGE", description: `${tokens} Tokens (Menggunakan 1 Kredit Notulen/Doc)` } 
       });
     }
     
