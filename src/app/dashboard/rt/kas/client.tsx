@@ -779,7 +779,7 @@ export function KasClient({
       </Dialog>
 
       <Dialog open={isAiReportOpen} onOpenChange={setIsAiReportOpen}>
-        <DialogContent className="max-w-5xl w-[95vw] md:w-full max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl lg:max-w-5xl w-[95vw] md:w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Laporan Analisis AI</DialogTitle>
             <DialogDescription>
@@ -814,28 +814,28 @@ export function KasClient({
             </div>
 
             <div className="flex flex-col min-h-[300px]">
-              {reportResult ? (
-                <div className="flex-1 flex flex-col gap-4">
+              <div className="flex-1 flex flex-col gap-4">
+                {reportResult ? (
                   <Textarea 
                     value={reportResult} 
                     onChange={(e) => setReportResult(e.target.value)}
                     className="flex-1 min-h-[200px] md:min-h-[250px] resize-none font-mono text-sm leading-relaxed" 
                   />
-                  <div className="flex gap-2">
-                    <Button onClick={() => copyToClipboard(reportResult)} className="flex-1 bg-card border border-border-card-foreground">
-                      <Copy className="w-4 h-4 mr-2" /> Salin
-                    </Button>
-                    <Button onClick={handlePublishReport} disabled={isPublishing} className="flex-1 bg-primary text-primary-foreground">
-                      {isPublishing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                      Terbitkan
-                    </Button>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground text-center px-8 border border-dashed rounded-xl bg-accent/20">
+                    Pilih bulan dan tahun, lalu AI akan merangkum seluruh transaksi kas Anda menjadi laporan naratif yang siap dibagikan ke warga.
                   </div>
+                )}
+                <div className="flex gap-2">
+                  <Button onClick={() => copyToClipboard(reportResult)} disabled={!reportResult} className="flex-1 bg-card border border-border-card-foreground">
+                    <Copy className="w-4 h-4 mr-2" /> Salin
+                  </Button>
+                  <Button onClick={handlePublishReport} disabled={!reportResult || isPublishing} className="flex-1 bg-primary text-primary-foreground">
+                    {isPublishing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    Terbitkan
+                  </Button>
                 </div>
-              ) : (
-                <div className="flex-1 flex items-center justify-center text-muted-foreground text-center px-8 border border-dashed rounded-xl">
-                  Pilih bulan dan tahun, lalu AI akan merangkum seluruh transaksi kas Anda menjadi laporan naratif yang siap dibagikan ke warga.
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </DialogContent>
