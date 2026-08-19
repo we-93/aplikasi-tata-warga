@@ -2,12 +2,13 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, FileSpreadsheet, ArrowUpRight } from "lucide-react";
+import { Plus, Download, Upload, FileSpreadsheet, ArrowUpRight, ChevronDown, BarChart2 } from "lucide-react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 import { importWargaBulk } from "@/app/actions/warga-excel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
   const [isImporting, setIsImporting] = useState(false);
@@ -194,13 +195,22 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
 
 
 
-      <Button variant="outline" className="flex-1 md:flex-none text-xs md:text-sm px-2 md:px-4 whitespace-nowrap" onClick={handleExport}>
-        <Download className="w-4 h-4 mr-1 md:mr-2" /> Export
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button variant="outline" className="flex-1 md:flex-none text-xs md:text-sm px-2 md:px-4 whitespace-nowrap border-[#6419c1] text-[#6419c1] hover:bg-[#6419c1]/10" type="button">
+            <Download className="w-4 h-4 mr-1 md:mr-2" /> Export <ChevronDown className="w-3 h-3 ml-1" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleExport}>
+            <FileSpreadsheet className="w-4 h-4 mr-2 text-[#6419c1]" /> Export Excel
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <Link href="/dashboard/rt/warga/statistik" className="flex-1 md:flex-none min-w-0">
         <Button className="w-full text-xs md:text-sm px-2 md:px-4 whitespace-nowrap text-black font-semibold hover:opacity-90" style={{ backgroundColor: "#fad900" }}>
-          Statistik <ArrowUpRight className="w-4 h-4 ml-1.5" />
+          <BarChart2 className="w-4 h-4 mr-1.5" /> Statistik
         </Button>
       </Link>
     </div>

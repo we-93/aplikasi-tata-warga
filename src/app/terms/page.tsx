@@ -6,6 +6,8 @@ import { auth } from "@/auth";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Syarat & Ketentuan - Tata Warga",
   description: "Syarat dan ketentuan penggunaan layanan Tata Warga.",

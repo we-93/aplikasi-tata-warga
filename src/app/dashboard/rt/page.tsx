@@ -485,14 +485,29 @@ export default async function RTDashboardPage() {
       
       {/* HEADER: Selamat Datang & Tanggal */}
       <div className="pt-2">
-        <h1 className="text-2xl text-slate-800 dark:text-white">
-          Selamat Datang, <br/>
-          <span className="font-extrabold">{rtName}</span>
+        <p className="text-xs text-slate-500 dark:text-white/60 font-light">{todayFormatted}</p>
+        <h1 className="text-base font-bold text-slate-800 dark:text-white mt-0.5">
+          Selamat Datang, <span className="text-[#6419c1] dark:text-[#a064fa]">Ketua RT {tenant.rt || "--"}/RW {tenant.rw || "--"}</span>
         </h1>
-        <p className="text-sm text-slate-500 dark:text-white/60 font-light mt-1">
-          {todayFormatted}
-        </p>
       </div>
+
+      {/* CARD PROGRESS PROFIL - tampil jika belum 100% */}
+      {profilProgress < 100 && (
+        <div className="bg-[#fad700]/10 border border-[#fad700]/30 rounded-2xl p-4 flex items-center justify-between gap-3">
+          <div className="flex-1">
+            <h3 className="text-[#b09600] dark:text-[#fad700] font-bold text-sm mb-1">Lengkapi Profil RT ({profilProgress}%)</h3>
+            <div className="w-full bg-[#fad700]/20 rounded-full h-2">
+              <div className="bg-[#fad700] h-2 rounded-full transition-all" style={{ width: `${profilProgress}%` }}></div>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-white/50 mt-1">Profil lengkap meningkatkan kepercayaan warga</p>
+          </div>
+          <Link href="/dashboard/rt/settings/profil" className="shrink-0">
+            <Button size="sm" variant="outline" className="text-xs border-[#fad700]/40 text-[#b09600] dark:text-[#fad700] hover:bg-[#fad700]/20 px-3">
+              Lengkapi
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* CARD 1: KARTU TOTAL WARGA */}
       <div className="bg-gradient-to-br from-[#6419c1] to-[#a064fa] rounded-3xl p-6 text-white shadow-lg shadow-[#6419c1]/20 relative overflow-hidden">

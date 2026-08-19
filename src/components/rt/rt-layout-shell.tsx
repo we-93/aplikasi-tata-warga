@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -76,15 +77,47 @@ import { markNotificationRead } from "@/app/actions/notifications";
 export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEmail, userImage, footerText, notifications }: RTLayoutShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [localNotifs, setLocalNotifs] = useState(notifications);
 
+  // 30-second polling for new notifications
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await fetch("/api/notifications", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.notifications) setLocalNotifs(data.notifications);
+      }
+    } catch {}
+  }, []);
+
   useEffect(() => {
     setMounted(true);
     setLocalNotifs(notifications);
-  }, [notifications]);
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [notifications, fetchNotifications]);
+
+  // Android back button handler
+  useEffect(() => {
+    const handleBackButton = (e: PopStateEvent) => {
+      const isHome = pathname === "/dashboard/rt";
+      if (isHome) {
+        e.preventDefault();
+        setShowExitDialog(true);
+        // Push state back so the URL stays
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+    // Push initial state
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handleBackButton);
+    return () => window.removeEventListener("popstate", handleBackButton);
+  }, [pathname]);
 
   const unreadCount = localNotifs.filter(n => !n.isRead).length;
   const hasNewNotifs = mounted && unreadCount > 0;
@@ -108,6 +141,23 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 dark:bg-black font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
+        {/* Exit Confirmation Dialog (Android back button on home) */}
+        {showExitDialog && (
+          <div className="fixed inset-0 z-[9999] bg-black/60 flex items-end md:items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#1a1835] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">Keluar Aplikasi?</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">Apakah Anda yakin ingin menutup aplikasi Tata Warga?</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowExitDialog(false)} className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-sm font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                  Batal
+                </button>
+                <button onClick={() => { setShowExitDialog(false); (window as any).history.go(-(window as any).history.length); }} className="flex-1 py-2.5 rounded-xl bg-[#6419c1] text-white text-sm font-semibold hover:bg-[#6419c1]/90 transition-colors">
+                  Keluar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <header className="h-14 md:h-20 bg-[#6519c2] md:bg-white/80 dark:md:bg-[#141229]/80 backdrop-blur-md border-b border-[#6519c2] md:border-slate-200 dark:border-white/10 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
           <div className="flex items-center gap-3">

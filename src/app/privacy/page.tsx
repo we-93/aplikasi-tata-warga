@@ -6,6 +6,8 @@ import { auth } from "@/auth";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Kebijakan Privasi - Tata Warga",
   description: "Kebijakan privasi dan perlindungan data pengguna Tata Warga.",

@@ -7,6 +7,7 @@ import { Testimonials } from "@/components/testimonials";
 import { FAQ } from "@/components/faq";
 import { CTA } from "@/components/cta";
 import { Footer } from "@/components/footer";
+import { CapacitorRedirect } from "@/components/capacitor-redirect";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 
@@ -31,6 +32,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
+      <CapacitorRedirect />
       <Navbar logoUrl={settings?.logoUrl} logoUrlDark={settings?.logoUrlDark} session={session} />
       <main className="flex-1">
         <Hero 

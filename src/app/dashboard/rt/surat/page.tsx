@@ -22,8 +22,8 @@ export default async function RtSuratPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pelayanan Surat</h1>
-          <p className="text-muted-foreground mt-1">Buat surat pengantar otomatis dan lihat riwayat pembuatan dokumen warga.</p>
+          <h1 className="text-xl font-bold tracking-tight">Pelayanan Surat</h1>
+          <p className="text-muted-foreground text-xs mt-0.5">Buat surat pengantar otomatis dan lihat riwayat pembuatan dokumen warga.</p>
         </div>
         <div className="hidden md:flex flex-wrap items-center gap-2">
           <Link href="/dashboard/rt/surat/template">

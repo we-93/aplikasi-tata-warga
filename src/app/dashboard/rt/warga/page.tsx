@@ -13,11 +13,11 @@ export default async function RtWargaPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Data Warga</h1>
-          <p className="text-muted-foreground mt-1">Kelola data seluruh penduduk di lingkungan RT Anda.</p>
+          <h1 className="text-xl font-bold tracking-tight">Data Warga</h1>
+          <p className="text-muted-foreground text-xs mt-0.5">Kelola data seluruh penduduk di lingkungan RT Anda.</p>
         </div>
         <WargaHeaderActions wargas={wargas} />
       </div>
