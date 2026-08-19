@@ -7,6 +7,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 import { 
   LayoutDashboard, 
   Users, 
@@ -77,7 +78,6 @@ import { markNotificationRead } from "@/app/actions/notifications";
 export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEmail, userImage, footerText, notifications }: RTLayoutShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [showExitDialog, setShowExitDialog] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -102,22 +102,31 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
     return () => clearInterval(interval);
   }, [notifications, fetchNotifications]);
 
-  // Android back button handler
+  // Android back button handler (Capacitor)
   useEffect(() => {
-    const handleBackButton = (e: PopStateEvent) => {
-      const isHome = pathname === "/dashboard/rt";
-      if (isHome) {
-        e.preventDefault();
-        setShowExitDialog(true);
-        // Push state back so the URL stays
-        window.history.pushState(null, "", window.location.href);
-      }
-    };
-    // Push initial state
-    window.history.pushState(null, "", window.location.href);
-    window.addEventListener("popstate", handleBackButton);
-    return () => window.removeEventListener("popstate", handleBackButton);
-  }, [pathname]);
+    if (typeof window !== "undefined" && (window as any).Capacitor) {
+      let lastBackPress = 0;
+      import('@capacitor/app').then(({ App }) => {
+        App.addListener('backButton', ({ canGoBack }) => {
+          const isHome = window.location.pathname === "/dashboard/rt" || window.location.pathname === "/";
+          if (!canGoBack || isHome) {
+            const now = new Date().getTime();
+            if (now - lastBackPress < 2000) {
+              App.exitApp();
+            } else {
+              lastBackPress = now;
+              toast("Tekan kembali sekali lagi untuk keluar");
+            }
+          } else {
+            window.history.back();
+          }
+        });
+      });
+      return () => {
+        import('@capacitor/app').then(({ App }) => App.removeAllListeners());
+      };
+    }
+  }, []);
 
   const unreadCount = localNotifs.filter(n => !n.isRead).length;
   const hasNewNotifs = mounted && unreadCount > 0;
@@ -141,23 +150,6 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 dark:bg-black font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
-        {/* Exit Confirmation Dialog (Android back button on home) */}
-        {showExitDialog && (
-          <div className="fixed inset-0 z-[9999] bg-black/60 flex items-end md:items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#1a1835] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">Keluar Aplikasi?</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">Apakah Anda yakin ingin menutup aplikasi Tata Warga?</p>
-              <div className="flex gap-3">
-                <button onClick={() => setShowExitDialog(false)} className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-sm font-semibold text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                  Batal
-                </button>
-                <button onClick={() => { setShowExitDialog(false); (window as any).history.go(-(window as any).history.length); }} className="flex-1 py-2.5 rounded-xl bg-[#6419c1] text-white text-sm font-semibold hover:bg-[#6419c1]/90 transition-colors">
-                  Keluar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
         {/* Header */}
         <header className="h-14 md:h-20 bg-[#6519c2] md:bg-white/80 dark:md:bg-[#141229]/80 backdrop-blur-md border-b border-[#6519c2] md:border-slate-200 dark:border-white/10 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
           <div className="flex items-center gap-3">
