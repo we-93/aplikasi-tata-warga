@@ -29,7 +29,8 @@ export function AdminStatistikClient({ wargas }: { wargas: any[] }) {
   }, [wargas, selectedKecamatan]);
 
   // Handle Kecamatan change
-  const handleKecamatanChange = (val: string) => {
+  const handleKecamatanChange = (val: string | null) => {
+    if (!val) return;
     setSelectedKecamatan(val);
     setSelectedDesa("all"); // Reset desa filter when kecamatan changes
   };
@@ -62,7 +63,7 @@ export function AdminStatistikClient({ wargas }: { wargas: any[] }) {
             </Select>
           </div>
           <div className="w-full sm:w-[250px]">
-            <Select value={selectedDesa} onValueChange={setSelectedDesa}>
+            <Select value={selectedDesa} onValueChange={(val) => val && setSelectedDesa(val)}>
               <SelectTrigger className="w-full bg-slate-50 dark:bg-black/20">
                 <SelectValue placeholder="Pilih Desa/Kelurahan" />
               </SelectTrigger>
