@@ -41,7 +41,7 @@ export default async function EditRtTemplatePage({ params }: { params: { id: str
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Edit Template Kustom</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Edit Template Kustom</h1>
           <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Perbarui kerangka surat RT Anda.</p>
         </div>
       </div>

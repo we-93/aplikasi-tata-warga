@@ -43,9 +43,9 @@ export default async function AddKeluargaMemberPage({ params }: { params: { noKk
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tambah Anggota Keluarga</h1>
-          <p className="text-muted-foreground mt-1">
-            Menambahkan anggota baru ke dalam Kartu Keluarga <strong className="text-foreground tracking-wider">{noKk}</strong>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Tambah Anggota Keluarga</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Menambahkan anggota keluarga baru ke No KK: <strong className="text-foreground tracking-wider">{noKk}</strong>
           </p>
         </div>
       </div>

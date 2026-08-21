@@ -46,7 +46,27 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Data Warga");
-    XLSX.writeFile(wb, `Data_Warga_RT_${new Date().getTime()}.xlsx`);
+    const filename = `Data_Warga_RT_${new Date().getTime()}.xlsx`;
+
+    try {
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const isMobile = /android|ipad|iphone|ipod/i.test(navigator.userAgent.toLowerCase());
+      
+      if (isMobile && navigator.share && navigator.canShare) {
+        const file = new File([blob], filename, { type: blob.type });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: filename,
+          }).catch(console.error);
+          return;
+        }
+      }
+      XLSX.writeFile(wb, filename);
+    } catch (error) {
+      XLSX.writeFile(wb, filename);
+    }
   };
 
   const handleDownloadTemplate = () => {
@@ -89,7 +109,27 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
     const ws = XLSX.utils.json_to_sheet(templateData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Template Warga");
-    XLSX.writeFile(wb, `Template_Import_Warga.xlsx`);
+    const filename = `Template_Import_Warga.xlsx`;
+
+    try {
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const isMobile = /android|ipad|iphone|ipod/i.test(navigator.userAgent.toLowerCase());
+      
+      if (isMobile && navigator.share && navigator.canShare) {
+        const file = new File([blob], filename, { type: blob.type });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: filename,
+          }).catch(console.error);
+          return;
+        }
+      }
+      XLSX.writeFile(wb, filename);
+    } catch (error) {
+      XLSX.writeFile(wb, filename);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,10 +236,8 @@ export function WargaHeaderActions({ wargas }: { wargas: any[] }) {
 
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="outline" className="flex-1 md:flex-none text-xs md:text-sm px-2 md:px-4 whitespace-nowrap border-[#6419c1] text-[#6419c1] hover:bg-[#6419c1]/10" type="button">
+        <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-lg border border-[#6419c1] text-[#6419c1] hover:bg-[#6419c1]/10 text-xs md:text-sm px-2 md:px-4 h-9">
             <Download className="w-4 h-4 mr-1 md:mr-2" /> Export <ChevronDown className="w-3 h-3 ml-1" />
-          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={handleExport}>

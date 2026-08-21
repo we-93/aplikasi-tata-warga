@@ -89,46 +89,79 @@ export function RtLogsClient({ data, currentPage }: { data: any; currentPage: nu
 
       {/* Log Timeline / Table */}
       <div className="bg-card border rounded-2xl overflow-hidden shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 border-b text-xs text-muted-foreground uppercase">
-            <tr>
-              <th className="px-5 py-3 text-left"><Clock className="w-3.5 h-3.5 inline mr-1" />Waktu</th>
-              <th className="px-5 py-3 text-left">Pengguna</th>
-              <th className="px-5 py-3 text-left">Aksi</th>
-              <th className="px-5 py-3 text-left">Keterangan</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {logs.length === 0 ? (
+        
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 border-b text-xs text-muted-foreground uppercase">
               <tr>
-                <td colSpan={4} className="px-5 py-16 text-center text-muted-foreground">
-                  <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>Belum ada aktivitas tercatat.</p>
-                  <p className="text-xs mt-1">Setiap perubahan data (kas, warga, surat, notulen) akan muncul di sini.</p>
-                </td>
+                <th className="px-5 py-3 text-left"><Clock className="w-3.5 h-3.5 inline mr-1" />Waktu</th>
+                <th className="px-5 py-3 text-left">Pengguna</th>
+                <th className="px-5 py-3 text-left">Aksi</th>
+                <th className="px-5 py-3 text-left">Keterangan</th>
               </tr>
-            ) : logs.map((log: any) => (
-              <tr key={log.id} className="hover:bg-muted/40 transition-colors">
-                <td className="px-5 py-3.5 whitespace-nowrap text-xs text-muted-foreground font-mono">
+            </thead>
+            <tbody className="divide-y">
+              {logs.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-5 py-16 text-center text-muted-foreground">
+                    <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p>Belum ada aktivitas tercatat.</p>
+                    <p className="text-xs mt-1">Setiap perubahan data (kas, warga, surat, notulen) akan muncul di sini.</p>
+                  </td>
+                </tr>
+              ) : logs.map((log: any) => (
+                <tr key={log.id} className="hover:bg-muted/40 transition-colors">
+                  <td className="px-5 py-3.5 whitespace-nowrap text-xs text-muted-foreground font-mono">
+                    {formatTime(log.createdAt)}
+                  </td>
+                  <td className="px-5 py-3.5 text-sm">
+                    {log.user ? (
+                      <span className="font-medium">{log.user.name}</span>
+                    ) : (
+                      <span className="text-muted-foreground italic text-xs">Sistem</span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <ActionBadge action={log.action} />
+                  </td>
+                  <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-sm truncate">
+                    {log.description || "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE CARDS VIEW */}
+        <div className="block md:hidden divide-y divide-border">
+          {logs.length === 0 ? (
+            <div className="px-5 py-16 text-center text-muted-foreground">
+              <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>Belum ada aktivitas tercatat.</p>
+              <p className="text-xs mt-1">Setiap perubahan data akan muncul di sini.</p>
+            </div>
+          ) : logs.map((log: any) => (
+            <div key={log.id} className="p-4 space-y-3 hover:bg-muted/40 transition-colors">
+              <div className="flex justify-between items-start gap-2">
+                <ActionBadge action={log.action} />
+                <span className="text-xs text-muted-foreground font-mono whitespace-nowrap">
                   {formatTime(log.createdAt)}
-                </td>
-                <td className="px-5 py-3.5 text-sm">
-                  {log.user ? (
-                    <span className="font-medium">{log.user.name}</span>
-                  ) : (
-                    <span className="text-muted-foreground italic text-xs">Sistem</span>
-                  )}
-                </td>
-                <td className="px-5 py-3.5">
-                  <ActionBadge action={log.action} />
-                </td>
-                <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-sm truncate">
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-medium">
+                  {log.user ? log.user.name : <span className="text-muted-foreground italic text-xs">Sistem</span>}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                   {log.description || "-"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
 
       {/* Pagination */}

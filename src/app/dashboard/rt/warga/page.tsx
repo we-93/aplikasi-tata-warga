@@ -16,7 +16,7 @@ export default async function RtWargaPage() {
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Data Warga</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Data Warga</h1>
           <p className="text-muted-foreground text-xs mt-0.5">Kelola data seluruh penduduk di lingkungan RT Anda.</p>
         </div>
         <WargaHeaderActions wargas={wargas} />

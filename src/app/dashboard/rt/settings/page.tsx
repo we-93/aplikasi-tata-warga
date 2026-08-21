@@ -1,20 +1,25 @@
-"use client";
-
 import Link from "next/link";
-import { User, Building2, FileText, BookOpen, Info, HelpCircle, LogOut, ChevronRight } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { User, Building2, FileText, BookOpen, Info, HelpCircle, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
+import { LogoutButton } from "@/components/rt/logout-button";
+import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
-export default function SettingsHubPage() {
-  const handleLogout = async () => {
-    if (confirm("Yakin ingin keluar?")) {
-      await signOut({ callbackUrl: "/" });
-    }
-  };
+export default async function SettingsHubPage() {
+  const session = await auth();
+  if (!session || !session.user?.tenantId) {
+    redirect("/");
+  }
+
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: session.user.tenantId },
+    select: { aiChatCredits: true, aiDocCredits: true }
+  });
 
   return (
     <div className="max-w-lg mx-auto pb-6">
       <div className="pt-2 mb-6">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Pengaturan</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Pengaturan</h1>
       </div>
 
       <div className="space-y-3">
@@ -47,6 +52,17 @@ export default function SettingsHubPage() {
               <FileText className="w-5 h-5" />
             </div>
             <span className="font-semibold text-slate-700 dark:text-slate-200">Template Surat</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#6519c2]" />
+        </Link>
+
+        {/* Kredit AI */}
+        <Link href="/dashboard/rt/settings/credit" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#6519c2] text-[#fad700] flex items-center justify-center">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">Kredit AI Assistant</span>
           </div>
           <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#6519c2]" />
         </Link>
@@ -85,14 +101,7 @@ export default function SettingsHubPage() {
         </a>
 
         {/* Logout */}
-        <button onClick={handleLogout} className="w-full flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-red-50 dark:hover:bg-red-500/10 mt-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center">
-              <LogOut className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-red-600 dark:text-red-400">Keluar (Logout)</span>
-          </div>
-        </button>
+        <LogoutButton />
 
       </div>
     </div>

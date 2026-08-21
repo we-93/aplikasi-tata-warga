@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createRtTemplate, updateRtTemplate } from "@/app/actions/letter";
 import { toast } from "sonner";
-import { Loader2, Code2, LayoutTemplate } from "lucide-react";
+import { Loader2, Code2, LayoutTemplate, Save } from "lucide-react";
 import Link from "next/link";
 import Editor from "@monaco-editor/react";
 
@@ -170,10 +170,10 @@ export function RtLetterEditorForm({ initialData }: { initialData?: TemplateData
       </div>
 
       <div className="bg-card p-6 rounded-lg border space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Code2 className="w-5 h-5 text-primary" />
-            <Label className="text-lg font-semibold">HTML Code Editor</Label>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <Code2 className="w-5 h-5 text-primary shrink-0" />
+            <Label className="text-base md:text-lg font-semibold truncate">HTML Code Editor</Label>
           </div>
           <Button 
             type="button" 
@@ -183,7 +183,7 @@ export function RtLetterEditorForm({ initialData }: { initialData?: TemplateData
                 setContentHtml(DEFAULT_TEMPLATE);
               }
             }}
-            className="text-primary"
+            className="w-full md:w-auto bg-[#fad700] hover:bg-[#fad700]/90 text-black border-none font-semibold"
           >
             <LayoutTemplate className="w-4 h-4 mr-2" />
             Gunakan Kerangka Standar
@@ -251,8 +251,8 @@ export function RtLetterEditorForm({ initialData }: { initialData?: TemplateData
         <Button type="button" variant="outline" asChild>
           <Link href="/dashboard/rt/surat/template">Batal</Link>
         </Button>
-        <Button type="submit" disabled={isPending} className="bg-[#1b264f] hover:bg-[#1b264f]/90 text-white min-w-[150px]">
-          {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        <Button type="submit" disabled={isPending} className="bg-[#6419c1] hover:bg-[#6419c1]/90 text-white min-w-[150px]">
+          {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
           Simpan Template
         </Button>
       </div>

@@ -13,8 +13,8 @@ export default function NotulenDashboardLayout({
   return (
     <div className="max-w-6xl mx-auto space-y-6 flex flex-col min-h-full">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-[#1b264f] dark:text-foreground">Notulen & Pengumuman</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Notulen & Pengumuman</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Rekam atau ketik hasil rapat RT, dan publikasikan pengumuman ke seluruh warga.
         </p>
       </div>

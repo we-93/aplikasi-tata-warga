@@ -22,7 +22,7 @@ export default async function RtSuratPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Pelayanan Surat</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Arsip Surat</h1>
           <p className="text-muted-foreground text-xs mt-0.5">Buat surat pengantar otomatis dan lihat riwayat pembuatan dokumen warga.</p>
         </div>
         <div className="hidden md:flex flex-wrap items-center gap-2">

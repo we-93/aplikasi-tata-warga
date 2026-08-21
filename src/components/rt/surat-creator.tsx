@@ -338,9 +338,9 @@ export function SuratCreator({ templates, wargas, tenant }: { templates: any[]; 
         <Button 
           onClick={handleGenerate} 
           disabled={isPending || !templateId || !wargaId}
-          className="bg-[#1b264f] hover:bg-[#1b264f]/90 text-white h-12 px-8 text-base"
+          className="bg-[#6419c1] hover:bg-[#6419c1]/90 text-white h-10 px-6 text-sm"
         >
-          {isPending ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <FileText className="w-5 h-5 mr-2" />}
+          {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
           Buat & Unduh Surat
           {!isPending && <ArrowRight className="w-4 h-4 ml-2" />}
         </Button>

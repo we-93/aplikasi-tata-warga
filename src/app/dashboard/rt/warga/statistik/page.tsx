@@ -19,8 +19,8 @@ export default async function StatistikWargaPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Statistik Warga</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Statistik Warga</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Visualisasi dan demografi kependudukan di lingkungan RT Anda.
           </p>
         </div>

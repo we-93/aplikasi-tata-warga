@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, Users, Search, Trash2, Edit, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
+import Link from "next/link";
 
 export function DataClient({ initialTenants }: { initialTenants: any[] }) {
   const [activeTab, setActiveTab] = useState("tenants");
@@ -161,6 +162,14 @@ export function DataClient({ initialTenants }: { initialTenants: any[] }) {
         <div>
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Manajemen Data</h2>
           <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Kelola data RT terdaftar dan telusuri warga lintas tenant.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button className="bg-[#6419c1] hover:bg-[#6419c1]/90" asChild>
+            <Link href="/admin/data/statistik" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              <span>Statistik Global</span>
+            </Link>
+          </Button>
         </div>
       </div>
 

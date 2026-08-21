@@ -175,7 +175,7 @@ export default async function RTDashboardPage() {
   const rtName = tenant.name || "RT/RW";
 
   // 7. Hitung Progress Pengaturan Profil
-  const mandatoryFields = ['province', 'city', 'district', 'village', 'rt', 'rw', 'address', 'ketuaName', 'noHpRt'];
+  const mandatoryFields = ['name', 'province', 'city', 'district', 'village', 'rt', 'rw', 'namaRw', 'address', 'ketuaName', 'logoUrl'];
   const filledFields = mandatoryFields.filter(field => !!tenant[field as keyof typeof tenant]);
   const profilProgress = Math.round((filledFields.length / mandatoryFields.length) * 100);
 
@@ -186,36 +186,25 @@ export default async function RTDashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight uppercase">Overview</h1>
-          <p className="text-muted-foreground mt-1">Ringkasan aktivitas dan status langganan RT Anda.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Overview</h1>
+          <p className="text-sm text-muted-foreground mt-1">Ringkasan statistik data RT Anda.</p>
         </div>
         <DashboardHeaderClient kasData={serializedAllKas as any} />
       </div>
 
-      <div className="bg-[#6419c1] text-white rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-lg shadow-[#6419c1]/20">
-        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="flex items-center gap-4 relative z-10">
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm shrink-0">
-            <Sparkles className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <p className="text-white/70 text-xs font-semibold tracking-wider mb-1">STATUS LANGGANAN</p>
-            <h2 className="text-2xl font-bold">{statusText} - {planName}</h2>
-          </div>
-        </div>
-        <div className="flex items-center gap-6 relative z-10 w-full md:w-auto justify-between md:justify-end">
-          <div className="text-right hidden md:block">
-            <p className="text-white/70 text-xs">Berlaku hingga</p>
-            <p className="font-bold">{planExpiry}</p>
-          </div>
-          <Button variant="secondary" className="bg-white text-[#6419c1] hover:bg-white/90 font-bold px-6 rounded-xl" asChild>
-            <Link href="/dashboard/rt/billing">Kelola</Link>
-          </Button>
-        </div>
-      </div>
-
       {/* 4 Top Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {/* Total Kepala Keluarga */}
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-10 h-10 rounded-lg bg-[#6419c1]/10 flex items-center justify-center text-[#6419c1]">
+              <UserPlus className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Kepala Keluarga</p>
+          <h3 className="text-3xl font-extrabold">{totalKK}</h3>
+        </div>
+
         {/* Total Warga */}
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
           <div className="flex justify-between items-start mb-4">
@@ -232,46 +221,26 @@ export default async function RTDashboardPage() {
           <h3 className="text-3xl font-extrabold">{totalWarga}</h3>
         </div>
 
+        {/* Saldo Kas RT */}
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+              <Wallet className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Saldo Kas RT</p>
+          <h3 className="text-xl lg:text-2xl font-extrabold text-emerald-600 truncate">Rp {totalSaldo.toLocaleString('id-ID')}</h3>
+        </div>
+
         {/* Total Surat */}
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
           <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
               <FileText className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-1 rounded-full">
-              Kuota Surat: {totalSurat}/{suratLimit}
-            </span>
           </div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Surat</p>
           <h3 className="text-3xl font-extrabold">{totalSurat}</h3>
-        </div>
-
-        {/* WA Asisten */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">WA Asisten</p>
-          <h3 className="text-lg font-extrabold text-emerald-500 truncate">{tenantAny?.whatsappBotNo || "Belum Terhubung"}</h3>
-        </div>
-
-        {/* Token AI */}
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm relative overflow-hidden group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-500">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-cyan-500" style={{ width: `${Math.min(100, (aiUsed/aiLimit)*100)}%` }}></div>
-            </div>
-          </div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Token AI</p>
-          <h3 className="text-3xl font-extrabold flex items-baseline gap-1">
-            {aiUsed >= 1000 ? (aiUsed/1000).toFixed(1) + 'k' : aiUsed}
-            <span className="text-sm font-medium text-muted-foreground">/ {aiLimit >= 1000 ? (aiLimit/1000).toFixed(1) + 'k' : aiLimit}</span>
-          </h3>
         </div>
       </div>
 
@@ -491,23 +460,6 @@ export default async function RTDashboardPage() {
         </h1>
       </div>
 
-      {/* CARD PROGRESS PROFIL - tampil jika belum 100% */}
-      {profilProgress < 100 && (
-        <div className="bg-[#fad700]/10 border border-[#fad700]/30 rounded-2xl p-4 flex items-center justify-between gap-3">
-          <div className="flex-1">
-            <h3 className="text-[#b09600] dark:text-[#fad700] font-bold text-sm mb-1">Lengkapi Profil RT ({profilProgress}%)</h3>
-            <div className="w-full bg-[#fad700]/20 rounded-full h-2">
-              <div className="bg-[#fad700] h-2 rounded-full transition-all" style={{ width: `${profilProgress}%` }}></div>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-white/50 mt-1">Profil lengkap meningkatkan kepercayaan warga</p>
-          </div>
-          <Link href="/dashboard/rt/settings/profil" className="shrink-0">
-            <Button size="sm" variant="outline" className="text-xs border-[#fad700]/40 text-[#b09600] dark:text-[#fad700] hover:bg-[#fad700]/20 px-3">
-              Lengkapi
-            </Button>
-          </Link>
-        </div>
-      )}
 
       {/* CARD 1: KARTU TOTAL WARGA */}
       <div className="bg-gradient-to-br from-[#6419c1] to-[#a064fa] rounded-3xl p-6 text-white shadow-lg shadow-[#6419c1]/20 relative overflow-hidden">
@@ -630,6 +582,24 @@ export default async function RTDashboardPage() {
         </div>
       </div>
       
+      {/* CARD PROGRESS PROFIL - dipindah ke bawah menu */}
+      {profilProgress < 100 && (
+        <div className="bg-[#fad700]/10 border border-[#fad700]/30 rounded-2xl p-4 flex items-center justify-between gap-3 mt-4">
+          <div className="flex-1">
+            <h3 className="text-[#b09600] dark:text-[#fad700] font-bold text-sm mb-1">Lengkapi Profil RT ({profilProgress}%)</h3>
+            <div className="w-full bg-[#fad700]/20 rounded-full h-2">
+              <div className="bg-[#fad700] h-2 rounded-full transition-all" style={{ width: `${profilProgress}%` }}></div>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-white/50 mt-1">Profil lengkap meningkatkan kepercayaan warga</p>
+          </div>
+          <Link href="/dashboard/rt/settings/profil" className="shrink-0">
+            <Button size="sm" variant="outline" className="text-xs border-[#fad700]/40 text-[#b09600] dark:text-[#fad700] hover:bg-[#fad700]/20 px-3">
+              Lengkapi
+            </Button>
+          </Link>
+        </div>
+      )}
+
     </div>
   
     </>

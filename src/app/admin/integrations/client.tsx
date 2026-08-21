@@ -137,6 +137,30 @@ export function IntegrationsClient({
               </Button>
             </div>
           </div>
+          
+          {/* Card Statistik Token Keseluruhan */}
+          <div className="bg-gradient-to-br from-[#6419c1] to-[#a05ce8] p-6 rounded-2xl shadow-md text-white">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold">Total Penggunaan Token AI</h2>
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-white/10 p-3 rounded-lg">
+                <p className="text-sm text-white/90">Chat AI & Notulen</p>
+                <p className="text-xl font-bold">{aiSettings.totalChatTokensUsed?.toLocaleString('id-ID') || 0}</p>
+              </div>
+              <div className="flex justify-between items-center bg-white/10 p-3 rounded-lg">
+                <p className="text-sm text-white/90">OCR Dokumen</p>
+                <p className="text-xl font-bold">{aiSettings.totalOcrTokensUsed?.toLocaleString('id-ID') || 0}</p>
+              </div>
+              <div className="pt-2 border-t border-white/20 flex justify-between items-center mt-2">
+                <p className="text-sm text-white font-medium">Total Seluruh User</p>
+                <p className="text-2xl font-extrabold">{((aiSettings.totalChatTokensUsed || 0) + (aiSettings.totalOcrTokensUsed || 0)).toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Kolom Log Token */}

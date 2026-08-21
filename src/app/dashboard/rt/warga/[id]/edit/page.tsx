@@ -29,8 +29,8 @@ export default async function EditWargaPage({ params }: { params: Promise<{ id: 
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Data Warga</h1>
-          <p className="text-muted-foreground mt-1">Perbarui data kependudukan warga ini.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Edit Data Warga</h1>
+          <p className="text-sm text-muted-foreground mt-1">Perbarui data kependudukan warga ini.</p>
         </div>
       </div>
 

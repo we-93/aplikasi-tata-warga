@@ -43,7 +43,7 @@ export default async function CreateSuratPage() {
         <Link href="/dashboard/rt/surat" className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-lg font-bold text-[#6519c2]">Buat Surat Baru</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Buat Surat Baru</h1>
       </div>
 
       <SuratCreator templates={templates} wargas={wargas} tenant={tenant} />

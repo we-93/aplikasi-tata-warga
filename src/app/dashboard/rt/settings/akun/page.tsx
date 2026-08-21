@@ -34,7 +34,7 @@ export default async function AkunPage() {
         <Link href="/dashboard/rt/settings" className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-lg font-bold text-[#6519c2]">Pengaturan Akun</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Pengaturan Akun</h1>
       </div>
       <AvatarUpload currentImage={user?.image} />
       <AccountForm initialData={accountData} />

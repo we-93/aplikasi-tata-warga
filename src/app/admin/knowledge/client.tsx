@@ -28,6 +28,11 @@ export function KnowledgeClient({
       return;
     }
 
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("Ukuran file maksimal adalah 20MB.");
+      return;
+    }
+
     setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -100,7 +105,7 @@ export function KnowledgeClient({
               <UploadCloud className="w-8 h-8 text-[#6419c1] dark:text-[#a05ce8]" />
             </div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Upload Dokumen</h2>
-            <p className="text-xs text-slate-500 dark:text-white/50 mb-6">File PDF dan TXT didukung (Maks. 5MB).</p>
+            <p className="text-xs text-slate-500 dark:text-white/50 mb-6">File PDF dan TXT didukung (Maks. 20MB).</p>
             
             <div className="relative">
               <input 

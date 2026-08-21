@@ -87,44 +87,99 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
         </div>
       </div>
 
-      <div className="rounded-md border bg-card overflow-hidden">
+      {/* MOBILE: Card Layout */}
+      <div className="md:hidden space-y-4">
+        {currentData.length === 0 ? (
+          <div className="bg-card border border-slate-200 dark:border-white/10 rounded-2xl p-8 text-center text-slate-500 shadow-sm">
+            Belum ada riwayat pembuatan surat.
+          </div>
+        ) : (
+          currentData.map((a, index) => (
+            <div key={a.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium px-2 py-1 rounded-md">
+                    #{((currentPage - 1) * itemsPerPage) + index + 1}
+                  </span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                    {getFullNomorSurat(a)}
+                  </span>
+                </div>
+                <div className="text-xs text-black bg-[#fad700] px-2 py-1 rounded-md border border-[#fad700]/20 font-medium">
+                  {new Date(a.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                </div>
+              </div>
+              
+              <div className="space-y-2 mb-4">
+                <div className="grid grid-cols-3 gap-1 text-sm">
+                  <span className="text-slate-500">Jenis Surat</span>
+                  <span className="col-span-2 font-medium text-slate-900 dark:text-slate-100">{a.template?.name}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 text-sm">
+                  <span className="text-slate-500">Pemohon</span>
+                  <span className="col-span-2 font-medium text-[#6419c1] dark:text-[#8b3ced]">{a.warga?.namaLengkap || <span className="text-slate-400 italic">Dihapus</span>}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-white/5">
+                <Button variant="outline" size="sm" asChild className="h-8 flex-1 text-blue-600 border-blue-200 hover:bg-blue-50">
+                  <a href={`/api/surat/${a.id}/download`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full">
+                    <Eye className="w-3.5 h-3.5 mr-1.5 shrink-0" /> <span className="truncate">Lihat</span>
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" asChild className="h-8 flex-1 text-green-600 border-green-200 hover:bg-green-50">
+                  <a href={`/api/surat/${a.id}/download?download=1`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full">
+                    <Download className="w-3.5 h-3.5 mr-1.5 shrink-0" /> <span className="truncate">Unduh</span>
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDelete(a.id)} className="h-8 flex-1 text-red-600 border-red-200 hover:bg-red-50">
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* DESKTOP: Table Layout */}
+      <div className="hidden md:block rounded-2xl border border-slate-200 dark:border-white/10 bg-card overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead className="w-12 text-center">NO</TableHead>
-              <TableHead>Nomor Surat</TableHead>
-            <TableHead>Jenis Surat</TableHead>
-            <TableHead>Nama Warga</TableHead>
-            <TableHead>Tanggal Pembuatan</TableHead>
-            <TableHead className="text-right">Aksi</TableHead>
+          <TableHeader className="bg-slate-50/80 dark:bg-slate-900/50 backdrop-blur-sm">
+            <TableRow className="border-b-slate-200 dark:border-white/10">
+              <TableHead className="w-12 text-center font-semibold text-slate-700 dark:text-slate-300">NO</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Nomor Surat</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Jenis Surat</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Nama Warga</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Tanggal Pembuatan</TableHead>
+              <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center h-32 text-muted-foreground">
                 Belum ada riwayat pembuatan surat.
               </TableCell>
             </TableRow>
           ) : (
             currentData.map((a, index) => (
-              <TableRow key={a.id}>
-                <TableCell className="text-center text-sm font-medium text-muted-foreground">
+              <TableRow key={a.id} className="border-b-slate-100 dark:border-white/5 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                <TableCell className="text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                   {(currentPage - 1) * itemsPerPage + index + 1}
                 </TableCell>
-                <TableCell className="font-medium">{getFullNomorSurat(a)}</TableCell>
-                <TableCell>{a.template?.name}</TableCell>
-                <TableCell>{a.warga?.namaLengkap || <span className="text-muted-foreground italic">Warga Dihapus</span>}</TableCell>
-                <TableCell>{new Date(a.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</TableCell>
+                <TableCell className="font-medium tracking-wide text-slate-900 dark:text-slate-100">{getFullNomorSurat(a)}</TableCell>
+                <TableCell className="text-slate-600 dark:text-slate-300">{a.template?.name}</TableCell>
+                <TableCell className="font-medium text-[#6419c1] dark:text-[#8b3ced]">{a.warga?.namaLengkap || <span className="text-slate-400 italic">Warga Dihapus</span>}</TableCell>
+                <TableCell className="text-slate-600 dark:text-slate-300">{new Date(a.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <a href={`/api/surat/${a.id}/download`} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50" title="Lihat">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50" title="Lihat">
                         <Eye className="w-4 h-4" />
                       </Button>
                     </a>
                     <a href={`/api/surat/${a.id}/download?download=1`} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-50" title="Unduh">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" title="Unduh">
                         <Download className="w-4 h-4" />
                       </Button>
                     </a>
@@ -132,7 +187,7 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleDelete(a.id)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
                       title="Hapus"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -144,6 +199,7 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
           )}
         </TableBody>
       </Table>
+      </div>
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
@@ -207,7 +263,6 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }

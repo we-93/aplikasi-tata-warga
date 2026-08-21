@@ -21,8 +21,8 @@ export default async function RtLogsPage({
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-[#1b264f] dark:text-foreground">Log Aktivitas</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Log Aktivitas</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Riwayat seluruh aktivitas yang terjadi di dashboard RT Anda.
         </p>
       </div>

@@ -31,7 +31,7 @@ export function WargaEditorForm({ initialData, isKkLocked = false }: { initialDa
   const [statusNikahType, setStatusNikahType] = useState(isStatusNikahManual ? "Lainnya" : (initialData?.statusNikah || ""));
   const [statusNikahManual, setStatusNikahManual] = useState(isStatusNikahManual ? initialData.statusNikah : "");
 
-  const golonganDarahOptions = ["A", "B", "AB", "O", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+  const golonganDarahOptions = ["A", "B", "AB", "O"];
   const isGolonganDarahManual = initialData?.golonganDarah && !golonganDarahOptions.includes(initialData.golonganDarah);
   const [golonganDarahType, setGolonganDarahType] = useState(isGolonganDarahManual ? "Lainnya" : (initialData?.golonganDarah || ""));
   const [golonganDarahManual, setGolonganDarahManual] = useState(isGolonganDarahManual ? initialData.golonganDarah : "");

@@ -128,7 +128,6 @@ export default function AiChatPage() {
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-60">
             <Bot className="w-16 h-16 mb-4 text-primary" />
             <p>Mulai obrolan dengan AI Assistant.</p>
-            <p className="text-sm">Bisa kirim teks atau foto laporan.</p>
           </div>
         )}
         {messages.map((m, idx) => (
@@ -174,7 +173,7 @@ export default function AiChatPage() {
         )}
         <div className="flex gap-2">
           <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileAttach} />
-          <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} title="Lampirkan Foto">
+          <Button variant="outline" size="icon" className="h-12 w-12" onClick={() => fileInputRef.current?.click()} title="Lampirkan Foto">
             <Paperclip className="w-5 h-5" />
           </Button>
           <div className="relative flex-1">
@@ -183,14 +182,14 @@ export default function AiChatPage() {
               value={chatInput} 
               onChange={(e) => setChatInput(e.target.value)} 
               onKeyDown={(e) => { if(e.key === 'Enter') handleSendChat() }}
-              className="w-full bg-white dark:bg-black pr-14"
+              className="w-full bg-white dark:bg-black pr-14 h-12 text-base rounded-xl"
             />
-            <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${chatInput.length > 500 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+            <div className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs ${chatInput.length > 500 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
               {chatInput.length}/500
             </div>
           </div>
-          <Button className="bg-[#6419c1] hover:bg-[#7735d4] text-white" onClick={handleSendChat} disabled={isChatLoading || chatInput.length > 500 || (!chatInput.trim() && !attachedImage)}>
-            <Send className="w-4 h-4" />
+          <Button className="h-12 w-12 bg-[#6419c1] hover:bg-[#7735d4] text-white rounded-xl" onClick={handleSendChat} disabled={isChatLoading || chatInput.length > 500 || (!chatInput.trim() && !attachedImage)}>
+            <Send className="w-5 h-5" />
           </Button>
         </div>
       </div>

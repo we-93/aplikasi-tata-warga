@@ -57,6 +57,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Send a welcome notification from Super Admin
+    await prisma.notification.create({
+      data: {
+        title: "Selamat Datang di Tata Warga!",
+        message: "Selamat bergabung! Mohon segera lengkapi Profil RT Anda di menu Pengaturan agar seluruh fitur dapat berjalan optimal.",
+        tenantId: tenant.id,
+        isGlobal: false,
+      }
+    });
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("[REGISTER ERROR]", error);

@@ -83,16 +83,19 @@ export function WargaListRt({ wargas }: { wargas: any[] }) {
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{kepala.alamat}</p>
                     )}
                   </div>
-                  <Badge variant="outline" className="shrink-0 bg-slate-100 dark:bg-slate-800 text-xs">
-                    {members.length} Orang
-                  </Badge>
+                  {kepala?.statusWarga && (
+                    <Badge variant="outline" className="shrink-0 bg-[#fad700] text-black border-none text-[10px] uppercase font-bold shadow-sm">
+                      {kepala.statusWarga.replace(/_/g, ' ')}
+                    </Badge>
+                  )}
                 </div>
-                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5">
-                  <Button variant="outline" size="sm" asChild className="w-full h-8 text-xs hover:bg-[#6419c1]/10 hover:text-[#6419c1] hover:border-[#6419c1]/30">
-                    <Link href={`/dashboard/rt/warga/kk/${noKk}`}>
-                      <FileText className="w-3.5 h-3.5 mr-1.5" /> Lihat Detail KK
-                    </Link>
-                  </Button>
+                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    {members.length} Anggota Keluarga
+                  </span>
+                  <Link href={`/dashboard/rt/warga/kk/${noKk}`} className="text-[#6419c1] dark:text-[#a064fa] text-sm font-semibold hover:underline flex items-center">
+                    Detail <span className="ml-1 leading-none font-bold">&rsaquo;</span>
+                  </Link>
                 </div>
               </div>
             );

@@ -13,7 +13,7 @@ export default function AboutPage() {
         <Link href="/dashboard/rt/settings" className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-lg font-bold text-[#6519c2]">Tentang Aplikasi</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Tentang Aplikasi</h1>
       </div>
       
       <div className="pb-8 pt-6 flex flex-col min-h-[60vh] justify-center items-center text-center">
@@ -22,7 +22,7 @@ export default function AboutPage() {
         <Image src="/favicon-tata-warga.png" alt="Tata Warga Logo" width={96} height={96} className="object-contain drop-shadow-xl" />
       </div>
 
-      <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-2">
+      <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">
         TATA WARGA
       </h1>
       <h2 className="text-sm font-semibold text-[#6419c1] dark:text-[#a064fa] mb-6">

@@ -449,8 +449,8 @@ export function KasClient({
       {/* Header & Actions */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#1b264f] dark:text-foreground">Manajemen Kas RT</h1>
-          <p className="text-muted-foreground mt-1">Kelola pencatatan uang kas warga, pemasukan, dan pengeluaran.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Manajemen Kas RT</h1>
+          <p className="text-sm text-muted-foreground mt-1">Kelola pencatatan uang kas warga, pemasukan, dan pengeluaran.</p>
         </div>
         <div className="flex gap-2 flex-wrap w-full md:w-auto">
           <Button variant="outline" className="flex-1 md:flex-none border-[#6519c2] text-[#6519c2] hover:bg-[#6519c2]/5 hover:text-[#6519c2]" onClick={() => setImportDialogOpen(true)}>

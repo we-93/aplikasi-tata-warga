@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedDataWarga } from "./animated-data-warga";
 import { AnimatedKasRt } from "./animated-kas-rt";
 import { AnimatedNotulenAi } from "./animated-notulen-ai";
-import { AnimatedWhatsappBot } from "./animated-whatsapp-bot";
+import { AnimatedSurat } from "./animated-surat";
 
 export function Features({ features }: { features?: any }) {
   const whyFeaturesList = [
@@ -217,14 +217,14 @@ export function Features({ features }: { features?: any }) {
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <div className="flex-1 space-y-6">
               <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                KOMUNIKASI PINTAR
+                PELAYANAN SURAT
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold">Kendali Penuh RT Lewat Grup WhatsApp Pengurus</h2>
+              <h2 className="text-3xl md:text-4xl font-bold">Manajemen Pelayanan Surat</h2>
               <p className="text-lg text-muted-foreground">
-                AI Asisten di WhatsApp didedikasikan khusus untuk mempercepat kerja jajaran pengurus RT. Dari membuat surat, menambahkan warga, hingga input kas RT, semuanya selesai lewat chat di grup pengurus, tanpa perlu selalu membuka aplikasi!
+                Bantu warga Anda mendapatkan pelayanan surat dengan lebih cepat dan profesional. Semua pengajuan surat terpusat, lengkap dengan status riwayat dan tanda tangan elektronik.
               </p>
               <ul className="space-y-3 pt-4">
-                {["Ketik perintah di grup, AI langsung eksekusi", "Cek ringkasan data warga & kas cukup lewat WhatsApp", "Buat pengumuman RT (Broadcast) otomatis dan cepat"].map((item, i) => (
+                {["Daftar antrean surat yang jelas", "Persetujuan dan pencetakan langsung", "Tingkatkan kepuasan warga dengan respon cepat"].map((item, i) => (
                   <li key={i} className="flex items-center text-foreground">
                     <div className="mr-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary">
                       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-3 h-3 font-bold">
@@ -238,7 +238,7 @@ export function Features({ features }: { features?: any }) {
             </div>
             <div className="flex-1 w-full relative">
               <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full -z-10 transform translate-x-10 -translate-y-10"></div>
-              <AnimatedWhatsappBot />
+              <AnimatedSurat />
             </div>
           </div>
 

@@ -27,7 +27,13 @@ export default async function KartuKeluargaDetailPage({ params }: { params: { no
     return notFound();
   }
 
-  const kepalaKeluarga = wargas.find(w => w.hubunganKeluarga === "KEPALA_KELUARGA") || wargas[0];
+  wargas.sort((a, b) => {
+    if (a.hubunganKeluarga === "KEPALA_KELUARGA") return -1;
+    if (b.hubunganKeluarga === "KEPALA_KELUARGA") return 1;
+    return 0;
+  });
+
+  const kepalaKeluarga = wargas[0];
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-10">
@@ -39,8 +45,8 @@ export default async function KartuKeluargaDetailPage({ params }: { params: { no
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Detail Kartu Keluarga</h1>
-            <p className="text-muted-foreground mt-1">No KK: <strong className="text-foreground tracking-wider">{noKk}</strong></p>
+            <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Detail Kartu Keluarga</h1>
+            <p className="text-sm text-muted-foreground mt-1">No KK: <strong className="text-foreground tracking-wider">{noKk}</strong></p>
           </div>
         </div>
         
@@ -72,51 +78,102 @@ export default async function KartuKeluargaDetailPage({ params }: { params: { no
         <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
           <h3 className="font-semibold">Daftar Anggota Keluarga</h3>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12 text-center">No</TableHead>
-              <TableHead>NIK</TableHead>
-              <TableHead>Nama Lengkap</TableHead>
-              <TableHead>Hubungan</TableHead>
-              <TableHead>L/P</TableHead>
-              <TableHead>No. HP</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {wargas.map((w, i) => (
-              <TableRow key={w.id}>
-                <TableCell className="text-center text-muted-foreground">{i + 1}</TableCell>
-                <TableCell className="font-medium tracking-wide">{w.nik}</TableCell>
-                <TableCell className="font-medium text-foreground">{w.namaLengkap}</TableCell>
-                <TableCell>
-                  <Badge variant={w.hubunganKeluarga === "KEPALA_KELUARGA" ? "default" : "secondary"} className={w.hubunganKeluarga === "KEPALA_KELUARGA" ? "bg-[#21b7b1] hover:bg-[#21b7b1]/90" : ""}>
-                    {w.hubunganKeluarga.replace(/_/g, ' ')}
-                  </Badge>
-                </TableCell>
-                <TableCell>{w.jenisKelamin === "LAKI_LAKI" ? "L" : "P"}</TableCell>
-                <TableCell>{w.noHp || "-"}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-blue-600">
-                      <Link href={`/dashboard/rt/warga/${w.id}/edit`}><Pencil className="w-4 h-4" /></Link>
-                    </Button>
-                    <form action={async () => {
-                      "use server";
-                      const { deleteWarga } = await import("@/app/actions/warga");
-                      await deleteWarga(w.id);
-                    }}>
-                      <Button variant="ghost" size="icon" type="submit" className="h-8 w-8 text-red-600">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </form>
-                  </div>
-                </TableCell>
+
+        {/* MOBILE: Card Layout */}
+        <div className="md:hidden flex flex-col p-4 space-y-4">
+          {wargas.map((w, i) => (
+            <div key={w.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all relative">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex flex-col gap-1">
+                  <span className="font-semibold text-slate-900 dark:text-slate-100 text-lg">
+                    {w.namaLengkap}
+                  </span>
+                  <span className="text-slate-500 font-mono text-xs">{w.nik}</span>
+                </div>
+                <Badge variant={w.hubunganKeluarga === "KEPALA_KELUARGA" ? "default" : "secondary"} className={w.hubunganKeluarga === "KEPALA_KELUARGA" ? "bg-[#21b7b1] hover:bg-[#21b7b1]/90" : ""}>
+                  {w.hubunganKeluarga.replace(/_/g, ' ')}
+                </Badge>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                <div className="flex flex-col">
+                  <span className="text-slate-500 text-xs">Jenis Kelamin</span>
+                  <span className="font-medium text-slate-700 dark:text-slate-300">{w.jenisKelamin === "LAKI_LAKI" ? "Laki-laki" : "Perempuan"}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-slate-500 text-xs">No. Handphone</span>
+                  <span className="font-medium text-slate-700 dark:text-slate-300">{w.noHp || "-"}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-white/5">
+                <Button variant="outline" size="sm" asChild className="h-8 flex-1 text-blue-600 border-blue-200 hover:bg-blue-50">
+                  <Link href={`/dashboard/rt/warga/${w.id}/edit`}>
+                    <Pencil className="w-3.5 h-3.5 mr-1.5" /> Edit
+                  </Link>
+                </Button>
+                <form action={async () => {
+                  "use server";
+                  const { deleteWarga } = await import("@/app/actions/warga");
+                  await deleteWarga(w.id);
+                }} className="flex-1 flex">
+                  <Button variant="outline" size="sm" type="submit" className="h-8 flex-1 text-red-600 border-red-200 hover:bg-red-50 w-full">
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus
+                  </Button>
+                </form>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* DESKTOP: Table Layout */}
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12 text-center">No</TableHead>
+                <TableHead>NIK</TableHead>
+                <TableHead>Nama Lengkap</TableHead>
+                <TableHead>Hubungan</TableHead>
+                <TableHead>L/P</TableHead>
+                <TableHead>No. HP</TableHead>
+                <TableHead className="text-right">Aksi</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {wargas.map((w, i) => (
+                <TableRow key={w.id}>
+                  <TableCell className="text-center text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell className="font-medium tracking-wide">{w.nik}</TableCell>
+                  <TableCell className="font-medium text-foreground">{w.namaLengkap}</TableCell>
+                  <TableCell>
+                    <Badge variant={w.hubunganKeluarga === "KEPALA_KELUARGA" ? "default" : "secondary"} className={w.hubunganKeluarga === "KEPALA_KELUARGA" ? "bg-[#21b7b1] hover:bg-[#21b7b1]/90" : ""}>
+                      {w.hubunganKeluarga.replace(/_/g, ' ')}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{w.jenisKelamin === "LAKI_LAKI" ? "L" : "P"}</TableCell>
+                  <TableCell>{w.noHp || "-"}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-blue-600">
+                        <Link href={`/dashboard/rt/warga/${w.id}/edit`}><Pencil className="w-4 h-4" /></Link>
+                      </Button>
+                      <form action={async () => {
+                        "use server";
+                        const { deleteWarga } = await import("@/app/actions/warga");
+                        await deleteWarga(w.id);
+                      }}>
+                        <Button variant="ghost" size="icon" type="submit" className="h-8 w-8 text-red-600">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </form>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

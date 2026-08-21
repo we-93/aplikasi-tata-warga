@@ -148,7 +148,7 @@ export function StatistikDashboard({ wargas }: { wargas: any[] }) {
             </div>
             <div>
               <p className="text-white/80 font-medium">Total Keseluruhan Warga</p>
-              <h3 className="text-4xl font-bold">{stats.totalWarga} <span className="text-lg font-normal opacity-80">Orang</span></h3>
+              <h3 className="text-4xl font-bold">{stats.totalWarga} <span className="text-lg font-normal opacity-80">Jiwa</span></h3>
             </div>
           </CardContent>
         </Card>
@@ -248,10 +248,10 @@ export function StatistikDashboard({ wargas }: { wargas: any[] }) {
           <CardContent>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.umurData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <BarChart data={stats.umurData} margin={{ top: 20, right: 30, left: -20, bottom: 25 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="name" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
-                  <YAxis tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="name" tick={{fill: '#64748b', fontSize: 10}} angle={-45} textAnchor="end" height={50} axisLine={false} tickLine={false} />
+                  <YAxis tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
                   <Tooltip cursor={{fill: '#f1f5f9'}} formatter={(value) => [`${value} Orang`, "Jumlah"]} />
                   <Bar dataKey="value" fill="#6419c1" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -268,10 +268,10 @@ export function StatistikDashboard({ wargas }: { wargas: any[] }) {
           <CardContent>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.pendidikanData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                <BarChart data={stats.pendidikanData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                  <XAxis type="number" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="name" type="category" tick={{fill: '#475569', fontSize: 12}} axisLine={false} tickLine={false} width={120} />
+                  <XAxis type="number" tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="name" type="category" tick={{fill: '#475569', fontSize: 10, textAnchor: 'start', dx: -90}} axisLine={false} tickLine={false} width={100} />
                   <Tooltip cursor={{fill: '#f1f5f9'}} formatter={(value) => [`${value} Orang`, "Jumlah"]} />
                   <Bar dataKey="value" fill="#10b981" radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -288,10 +288,10 @@ export function StatistikDashboard({ wargas }: { wargas: any[] }) {
           <CardContent>
             <div className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.pekerjaanData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                <BarChart data={stats.pekerjaanData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                  <XAxis type="number" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="name" type="category" tick={{fill: '#475569', fontSize: 12}} axisLine={false} tickLine={false} width={150} />
+                  <XAxis type="number" tick={{fill: '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="name" type="category" tick={{fill: '#475569', fontSize: 10, textAnchor: 'start', dx: -90}} axisLine={false} tickLine={false} width={100} />
                   <Tooltip cursor={{fill: '#f1f5f9'}} formatter={(value) => [`${value} Orang`, "Jumlah"]} />
                   <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>

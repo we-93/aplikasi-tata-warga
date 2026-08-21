@@ -205,6 +205,44 @@ export function WargaKkForm({ noKk }: { noKk: string }) {
                   <Input type="date" value={member.tanggalLahir} onChange={(e) => updateMember(member.id, "tanggalLahir", e.target.value)} />
                 </div>
                 <div className="space-y-2">
+                  <Label>Agama</Label>
+                  <Select value={member.agama || undefined} onValueChange={(v) => updateMember(member.id, "agama", v)}>
+                    <SelectTrigger><SelectValue placeholder="Pilih Agama" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Islam">Islam</SelectItem>
+                      <SelectItem value="Kristen">Kristen Protestan</SelectItem>
+                      <SelectItem value="Katolik">Kristen Katolik</SelectItem>
+                      <SelectItem value="Hindu">Hindu</SelectItem>
+                      <SelectItem value="Buddha">Buddha</SelectItem>
+                      <SelectItem value="Konghucu">Konghucu</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Status Perkawinan</Label>
+                  <Select value={member.statusNikah || undefined} onValueChange={(v) => updateMember(member.id, "statusNikah", v)}>
+                    <SelectTrigger><SelectValue placeholder="Pilih Status" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Belum Kawin">Belum Kawin</SelectItem>
+                      <SelectItem value="Kawin">Kawin</SelectItem>
+                      <SelectItem value="Cerai Hidup">Cerai Hidup</SelectItem>
+                      <SelectItem value="Cerai Mati">Cerai Mati</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Golongan Darah</Label>
+                  <Select value={member.golonganDarah || undefined} onValueChange={(v) => updateMember(member.id, "golonganDarah", v)}>
+                    <SelectTrigger><SelectValue placeholder="Pilih Gol. Darah" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="A">A</SelectItem>
+                      <SelectItem value="B">B</SelectItem>
+                      <SelectItem value="AB">AB</SelectItem>
+                      <SelectItem value="O">O</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label>Pekerjaan</Label>
                   <Select value={member.pekerjaanType || undefined} onValueChange={(v) => updateMember(member.id, "pekerjaanType", v)}>
                     <SelectTrigger><SelectValue placeholder="Pilih Pekerjaan" /></SelectTrigger>
@@ -257,8 +295,8 @@ export function WargaKkForm({ noKk }: { noKk: string }) {
 
       <div className="flex justify-end gap-4 pt-6 border-t border-slate-200 dark:border-white/10">
         <Button type="button" variant="ghost" onClick={() => window.location.reload()}>Batal</Button>
-        <Button type="submit" disabled={isPending} className="bg-[#6419c1] hover:bg-[#6419c1]/90 text-white min-w-[200px] h-12 text-lg">
-          {isPending ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+        <Button type="submit" disabled={isPending} className="bg-[#6419c1] hover:bg-[#6419c1]/90 text-white px-6 h-10 text-sm">
+          {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
           Simpan Data Warga
         </Button>
       </div>

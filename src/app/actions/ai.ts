@@ -98,7 +98,7 @@ export async function chatWithAi(messages: any[]) {
 
     if (!openaiApiKey) throw new Error("API Key OpenAI belum dikonfigurasi.");
     if (tenantInfo && tenantInfo.aiChatCredits <= 0) {
-      throw new Error("Kredit Chat AI Anda habis. Silakan Top Up kredit Anda.");
+      throw new Error("Kredit Chat AI Anda habis. Silakan kunjungi halaman Kredit Ai di Menu Pengaturan.");
     }
 
     const openai = new OpenAI({ apiKey: openaiApiKey });
@@ -121,16 +121,19 @@ export async function chatWithAi(messages: any[]) {
           const queryVector = embeddingResponse.data[0].embedding;
 
           // Search Qdrant
-          const searchResult = await (qdrant as any).search("tata_warga_knowledge", {
-            vector: queryVector,
+          const searchResult = await qdrant.query("tata_warga_knowledge", {
+            query: queryVector,
             limit: 3,
             with_payload: true,
-            score_threshold: 0.5, // Only relevant matches
+            score_threshold: 0.1,
           });
 
-          if (searchResult && searchResult.length > 0) {
-            const contextTexts = searchResult.map((res: any) => res.payload?.text).join("\n\n");
-            finalSystemContext += `\n\nREFERENSI PENGETAHUAN TAMBAHAN (Perda/Perbup/Dokumen):\nBerdasarkan pertanyaan pengguna, berikut adalah referensi dokumen resmi yang mungkin relevan:\n"""\n${contextTexts}\n"""\n\nGunakan referensi di atas untuk menjawab pertanyaan pengguna jika relevan. Jika tidak relevan, abaikan referensi tersebut.`;
+          // Handle both Array and Object { points: [...] } return formats from Qdrant JS Client
+          const resultsArray = Array.isArray(searchResult) ? searchResult : ((searchResult as any).points || (searchResult as any).result || []);
+
+          if (resultsArray && resultsArray.length > 0) {
+            const contextTexts = resultsArray.map((res: any) => res.payload?.text).join("\n\n");
+            finalSystemContext += `\n\nREFERENSI PENGETAHUAN TAMBAHAN (Perda/Perbup Kabupaten Tangerang):\nBerdasarkan pertanyaan pengguna, berikut adalah referensi dokumen resmi/hukum Kabupaten Tangerang yang sangat relevan:\n"""\n${contextTexts}\n"""\n\nINSTRUKSI PENTING: Anda adalah Konsultan untuk Ketua RT di Kabupaten Tangerang. JAWAB SECARA SPESIFIK menggunakan referensi di atas. JANGAN berikan jawaban umum. SEBUTKAN NOMOR/TAHUN peraturan yang tertulis di dalam referensi tersebut jika ada, untuk memberikan panduan hukum yang akurat bagi Ketua RT. Jika referensi relevan, JADIKAN REFERENSI INI SEBAGAI SUMBER UTAMA JAWABAN ANDA.`;
           }
         } catch (ragError) {
           console.error("RAG Search failed:", ragError);
@@ -186,7 +189,7 @@ export async function transcribeImage(formData: FormData) {
     }
     
     if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
-      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
+      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan kunjungi halaman Kredit Ai di Menu Pengaturan.");
     }
 
     const buffer = await file.arrayBuffer();
@@ -282,7 +285,7 @@ export async function generateAiBroadcast(data: {
       throw new Error("API Key AI belum dikonfigurasi. Silakan atur di Pengaturan Integrasi.");
     }
     if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
-      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
+      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan kunjungi halaman Kredit Ai di Menu Pengaturan.");
     }
 
     const prompt = "Tolong buatkan draf pesan pengumuman WhatsApp untuk warga RT.\n" +
@@ -358,7 +361,7 @@ export async function generateAiReport(month: number, year: number) {
       throw new Error("API Key AI belum dikonfigurasi. Silakan atur di Pengaturan Integrasi.");
     }
     if (tenantInfo && tenantInfo.aiDocCredits <= 0) {
-      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan Top Up kredit Anda.");
+      throw new Error("Kredit Doc/Notulen AI Anda habis. Silakan kunjungi halaman Kredit Ai di Menu Pengaturan.");
     }
 
     const startDate = new Date(year, month - 1, 1);

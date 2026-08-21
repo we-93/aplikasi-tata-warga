@@ -13,7 +13,7 @@ export default function CreateRtTemplatePage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Tambah Template Kustom</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#6419c1] dark:text-[#a064fa] truncate">Tambah Template Kustom</h1>
           <p className="text-sm text-slate-500 dark:text-white/50 mt-1">Buat format surat spesifik untuk RT Anda.</p>
         </div>
       </div>

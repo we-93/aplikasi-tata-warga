@@ -2,23 +2,23 @@ export function HowItWorks() {
   const steps = [
     {
       num: "1",
-      title: "Daftar",
-      desc: "Lakukan pendaftaran dengan cara memilih paket sesuai kebutuhan Anda."
+      title: "Daftar Akun",
+      desc: "Lakukan pendaftaran secara gratis untuk membuat ruang kerja bagi lingkungan RT Anda."
     },
     {
       num: "2",
-      title: "Konfirmasi Pembayaran",
-      desc: "Admin akan mengirim detail akun, nomor bot & link grup Whatsapp."
+      title: "Setup Lingkungan",
+      desc: "Masuk ke Dashboard, lengkapi profil RT, logo, dan susunan kepengurusan."
     },
     {
       num: "3",
-      title: "Setup Data Awal",
-      desc: "Masuk ke Dashboard, lengkapi data RT pada menu pengaturan (untuk kebutuhan surat)."
+      title: "Unduh Aplikasi",
+      desc: "Unduh dan pasang aplikasi Tata Warga .apk di perangkat Android Anda & warga."
     },
     {
       num: "4",
       title: "Sistem Aktif",
-      desc: "Semua fitur Dashboard bisa langsung digunakan dan AI Asisten pada grup Whatsapp otomatis aktif."
+      desc: "Dashboard, manajemen warga, dan fitur administrasi surat otomatis siap digunakan."
     }
   ];
 

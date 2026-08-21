@@ -22,9 +22,9 @@ export function Navbar({ logoUrl, logoUrlDark, menus, session }: { logoUrl?: str
   const navLinks = menus || [
     { name: "Beranda", href: "/#home" },
     { name: "Fitur", href: "/#fitur" },
-    { name: "Harga", href: "/#harga" },
     { name: "Tutorial", href: "https://docs.tatawarga.net" },
     { name: "Kontak", href: "/#kontak" },
+    { name: "Unduh .apk", href: "/tata-warga.apk" },
   ];
 
   return (
@@ -33,33 +33,31 @@ export function Navbar({ logoUrl, logoUrlDark, menus, session }: { logoUrl?: str
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
-              {logoUrl || logoUrlDark ? (
-                <>
-                  {(!logoUrlDark || !isDark) && logoUrl && (
-                    <img src={logoUrl} alt="Tata Warga Logo" className="h-8 w-auto" />
-                  )}
-                  {isDark && logoUrlDark && (
-                    <img src={logoUrlDark} alt="Tata Warga Logo" className="h-8 w-auto" />
-                  )}
-                </>
-              ) : (
-                <span className="text-xl font-bold tracking-tight text-primary">
-                  Tata Warga
-                </span>
-              )}
+              <img src="/logo-tata-waga.png" alt="Tata Warga Logo" className="h-8 w-auto" />
             </Link>
           </div>
           
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navLinks.map((link: any) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 dark:text-white/80 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
-                >
-                  {link.name}
-                </Link>
+                link.href.endsWith(".apk") ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    download
+                    className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 dark:text-white/80 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 dark:text-white/80 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                  >
+                    {link.name}
+                  </Link>
+                )
               ))}
               <div className="ml-4 flex items-center gap-4">
                 <ThemeToggle />

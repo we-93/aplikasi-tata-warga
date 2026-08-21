@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import OpenAI from "openai";
-const pdfParse = require("pdf-parse");
+import crypto from "crypto";
 
 // 500 words per chunk roughly
 function chunkText(text: string, chunkSize: number = 2000): string[] {
@@ -58,8 +58,14 @@ export async function uploadKnowledgeDocument(formData: FormData) {
     let extractedText = "";
 
     if (file.name.endsWith(".pdf") || file.type === "application/pdf") {
-      const data = await pdfParse(nodeBuffer);
-      extractedText = data.text;
+      try {
+        const pdfParse = require("pdf-parse/lib/pdf-parse.js");
+        const data = await pdfParse(nodeBuffer);
+        extractedText = data.text;
+      } catch (parseError: any) {
+        await prisma.knowledgeDocument.update({ where: { id: doc.id }, data: { status: "FAILED", error: "Gagal memproses file PDF: " + parseError.message } });
+        throw new Error("Gagal memproses file PDF.");
+      }
     } else if (file.name.endsWith(".txt")) {
       extractedText = nodeBuffer.toString("utf-8");
     } else {
@@ -73,31 +79,40 @@ export async function uploadKnowledgeDocument(formData: FormData) {
     }
 
     const chunks = chunkText(extractedText);
+    const validChunks = chunks.filter(c => c.trim().length >= 50);
     const points = [];
 
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      if (chunk.trim().length < 50) continue;
-
+    // Batch process to avoid timeout (OpenAI supports up to 2048 chunks per request)
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < validChunks.length; i += BATCH_SIZE) {
+      const batchChunks = validChunks.slice(i, i + BATCH_SIZE);
+      
       const embeddingRes = await openai.embeddings.create({
         model: "text-embedding-3-small",
-        input: chunk,
+        input: batchChunks,
         encoding_format: "float",
       });
 
-      points.push({
-        id: crypto.randomUUID(),
-        vector: embeddingRes.data[0].embedding,
-        payload: {
-          docId: doc.id,
-          filename: file.name,
-          text: chunk,
-        }
-      });
+      for (let j = 0; j < batchChunks.length; j++) {
+        points.push({
+          id: crypto.randomUUID(),
+          vector: embeddingRes.data[j].embedding,
+          payload: {
+            docId: doc.id,
+            filename: file.name,
+            text: batchChunks[j],
+          }
+        });
+      }
     }
 
-    if (points.length > 0) {
-      await qdrant.upsert("tata_warga_knowledge", { wait: true, points });
+    // Upsert to Qdrant in batches
+    const QDRANT_BATCH = 500;
+    for (let i = 0; i < points.length; i += QDRANT_BATCH) {
+      const batchPoints = points.slice(i, i + QDRANT_BATCH);
+      if (batchPoints.length > 0) {
+        await qdrant.upsert("tata_warga_knowledge", { wait: true, points: batchPoints });
+      }
     }
 
     const updatedDoc = await prisma.knowledgeDocument.update({
@@ -125,11 +140,15 @@ export async function deleteKnowledgeDocument(id: string) {
 
     const qdrant = new QdrantClient({ url: settings.qdrantUrl, apiKey: settings.qdrantApiKey });
     
-    await qdrant.delete("tata_warga_knowledge", {
-      filter: {
-        must: [{ key: "docId", match: { value: id } }]
-      }
-    });
+    try {
+      await qdrant.delete("tata_warga_knowledge", {
+        filter: {
+          must: [{ key: "docId", match: { value: id } }]
+        }
+      });
+    } catch (qdrantError) {
+      console.error("Qdrant delete ignored (maybe collection/points do not exist):", qdrantError);
+    }
 
     await prisma.knowledgeDocument.delete({ where: { id } });
     return { success: true };

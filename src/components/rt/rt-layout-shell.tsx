@@ -399,7 +399,7 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
                 <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Tambah Warga</span>
               </Link>
               
-              <Link href="/dashboard/rt/surat" onClick={() => setIsBottomSheetOpen(false)} className="flex flex-col items-center text-center gap-2">
+              <Link href="/dashboard/rt/surat/create" onClick={() => setIsBottomSheetOpen(false)} className="flex flex-col items-center text-center gap-2">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <FileText className="w-6 h-6" />
                 </div>
