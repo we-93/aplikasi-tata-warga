@@ -238,7 +238,7 @@ export function RegisterClient({ logoUrl }: { logoUrl?: string | null }) {
                 id="terms" 
                 checked={agreed}
                 onChange={(e) => setAgreed(e.target.checked)}
-                className="mt-1 w-4 h-4 text-[#6419c1] rounded border-slate-300 focus:ring-[#6419c1]"
+                className="mt-0.5 w-4 h-4 text-[#6419c1] rounded border-slate-300 focus:ring-[#6419c1]"
               />
               <Label htmlFor="terms" className="text-xs text-slate-500 leading-tight">
                 Saya telah membaca dan menyetujui<br />
