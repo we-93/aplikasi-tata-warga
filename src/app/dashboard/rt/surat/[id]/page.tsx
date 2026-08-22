@@ -8,7 +8,7 @@ export default async function SuratDetailPage({ params }: { params: { id: string
   const session = await auth();
   if (!session?.user?.tenantId) redirect("/auth/login");
 
-  const arsip = await prisma.suratArsip.findUnique({
+  const arsip = await prisma.suratArsip.findFirst({
     where: { 
       id: id,
       tenantId: session.user.tenantId // Security check to ensure RT only views their own letters
