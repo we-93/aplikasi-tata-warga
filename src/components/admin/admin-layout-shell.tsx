@@ -50,6 +50,8 @@ interface AdminLayoutShellProps {
 
 export function AdminLayoutShell({ children, logoUrl, logoUrlDark, userName, userEmail, userImage, footerText, recentLogs }: AdminLayoutShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const pathname = usePathname();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -60,6 +62,16 @@ export function AdminLayoutShell({ children, logoUrl, logoUrlDark, userName, use
     const stored = localStorage.getItem("admin_last_read_log_id");
     if (stored) {
       setLastReadLogId(stored);
+    }
+
+    // Keyboard detection for Android to hide bottom nav
+    if (typeof window !== "undefined" && window.visualViewport) {
+      const initialHeight = window.innerHeight;
+      const handleResize = () => {
+        setIsKeyboardOpen(window.visualViewport!.height < initialHeight - 150);
+      };
+      window.visualViewport.addEventListener("resize", handleResize);
+      return () => window.visualViewport?.removeEventListener("resize", handleResize);
     }
   }, []);
 

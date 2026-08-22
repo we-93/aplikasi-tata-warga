@@ -15,6 +15,7 @@ export function RegisterClient({ logoUrl }: { logoUrl?: string | null }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(true);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -231,10 +232,23 @@ export function RegisterClient({ logoUrl }: { logoUrl?: string | null }) {
               </div>
             </div>
 
+            <div className="flex items-start gap-2 mt-4 mb-2">
+              <input 
+                type="checkbox" 
+                id="terms" 
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-1 w-4 h-4 text-[#6419c1] rounded border-slate-300 focus:ring-[#6419c1]"
+              />
+              <Label htmlFor="terms" className="text-xs text-slate-500 leading-tight">
+                Saya telah membaca dan menyetujui <Link href="/privacy" className="text-[#6419c1] hover:underline">Kebijakan Privasi</Link> serta Ketentuan Layanan Tata Warga.
+              </Label>
+            </div>
+
             <Button 
               type="submit" 
-              disabled={isPending}
-              className="w-full h-11 bg-gradient-to-r from-[#6419c1] to-[#8a38f5] hover:from-[#5412a8] hover:to-[#7428d8] text-white rounded-xl shadow-[0_0_15px_rgba(100,25,193,0.3)] transition-all active:scale-[0.98] font-semibold text-sm mt-4"
+              disabled={isPending || !agreed}
+              className="w-full h-11 bg-gradient-to-r from-[#6419c1] to-[#8a38f5] hover:from-[#5412a8] hover:to-[#7428d8] text-white rounded-xl shadow-[0_0_15px_rgba(100,25,193,0.3)] transition-all active:scale-[0.98] font-semibold text-sm mt-2 disabled:opacity-50 disabled:pointer-events-none"
             >
               {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Daftar Sekarang"}
             </Button>

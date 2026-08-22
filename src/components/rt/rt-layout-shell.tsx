@@ -78,6 +78,7 @@ import { markNotificationRead } from "@/app/actions/notifications";
 export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEmail, userImage, footerText, notifications }: RTLayoutShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -125,6 +126,18 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
       return () => {
         import('@capacitor/app').then(({ App }) => App.removeAllListeners());
       };
+    }
+  }, []);
+
+  // Keyboard detection for Android to hide bottom nav
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.visualViewport) {
+      const initialHeight = window.innerHeight;
+      const handleResize = () => {
+        setIsKeyboardOpen(window.visualViewport!.height < initialHeight - 150);
+      };
+      window.visualViewport.addEventListener("resize", handleResize);
+      return () => window.visualViewport?.removeEventListener("resize", handleResize);
     }
   }, []);
 
@@ -343,7 +356,7 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
       </div>
 
       {/* MOBILE BOTTOM NAVIGATION */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#141229] border-t border-slate-200 dark:border-white/10 flex justify-around items-center px-2 py-2 pb-safe z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_24px_rgba(100,25,193,0.1)]">
+      <div className={`md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#141229] border-t border-slate-200 dark:border-white/10 ${isKeyboardOpen ? 'hidden' : 'flex'} justify-around items-center px-2 py-2 pb-safe z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_24px_rgba(100,25,193,0.1)]`}>
         <Link href="/dashboard/rt" className={`flex flex-col items-center p-2 rounded-xl min-w-[64px] ${pathname === '/dashboard/rt' ? 'text-[#6419c1] dark:text-[#a064fa]' : 'text-slate-500 dark:text-slate-400'}`}>
           <Home className="w-6 h-6 mb-1" />
           <span className="text-[10px] font-medium">Beranda</span>
