@@ -1,0 +1,273 @@
+PROPOSAL INOVASI
+
+LOMBA KREATIVITAS DAN INOVASI (KANVAS) GEMILANG KABUPATEN TANGERANG TAHUN 2026
+
+Kategori: Masyarakat
+
+---
+
+1. JUDUL INOVASI
+
+TATA WARGA
+(Teknologi Andal Tata Kelola Administrasi Warga)
+
+Inovator: Wahyudin Arief
+Desa: Munjul
+Kecamatan: Solear
+Kabupaten: Tangerang
+Kategori: Masyarakat
+
+---
+
+2. LATAR BELAKANG DAN TUJUAN
+
+Latar Belakang
+
+Ketua RT merupakan bagian penting dalam pelayanan masyarakat. Banyak kebutuhan warga berhubungan langsung dengan administrasi RT. Mulai dari surat pengantar, pendataan warga, arsip administrasi, pengelolaan kas, hingga penyampaian informasi.
+
+Namun, administrasi RT di banyak lingkungan masih dilakukan secara manual. Data warga masih dicatat dalam buku atau file terpisah. Surat dibuat satu per satu. Arsip disimpan dalam map. Laporan kas juga masih membutuhkan pencatatan manual.
+
+Kondisi tersebut menjadi semakin berat di kawasan perkotaan dan perumahan. Ketua RT umumnya memiliki pekerjaan utama di luar tugas kemasyarakatan. Jabatan Ketua RT menjadi tugas sosial yang dilakukan di sela kesibukan. Sehingga, waktu untuk mengurus administrasi menjadi terbatas.
+
+Di sisi lain, warga juga memiliki kesibukan masing-masing. Warga tidak selalu dapat bertemu langsung dengan Ketua RT. Bahkan, dalam kondisi tertentu warga dapat kesulitan menemukan waktu yang sesuai untuk mengurus kebutuhan administrasi. Meski dewasa ini sudah ada alat komunikasi, tetapi untuk kebutuhan tertentu, mengharuskan warga bertemu dengan Ketua RT.
+
+Permasalahan tersebut menunjukkan bahwa administrasi RT membutuhkan cara kerja yang lebih sederhana. Teknologi dapat digunakan untuk mengurangi beban administratif. Namun, teknologi tersebut harus mudah digunakan, dan juga harus sesuai dengan kebutuhan masyarakat.
+
+Berangkat dari kondisi tersebut, dikembangkan TATA WARGA akronim dari Teknologi Andal Tata Kelola Administrasi Warga.
+
+Tata Warga mulai digagas pada Desember 2025. Pengembangan dilakukan secara mandiri pada Januari sampai Maret 2026. Sistem mulai digunakan pada April 2026.
+
+Tata Warga dikembangkan sebagai platform administrasi RT yang dapat diakses melalui website dan aplikasi Android. Sistem ini mengintegrasikan data warga, pembuatan surat, arsip digital, kas RT, serta berbagai fitur berbasis kecerdasan buatan.
+
+Tata Warga juga dilengkapi Chat AI. Fitur ini dikembangkan dengan pendekatan Knowledge Base dan Retrieval-Augmented Generation (RAG). Dokumen publik dapat menjadi sumber pengetahuan AI. Salah satunya adalah dokumen regulasi Pemerintah Kabupaten Tangerang yang tersedia untuk publik. Pengetahuan tersebut dapat terus dikembangkan melalui penambahan dokumen yang relevan.
+
+Selain Chat AI, TATA WARGA memiliki AI untuk membantu membuat pengumuman, membuat notulen, dan rekap kegiatan. Dengan demikian, AI tidak hanya menjadi fitur percakapan, AI juga digunakan untuk membantu pekerjaan administratif Ketua RT.
+
+Implementasi Tata Warga telah dilakukan di lingkungan RT inovator di Desa Munjul, Kecamatan Solear. Tata Warga juga telah diperkenalkan dan digunakan di beberapa RT di Kelurahan Binong, Kecamatan Kelapa Dua melalui pengenalan oleh kelompok KKN.
+
+Inovasi ini dikembangkan secara mandiri. Tidak berasal dari program pemerintah ataupun menggunakan fasilitas pengembangan dari lembaga pemerintah. Pengembangan dilakukan menggunakan sumber daya sendiri.
+
+Tata Warga dirancang agar dapat direplikasi. Konsepnya dapat dikembangkan dari tingkat RT, RW, Desa/Kelurahan, Kecamatan, hingga Kabupaten Tangerang.
+
+Tujuan
+
+Tujuan utama TATA WARGA adalah mempercepat dan menyederhanakan administrasi khusus Ketua RT se-Kabupaten Tangerang.
+
+Tujuan khususnya adalah:
+
+1. Digitalisasi data warga dan administrasi RT.
+2. Mempercepat proses pembuatan surat.
+3. Menyediakan arsip administrasi secara digital.
+4. Membantu pengurus mengelola kas RT.
+5. Membantu Ketua RT membuat pengumuman dan notulen.
+6. Menyediakan asisten AI yang relevan dengan kebutuhan administrasi masyarakat.
+7. Memudahkan akses administrasi melalui website dan Android.
+8. Membangun model administrasi RT yang dapat direplikasi di wilayah lain.
+
+Target jangka panjangnya adalah menyediakan TATA WARGA secara gratis bagi Ketua RT di Kabupaten Tangerang dan mengembangkannya menjadi platform administrasi RT yang dapat digunakan secara luas.
+
+---
+
+3. KEBARUAN / NILAI TAMBAH
+
+TATA WARGA bukan hanya aplikasi pendataan warga. Melainkan untuk menggabungkan administrasi RT dalam satu platform.
+
+Kebaruannya terletak pada integrasi administrasi warga dengan kecerdasan buatan. Sistem memiliki database warga, pembuatan surat, arsip digital, kas RT, website, aplikasi Android, dan AI dalam satu ekosistem.
+
+Fitur AI memiliki beberapa fungsi: membantu membuat pengumuman warga, membantu membuat notulen dan rekap kegiatan, dan juga dapat digunakan melalui fitur Chat AI.
+
+Chat AI dikembangkan dengan Knowledge Base berbasis RAG. Dokumen publik dapat dimasukkan sebagai sumber pengetahuan. Pengetahuan AI dapat terus diperluas melalui penambahan dokumen yang relevan.
+
+Dengan pendekatan tersebut, Ketua RT tidak hanya mendapatkan chatbot umum. Ketua RT dapat memperoleh bantuan berdasarkan sumber pengetahuan yang disiapkan untuk kebutuhan administrasi dan regulasi masyarakat.
+
+TATA WARGA juga mandiri. Sistem dikembangkan sendiri oleh inovator menggunakan sumber daya pribadi.
+
+---
+
+4. IMPLEMENTASI INOVASI
+
+TATA WARGA saat ini sudah berjalan. Bukan sekadar rancangan. Sistem terdiri dari website dan aplikasi Android. Pengguna dapat masuk ke sistem menggunakan akun yang didaftarkan. Setelah masuk, Ketua RT dapat mengelola data dan administrasi melalui dashboard sendiri. Dan yang paling penting, semua data aman.
+
+Fitur yang telah aktif meliputi database warga, dashboard RT, pembuatan surat, arsip surat digital, kas RT, Chat AI, AI pengumuman, AI notulen dan rekap kegiatan, aplikasi Android, website, sistem login RT, dashboard admin, dan Knowledge Base AI.
+
+Implementasi dilakukan di lingkungan RT inovator di Desa Munjul, Kecamatan Solear. Tata Warga juga diperkenalkan di beberapa RT di Kelurahan Binong, Kecamatan Kelapa Dua melalui kelompok KKN.
+
+Sistem dirancang dengan mekanisme sederhana. RT melakukan pendaftaran dan mengisi profil, kemudian data administrasi kemudian dapat dikelola melalui sistem.
+
+Dokumentasi penggunaan disediakan secara terbuka melalui:
+
+"Dokumentasi dan Tutorial Tata Warga" (https://reference-url-citation.invalid/1)
+
+---
+
+5. SIGNIFIKANSI
+
+Tata Warga memberikan perubahan pada proses administrasi RT. Perubahan tersebut terlihat dari perbandingan proses manual dengan proses digital.
+
+Sebelum menggunakan TATA WARGA, pembuatan surat dilakukan secara manual. Proses dapat membutuhkan waktu sekitar 30 menit. Setelah menggunakan TATA WARGA, proses pembuatan surat dapat dilakukan sekitar 2 menit waktu normal berdasarkan pengukuran penggunaan melalui aplikasi. Tentu, semua tergantung jaringan internet.
+
+Perbedaan tersebut bukan hanya terjadi pada waktu. Cara kerja administrasi juga berubah.
+
+Data warga yang sebelumnya dikelola secara manual dapat disimpan secara digital. Arsip surat yang sebelumnya menggunakan buku atau map dapat disimpan secara digital. Akses administrasi yang sebelumnya membutuhkan pertemuan langsung dengan Ketua RT dapat dilakukan melalui website atau aplikasi Android.
+
+Pengelolaan kas juga menjadi lebih sederhana. Proses yang sebelumnya dapat membutuhkan sekitar satu jam untuk membuat laporan, dapat dilakukan sekitar dua menit melalui sistem berdasarkan pengukuran penggunaan aplikasi.
+
+Perubahan tersebut dapat diringkas sebagai berikut.
+
+Indikator| Sebelum Tata Warga| Sesudah Tata Warga
+Pembuatan surat| ±30 menit| ±2 menit
+Arsip surat| Buku atau map| Digital
+Data warga| Manual| Digital
+Akses administrasi| Bertemu langsung dengan RT| Website dan Android
+Risiko kehilangan arsip| Relatif tinggi| Lebih rendah karena tersimpan digital
+Laporan kas| ±1 jam| ±2 menit
+
+Angka waktu tersebut merupakan hasil pengamatan dan pengukuran penggunaan melalui aplikasi. Pengukuran formal dengan metode penelitian belum dilakukan. Oleh karena itu, data tersebut digunakan sebagai gambaran awal dampak implementasi.
+
+Pada tahap berikutnya, pengukuran akan dilakukan secara lebih terstruktur. Pengukuran dapat dilakukan dengan membandingkan beberapa proses administrasi sebelum dan sesudah penggunaan Tata Warga. Waktu proses akan dicatat. Hasilnya dapat dibandingkan berdasarkan rata-rata waktu penyelesaian.
+
+Dampak Tata Warga juga bersifat kualitatif. Ketua RT tidak harus selalu mengerjakan administrasi secara manual. Warga tidak selalu harus menunggu pertemuan langsung dengan Ketua RT. Administrasi menjadi lebih terdokumentasi.
+
+TATA WARGA juga memberikan manfaat melalui AI. Ketua RT dapat membuat pengumuman dengan lebih cepat. Ketua RT dapat membuat notulen dan rekap kegiatan dengan bantuan AI. Chat AI dapat membantu mencari informasi berdasarkan Knowledge Base yang tersedia.
+
+Knowledge Base dikembangkan menggunakan pendekatan RAG. Pengetahuan dapat ditingkatkan melalui penambahan dokumen. Dokumen publik yang relevan dapat menjadi sumber pengetahuan. Salah satunya adalah dokumen regulasi Pemerintah Kabupaten Tangerang.
+
+Dengan demikian, Tata Warga tidak hanya mengubah administrasi dari manual menjadi digital. Tata Warga juga mendorong perubahan cara kerja. Administrasi menjadi lebih cepat, terdokumentasi, dan mudah diakses.
+
+---
+
+6. SUMBER DAYA
+
+Tata Warga dikembangkan secara mandiri oleh Wahyudin Arief. Pengembangan tidak menggunakan pembiayaan program pemerintah. Seluruh proses pengembangan dilakukan dengan sumber daya pribadi.
+
+Sumber daya keuangan yang telah digunakan antara lain:
+
+- Hosting/server: Rp4.500.000
+- Domain: Rp60.000
+- API AI: Rp500.000
+
+Total biaya yang telah teridentifikasi adalah Rp5.060.000. Nilai tersebut belum memasukkan biaya tenaga dan waktu pengembangan karena sistem dikembangkan sendiri.
+
+Sumber daya manusia utama adalah inovator sebagai pengembang sistem. Pengembangan dilakukan dengan pendekatan iteratif. Sistem dikembangkan, diuji, digunakan, kemudian diperbaiki sesuai kebutuhan.
+
+Peralatan utama berupa komputer/laptop, koneksi internet, server, domain, perangkat Android, serta layanan AI.
+
+TATA WARGA juga menggunakan website dan aplikasi Android agar akses sistem tidak bergantung pada satu perangkat.
+
+---
+
+7. STRATEGI KEBERLANJUTAN
+
+Keberlanjutan Tata Warga dibangun melalui tiga pendekatan. Pendekatan tersebut adalah institusional, manajerial, dan sosial.
+
+A. Strategi Institusional
+
+Tata Warga dikembangkan sebagai inovasi masyarakat yang mendukung digitalisasi administrasi di tingkat RT.
+
+Arah pengembangan selanjutnya adalah membangun kolaborasi dengan pemerintah daerah. Dukungan pemerintah diharapkan dapat memperluas pemanfaatan TATA WARGA.
+
+Target jangka panjangnya adalah menjadikan TATA WARGA sebagai salah satu platform yang dapat digunakan Ketua RT di Kabupaten Tangerang.
+
+Pengembangan tetap dilakukan dengan memperhatikan ketentuan dan kebijakan yang berlaku. Khusus fitur AI, pengetahuan sistem akan terus diperbarui melalui penambahan dokumen publik yang relevan.
+
+TATA WARGA tidak dimaksudkan untuk menggantikan kewenangan pemerintah. Sistem berfungsi sebagai alat bantu administrasi dan informasi.
+
+B. Strategi Manajerial
+
+Pengembangan Tata Warga dilakukan secara bertahap. Fitur dikembangkan berdasarkan kebutuhan pengguna.
+
+Pengelolaan sistem dilakukan melalui dashboard admin. Pengguna RT memiliki dashboard tersendiri. Struktur tersebut memungkinkan pengelolaan sistem secara terpisah antara pengelola dan pengguna.
+
+Dokumentasi penggunaan juga disediakan secara publik. Tutorial dapat diakses melalui website dokumentasi. Hal ini membantu pengguna memahami proses penggunaan sistem.
+
+"Dokumentasi Tata Warga" (https://reference-url-citation.invalid/2)
+
+Pengembangan AI juga dilakukan secara bertahap. Knowledge Base dapat diperluas dengan dokumen yang relevan. Dengan demikian, kemampuan AI tidak berhenti pada kondisi saat pertama kali sistem dibuat.
+
+C. Strategi Sosial
+
+Tata Warga dikembangkan berdasarkan kebutuhan masyarakat. Karena itu, keberlanjutan tidak hanya bergantung pada teknologi.
+
+Kolaborasi dengan Ketua RT menjadi bagian penting. Ketua RT berperan sebagai pengguna sekaligus sumber masukan. Masukan pengguna digunakan untuk memperbaiki sistem.
+
+Pengenalan Tata Warga juga telah dilakukan melalui kelompok KKN di Kecamatan Kelapa Dua. Beberapa RT di Kelurahan Binong telah mengenal dan menggunakan sistem.
+
+Ke depan, kolaborasi akan diperluas. Sasaran pengembangan adalah RT lainnya di Kabupaten Tangerang.
+
+Model replikasi dirancang secara bertahap:
+
+RT → RW → Desa/Kelurahan → Kecamatan → Kabupaten Tangerang.
+
+Tata Warga akan diarahkan agar dapat digunakan secara gratis oleh Ketua RT di Kabupaten Tangerang.
+
+Pengembangan lanjutan akan difokuskan pada peningkatan kualitas administrasi, pengembangan fitur AI, peningkatan keamanan data, kemudahan penggunaan, dan perluasan akses.
+
+Dengan strategi tersebut, TATA WARGA tidak berhenti sebagai proyek aplikasi. TATA WARGA diarahkan menjadi inovasi yang terus digunakan dan dikembangkan.
+
+---
+
+8. DOKUMENTASI
+
+Dokumentasi Tata Warga tersedia secara publik melalui website dokumentasi.
+
+A. Website Dokumentasi
+
+"doc.tatawarga.web.id — Tutorial dan Dokumentasi Tata Warga" (https://reference-url-citation.invalid/3)
+
+Dokumentasi mencakup pengenalan sistem, cara penggunaan, serta informasi fitur Tata Warga.
+
+B. Akses Demo Website
+
+Juri dapat menguji TATA WARGA secara langsung melalui:
+
+"Login Demo Tata Warga" (https://reference-url-citation.invalid/4)
+
+Email: demo@tatawarga.web.id
+Password: demo123
+
+C. Aplikasi Android
+
+Aplikasi Android dapat diakses melalui:
+
+"Download Aplikasi Android Tata Warga" (https://reference-url-citation.invalid/5)
+
+D. Dokumentasi Video
+
+Video inovasi akan memuat:
+
+1. Latar belakang permasalahan administrasi RT.
+2. Pengenalan Tata Warga.
+3. Cara login dan penggunaan dashboard.
+4. Pengelolaan database warga.
+5. Pembuatan surat.
+6. Arsip digital.
+7. Pengelolaan kas RT.
+8. AI pengumuman.
+9. AI notulen dan rekap kegiatan.
+10. Chat AI.
+11. Demonstrasi Knowledge Base AI.
+12. Akses melalui aplikasi Android.
+13. Potensi replikasi Tata Warga.
+14. Dampak dan manfaat bagi Ketua RT dan warga.
+
+Video akan dibuat dengan durasi maksimal 5 menit sesuai ketentuan lomba.
+
+---
+
+PENUTUP
+
+Tata Warga lahir dari persoalan sederhana. Ketua RT memiliki tanggung jawab besar. Namun, waktu yang tersedia terbatas. Administrasi yang masih manual membuat pekerjaan tersebut semakin berat.
+
+Tata Warga hadir untuk mengurangi beban tersebut.
+
+Sistem ini mengubah administrasi RT dari proses manual menjadi digital. Data warga menjadi lebih terkelola. Surat dapat dibuat lebih cepat. Arsip tersimpan secara digital. Kas dapat dikelola dengan lebih sederhana.
+
+TATA WARGA juga membawa kecerdasan buatan ke tingkat administrasi masyarakat. AI dapat membantu membuat pengumuman. AI dapat membantu membuat notulen. AI juga dapat menjadi asisten informasi bagi Ketua RT.
+
+Knowledge Base membuat AI dapat terus berkembang. Dokumen publik yang relevan dapat ditambahkan. Termasuk dokumen regulasi yang dibutuhkan masyarakat.
+
+TATA WARGA dikembangkan secara mandiri. Inovasi ini tidak berhenti pada satu lingkungan, sistem telah diperkenalkan di beberapa RT. Modelnya juga dapat direplikasi.
+
+Arah pengembangan berikutnya adalah memperluas pemanfaatan TATA WARGA di Kabupaten Tangerang. Target akhirnya adalah menyediakan platform administrasi RT yang mudah digunakan dan dapat dimanfaatkan secara gratis oleh Ketua RT.
+
+Dari RT untuk masyarakat. Dari masyarakat untuk Kabupaten Tangerang.
