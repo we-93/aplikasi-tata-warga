@@ -241,7 +241,8 @@ export function RegisterClient({ logoUrl }: { logoUrl?: string | null }) {
                 className="mt-1 w-4 h-4 text-[#6419c1] rounded border-slate-300 focus:ring-[#6419c1]"
               />
               <Label htmlFor="terms" className="text-xs text-slate-500 leading-tight">
-                Saya telah membaca dan menyetujui <Link href="/privacy" className="text-[#6419c1] hover:underline">Kebijakan Privasi</Link> serta Ketentuan Layanan Tata Warga.
+                Saya telah membaca dan menyetujui<br />
+                <Link href="/privacy" className="text-[#6419c1] hover:underline">Kebijakan Privasi</Link>
               </Label>
             </div>
 
