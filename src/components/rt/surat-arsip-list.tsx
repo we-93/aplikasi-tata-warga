@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Eye, Trash2, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { deleteSuratArsip } from "@/app/actions/surat";
 import { toast } from "sonner";
+import { Browser } from "@capacitor/browser";
 
 const getFullNomorSurat = (a: any) => {
   if (!a.nomorSurat) return '-';
@@ -60,6 +61,23 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
       toast.error(res.error);
     }
   };
+
+  const handleOpenPdf = async (url: string) => {
+    try {
+      const isCapacitor = typeof (window as any).Capacitor !== "undefined" || navigator.userAgent.includes("capacitor");
+      if (isCapacitor) {
+        // Build absolute URL for Capacitor Browser
+        const absoluteUrl = new URL(url, window.location.href).href;
+        await Browser.open({ url: absoluteUrl });
+      } else {
+        window.open(url, "_blank");
+      }
+    } catch (e) {
+      console.error("Error opening PDF:", e);
+      window.open(url, "_blank");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -122,15 +140,15 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-white/5">
-                <Button variant="outline" size="sm" asChild className="h-8 flex-1 text-blue-600 border-blue-200 hover:bg-blue-50">
-                  <a href={`/api/surat/${a.id}/download`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full">
+                <Button variant="outline" size="sm" onClick={() => handleOpenPdf(`/api/surat/${a.id}/download`)} className="h-8 flex-1 text-blue-600 border-blue-200 hover:bg-blue-50">
+                  <div className="flex items-center justify-center w-full">
                     <Eye className="w-3.5 h-3.5 mr-1.5 shrink-0" /> <span className="truncate">Lihat</span>
-                  </a>
+                  </div>
                 </Button>
-                <Button variant="outline" size="sm" asChild className="h-8 flex-1 text-green-600 border-green-200 hover:bg-green-50">
-                  <a href={`/api/surat/${a.id}/download?download=1`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full">
+                <Button variant="outline" size="sm" onClick={() => handleOpenPdf(`/api/surat/${a.id}/download?download=1`)} className="h-8 flex-1 text-green-600 border-green-200 hover:bg-green-50">
+                  <div className="flex items-center justify-center w-full">
                     <Download className="w-3.5 h-3.5 mr-1.5 shrink-0" /> <span className="truncate">Unduh</span>
-                  </a>
+                  </div>
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleDelete(a.id)} className="h-8 flex-1 text-red-600 border-red-200 hover:bg-red-50">
                   <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus
@@ -173,16 +191,12 @@ export function SuratArsipList({ arsips }: { arsips: any[] }) {
                 <TableCell className="text-slate-600 dark:text-slate-300">{new Date(a.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <a href={`/api/surat/${a.id}/download`} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50" title="Lihat">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </a>
-                    <a href={`/api/surat/${a.id}/download?download=1`} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" title="Unduh">
-                        <Download className="w-4 h-4" />
-                      </Button>
-                    </a>
+                    <Button variant="ghost" size="icon" onClick={() => handleOpenPdf(`/api/surat/${a.id}/download`)} className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50" title="Lihat">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleOpenPdf(`/api/surat/${a.id}/download?download=1`)} className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" title="Unduh">
+                      <Download className="w-4 h-4" />
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 
