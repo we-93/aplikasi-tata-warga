@@ -14,7 +14,7 @@ export function SuratDetailClient({ arsip }: { arsip: any }) {
     if (!arsip || !arsip.template) return;
     const { template, warga, tenant } = arsip;
     
-    let content = template.content;
+    let content = template.contentHtml || '';
     const nomorSuratFinal = arsip.nomorSurat && arsip.nomorSurat.trim() !== '' ? arsip.nomorSurat : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     const toTitleCase = (str: string | null) => str ? str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()) : '-';
     
