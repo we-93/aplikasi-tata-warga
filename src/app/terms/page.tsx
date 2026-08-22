@@ -36,21 +36,21 @@ export default async function TermsAndConditionsPage() {
         <div className="prose prose-slate dark:prose-invert max-w-none">
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Syarat & Ketentuan</h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Pembaruan Terakhir: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+            Pembaruan Terakhir: 18 April 2026
           </p>
 
           <div className="space-y-8">
             <section>
               <h2 className="text-2xl font-semibold mt-8 mb-4">1. Pendahuluan</h2>
               <p className="leading-relaxed text-muted-foreground">
-                Syarat dan Ketentuan ini ("Syarat") mengatur akses dan penggunaan Anda terhadap platform web, Dashboard, serta layanan Bot Asisten WhatsApp yang disediakan oleh Tata Warga ("Kami", "Platform", atau "Layanan"). Dengan mendaftar, mengakses, atau menggunakan layanan Tata Warga, Anda menyetujui untuk tunduk dan terikat oleh Syarat ini. Jika Anda tidak menyetujui sebagian atau seluruh Syarat ini, Anda tidak diperkenankan menggunakan Layanan kami.
+                Syarat dan Ketentuan ini ("Syarat") mengatur akses dan penggunaan Anda terhadap platform web, Dashboard, serta layanan Asisten AI berbasis Knowledge Base yang disediakan oleh Tata Warga ("Kami", "Platform", atau "Layanan"). Dengan mendaftar, mengakses, atau menggunakan layanan Tata Warga, Anda menyetujui untuk tunduk dan terikat oleh Syarat ini. Jika Anda tidak menyetujui sebagian atau seluruh Syarat ini, Anda tidak diperkenankan menggunakan Layanan kami.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold mt-8 mb-4">2. Definisi Pengguna</h2>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li><strong>Tata Warga:</strong> Platform digitalisasi administrasi RT yang menyediakan Dashboard admin dan Asisten WhatsApp.</li>
+                <li><strong>Tata Warga:</strong> Platform digitalisasi administrasi RT yang menyediakan Dashboard admin dan Asisten AI.</li>
                 <li><strong>Pengurus/Admin:</strong> Ketua RT, Sekretaris, Bendahara, atau staf yang ditunjuk untuk mendaftarkan akun dan mengelola data di Dashboard.</li>
                 <li><strong>Warga:</strong> Penduduk lingkungan yang datanya dicatat oleh Pengurus ke dalam sistem Tata Warga.</li>
               </ul>
@@ -77,7 +77,7 @@ export default async function TermsAndConditionsPage() {
                 <li>Perselisihan internal antara Pengurus RT dengan Warga.</li>
                 <li>Penyalahgunaan dana kas RT. Transparansi angka di platform bergantung sepenuhnya pada kejujuran input Pengurus.</li>
                 <li>Validitas Surat Pengantar yang dibuat melalui platform. Pengurus bertanggung jawab memastikan surat dicetak, ditandatangani, dan disahkan sesuai prosedur (kecuali jika Tanda Tangan Digital lokal diberlakukan secara resmi di wilayah Anda).</li>
-                <li>Gangguan layanan sesaat akibat <em>maintenance</em> server atau putusnya koneksi dari pihak API WhatsApp (Meta).</li>
+                <li>Gangguan layanan sesaat akibat <em>maintenance</em> server atau putusnya koneksi dari pihak penyedia API layanan AI (seperti OpenAI).</li>
               </ul>
             </section>
 
@@ -91,7 +91,7 @@ export default async function TermsAndConditionsPage() {
             <section>
               <h2 className="text-2xl font-semibold mt-8 mb-4">6. Pemutusan Akses</h2>
               <p className="leading-relaxed text-muted-foreground">
-                Tata Warga berhak, atas kebijakan kami sendiri, untuk memblokir, menangguhkan, atau menghapus akun Anda tanpa pemberitahuan sebelumnya jika kami menemukan indikasi penipuan, penyalahgunaan sistem (seperti <em>spamming</em> via bot WA), atau pelanggaran hukum pidana/perdata Republik Indonesia.
+                Tata Warga berhak, atas kebijakan kami sendiri, untuk memblokir, menangguhkan, atau menghapus akun Anda tanpa pemberitahuan sebelumnya jika kami menemukan indikasi penipuan, penyalahgunaan sistem (seperti <em>spamming</em> kueri AI), atau pelanggaran hukum pidana/perdata Republik Indonesia.
               </p>
             </section>
 
@@ -105,7 +105,7 @@ export default async function TermsAndConditionsPage() {
             <section>
               <h2 className="text-2xl font-semibold mt-8 mb-4">8. Kontak Kami</h2>
               <p className="leading-relaxed text-muted-foreground">
-                Jika Anda memiliki pertanyaan mengenai Syarat & Ketentuan ini, Anda dapat menghubungi kami melalui email di <a href="mailto:info@tatawarga.net" className="text-primary hover:underline">info@tatawarga.net</a> atau melalui WhatsApp di <a href="https://api.whatsapp.com/send?phone=6285945441445" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+62 859 4544 1445</a>.
+                Jika Anda memiliki pertanyaan mengenai Syarat & Ketentuan ini, Anda dapat menghubungi kami melalui email di <a href="mailto:info@tatawarga.web.id" className="text-primary hover:underline">info@tatawarga.web.id</a>.
               </p>
             </section>
           </div>

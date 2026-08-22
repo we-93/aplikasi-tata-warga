@@ -22,7 +22,7 @@ export function Navbar({ logoUrl, logoUrlDark, menus, session }: { logoUrl?: str
   const navLinks = menus || [
     { name: "Beranda", href: "/#home" },
     { name: "Fitur", href: "/#fitur" },
-    { name: "Tutorial", href: "https://docs.tatawarga.net" },
+    { name: "Tutorial", href: "https://docs.tatawarga.web.id" },
     { name: "Kontak", href: "/#kontak" },
     { name: "Unduh .apk", href: "/tata-warga.apk" },
   ];

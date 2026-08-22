@@ -1,9 +1,11 @@
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
+import { ProblemSection } from "@/components/landing/problem-section";
+import { SolutionSection } from "@/components/landing/solution-section";
 import { Features } from "@/components/features";
-import { HowItWorks } from "@/components/how-it-works";
+import { ImpactSection } from "@/components/landing/impact-section";
+import { VisionSection } from "@/components/landing/vision-section";
 import { Testimonials } from "@/components/testimonials";
-import { FAQ } from "@/components/faq";
 import { CTA } from "@/components/cta";
 import { Footer } from "@/components/footer";
 import { CapacitorRedirect } from "@/components/capacitor-redirect";
@@ -25,9 +27,7 @@ export default async function Home() {
   }
 
   const featuresJson = settings?.features as any;
-  const pricingJson = settings?.pricing as any;
   const testimonialsJson = settings?.testimonials as any;
-  const faqJson = settings?.faq as any;
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
@@ -39,11 +39,12 @@ export default async function Home() {
           subtitle={settings?.heroSubtitle}
           image={settings?.heroImage}
         />
+        <ProblemSection />
+        <SolutionSection />
         <Features features={featuresJson} />
-        <HowItWorks />
-
+        <ImpactSection />
+        <VisionSection />
         <Testimonials testimonials={testimonialsJson} />
-        <FAQ faq={faqJson} />
         <CTA />
       </main>
       <Footer footerText={settings?.footerText} logoUrl={settings?.logoUrl} logoUrlDark={settings?.logoUrlDark} />

@@ -24,7 +24,7 @@ Sekarang mari bungkus menjadi file .apk khusus Dashboard RT
 ** Profil Saya /dashboard/rt/settings/akun
 ** Profil RT /dashboard/rt/settings/profil
 ** Template Surat /dashboard/rt/surat/template
-** Tutorial https://docs.tatawarga.net/
+** Tutorial https://docs.tatawarga.web.id/
 ** Tentang Aplikasi buatkan isinya /dashboard/rt/about
 ** Bantuan arahkan ke https://api.whatsapp.com/send?phone=6281934197955&text=Halo%20Admin%20Tata%20Warga%2C%20mohon%20dibantu%20untuk....
 ** Keluar (logout)

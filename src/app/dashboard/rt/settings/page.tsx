@@ -68,7 +68,7 @@ export default async function SettingsHubPage() {
         </Link>
 
         {/* Tutorial */}
-        <a href="https://docs.tatawarga.net/" target="_blank" rel="noreferrer" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
+        <a href="https://docs.tatawarga.web.id/" target="_blank" rel="noreferrer" className="flex items-center justify-between bg-white dark:bg-[#141229] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 group transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#6519c2] text-[#fad700] flex items-center justify-center">
               <BookOpen className="w-5 h-5" />

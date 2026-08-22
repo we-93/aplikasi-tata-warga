@@ -21,15 +21,15 @@ export function Footer({ footerText, logoUrl, logoUrlDark }: { footerText?: stri
             <ul className="space-y-3">
               <li><Link href="/dashboard/rt" className="text-muted-foreground hover:text-primary transition-colors">Dashboard</Link></li>
               <li><Link href="/#fitur" className="text-muted-foreground hover:text-primary transition-colors">Fitur</Link></li>
-              <li><a href="https://docs.tatawarga.net" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Tutorial</a></li>
+              <li><a href="https://docs.tatawarga.web.id" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Tutorial</a></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Hubungi Kami</h4>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:info@tatawarga.net" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
-                  <Mail className="w-4 h-4 shrink-0" /> info@tatawarga.net
+                <a href="mailto:info@tatawarga.web.id" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <Mail className="w-4 h-4 shrink-0" /> info@tatawarga.web.id
                 </a>
               </li>
               <li>
