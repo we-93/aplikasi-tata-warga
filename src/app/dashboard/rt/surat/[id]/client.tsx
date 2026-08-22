@@ -143,7 +143,7 @@ export function SuratDetailClient({ arsip }: { arsip: any }) {
       </div>
 
       {/* Floating Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-white/10 z-10 md:left-[260px] md:pl-10 lg:pl-[4.5rem]">
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-24 md:pb-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-white/10 z-10 md:left-[260px] md:pl-10 lg:pl-[4.5rem]">
         <div className="max-w-[800px] mx-auto flex gap-3">
           <Button 
             className="flex-1 bg-[#6419c1] hover:bg-[#7735d4] text-white shadow-md shadow-[#6419c1]/20 h-12 rounded-xl text-base"
@@ -153,11 +153,10 @@ export function SuratDetailClient({ arsip }: { arsip: any }) {
             Unduh PDF
           </Button>
           <Button 
-            variant="outline" 
-            className="flex-1 h-12 rounded-xl text-base border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="flex-1 bg-[#fad700] hover:bg-[#e6c600] text-black font-medium shadow-md shadow-[#fad700]/20 h-12 rounded-xl text-base border-0"
             onClick={handleShare}
           >
-            <Share2 className="w-5 h-5 mr-2 text-[#6419c1]" />
+            <Share2 className="w-5 h-5 mr-2 text-black" />
             Bagikan
           </Button>
         </div>
