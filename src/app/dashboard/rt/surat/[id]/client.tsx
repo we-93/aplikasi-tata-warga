@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Download, Share2, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Browser } from "@capacitor/browser";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
@@ -86,6 +85,7 @@ export function SuratDetailClient({ arsip }: { arsip: any }) {
       const isCapacitor = typeof (window as any).Capacitor !== "undefined" || navigator.userAgent.includes("capacitor");
       if (isCapacitor) {
         const absoluteUrl = new URL(url, window.location.href).href;
+        const { Browser } = await import("@capacitor/browser");
         await Browser.open({ url: absoluteUrl });
       } else {
         window.open(url, "_blank");
