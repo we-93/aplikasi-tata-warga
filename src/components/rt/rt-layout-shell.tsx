@@ -162,7 +162,7 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 dark:bg-black font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
+    <div className="flex flex-col h-[100dvh] w-full max-w-full overflow-x-hidden overflow-y-hidden bg-slate-50 dark:bg-black font-sans text-slate-900 dark:text-slate-100">
         {/* Header */}
         <header className="h-14 md:h-20 bg-[#6519c2] md:bg-white/80 dark:md:bg-[#141229]/80 backdrop-blur-md border-b border-[#6519c2] md:border-slate-200 dark:border-white/10 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
           <div className="flex items-center gap-3">
