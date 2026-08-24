@@ -745,8 +745,8 @@ export function KasClient({
               <Label>Keterangan (Opsional)</Label>
               <Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Dari Blok A-1, Beli sapu, dll." />
             </div>
-            <Button className="w-full bg-card border border-border-card-foreground" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            <Button className="w-full bg-[#6519c2] hover:bg-[#6519c2]/90 text-white" onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin text-white" /> : null}
               {editTarget ? "Simpan Perubahan" : "Simpan Transaksi"}
             </Button>
           </div>

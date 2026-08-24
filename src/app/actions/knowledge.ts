@@ -18,6 +18,8 @@ function chunkText(text: string, chunkSize: number = 2000): string[] {
 }
 
 export async function uploadKnowledgeDocument(formData: FormData) {
+  let docId: string | undefined = undefined;
+
   try {
     const session = await auth();
     if (!session?.user?.email) throw new Error("Unauthorized");
@@ -40,6 +42,7 @@ export async function uploadKnowledgeDocument(formData: FormData) {
         status: "PROCESSING"
       }
     });
+    docId = doc.id;
 
     const openai = new OpenAI({ apiKey: settings.openaiApiKey });
     const qdrant = new QdrantClient({ url: settings.qdrantUrl, apiKey: settings.qdrantApiKey });
@@ -47,10 +50,14 @@ export async function uploadKnowledgeDocument(formData: FormData) {
     // Pastikan collection ada
     try {
       await qdrant.getCollection("tata_warga_knowledge");
-    } catch {
-      await qdrant.createCollection("tata_warga_knowledge", {
-        vectors: { size: 1536, distance: "Cosine" }
-      });
+    } catch (e: any) {
+      try {
+        await qdrant.createCollection("tata_warga_knowledge", {
+          vectors: { size: 1536, distance: "Cosine" }
+        });
+      } catch (createErr: any) {
+        throw new Error("Gagal membuat Qdrant Collection: " + (createErr.message || "Forbidden"));
+      }
     }
 
     const buffer = await file.arrayBuffer();
@@ -63,18 +70,15 @@ export async function uploadKnowledgeDocument(formData: FormData) {
         const data = await pdfParse(nodeBuffer);
         extractedText = data.text;
       } catch (parseError: any) {
-        await prisma.knowledgeDocument.update({ where: { id: doc.id }, data: { status: "FAILED", error: "Gagal memproses file PDF: " + parseError.message } });
-        throw new Error("Gagal memproses file PDF.");
+        throw new Error("Gagal memproses file PDF: " + parseError.message);
       }
     } else if (file.name.endsWith(".txt")) {
       extractedText = nodeBuffer.toString("utf-8");
     } else {
-      await prisma.knowledgeDocument.update({ where: { id: doc.id }, data: { status: "FAILED", error: "Format tidak didukung" } });
       throw new Error("Format tidak didukung");
     }
 
     if (!extractedText || extractedText.trim() === "") {
-      await prisma.knowledgeDocument.update({ where: { id: doc.id }, data: { status: "FAILED", error: "Tidak ada teks yang dapat diekstrak" } });
       throw new Error("Tidak ada teks yang dapat diekstrak");
     }
 
@@ -87,11 +91,16 @@ export async function uploadKnowledgeDocument(formData: FormData) {
     for (let i = 0; i < validChunks.length; i += BATCH_SIZE) {
       const batchChunks = validChunks.slice(i, i + BATCH_SIZE);
       
-      const embeddingRes = await openai.embeddings.create({
-        model: "text-embedding-3-small",
-        input: batchChunks,
-        encoding_format: "float",
-      });
+      let embeddingRes;
+      try {
+        embeddingRes = await openai.embeddings.create({
+          model: "text-embedding-3-small",
+          input: batchChunks,
+          encoding_format: "float",
+        });
+      } catch (embErr: any) {
+        throw new Error("Gagal terhubung ke OpenAI: " + (embErr.message || "Forbidden"));
+      }
 
       for (let j = 0; j < batchChunks.length; j++) {
         points.push({
@@ -111,7 +120,11 @@ export async function uploadKnowledgeDocument(formData: FormData) {
     for (let i = 0; i < points.length; i += QDRANT_BATCH) {
       const batchPoints = points.slice(i, i + QDRANT_BATCH);
       if (batchPoints.length > 0) {
-        await qdrant.upsert("tata_warga_knowledge", { wait: true, points: batchPoints });
+        try {
+          await qdrant.upsert("tata_warga_knowledge", { wait: true, points: batchPoints });
+        } catch (upsertErr: any) {
+          throw new Error("Gagal menyimpan data ke Qdrant: " + (upsertErr.message || "Forbidden"));
+        }
       }
     }
 
@@ -123,6 +136,19 @@ export async function uploadKnowledgeDocument(formData: FormData) {
     return { success: true, doc: updatedDoc };
   } catch (error: any) {
     console.error("Upload error:", error);
+    
+    // Attempt to update the document status to FAILED if it was created
+    if (docId) {
+      try {
+        await prisma.knowledgeDocument.update({
+          where: { id: docId },
+          data: { status: "FAILED", error: error.message }
+        });
+      } catch (e) {
+        console.error("Failed to update status to FAILED:", e);
+      }
+    }
+    
     return { success: false, error: error.message };
   }
 }
