@@ -12,8 +12,6 @@ export default function AiChatPage() {
   const [chatInput, setChatInput] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [lastRequestTime, setLastRequestTime] = useState(0);
-  const [attachedImage, setAttachedImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Load history from localStorage on mount
@@ -46,26 +44,10 @@ export default function AiChatPage() {
     }
   };
 
-  const handleFileAttach = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAttachedImage(reader.result as string);
-        toast.success("Gambar berhasil dilampirkan");
-      };
-      reader.readAsDataURL(file);
-    } else {
-      toast.error("Format file tidak didukung. Harap pilih gambar.");
-    }
-    
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
 
   const handleSendChat = async () => {
-    if (!chatInput.trim() && !attachedImage) return;
+    if (!chatInput.trim()) return;
 
     if (chatInput.length > 500) {
       toast.error("Pesan terlalu panjang (Maks. 500 karakter)");
@@ -79,19 +61,10 @@ export default function AiChatPage() {
     }
     setLastRequestTime(now);
 
-    let userContent: any = chatInput;
-    if (attachedImage) {
-      userContent = [
-        { type: "text", text: chatInput || "Tolong jelaskan gambar ini" },
-        { type: "image_url", image_url: { url: attachedImage } }
-      ];
-    }
-
-    const newMessage = { role: "user", content: userContent };
+    const newMessage = { role: "user", content: chatInput };
     const newMessages = [...messages, newMessage];
     setMessages(newMessages);
     setChatInput("");
-    setAttachedImage(null);
     setIsChatLoading(true);
 
     try {
@@ -163,32 +136,31 @@ export default function AiChatPage() {
       </div>
 
       <div className="p-4 border-t bg-muted/30">
-        {attachedImage && (
-          <div className="mb-3 relative inline-block">
-            <img src={attachedImage} alt="Preview" className="h-20 w-auto rounded-md border shadow-sm" />
-            <button onClick={() => setAttachedImage(null)} className="absolute -top-2 -right-2 bg-red-500 text-foreground rounded-full p-1 shadow hover:bg-red-600">
-              <X className="w-3 h-3" />
-            </button>
-          </div>
-        )}
-        <div className="flex gap-2">
-          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileAttach} />
-          <Button variant="outline" size="icon" className="h-12 w-12" onClick={() => fileInputRef.current?.click()} title="Lampirkan Foto">
-            <Paperclip className="w-5 h-5" />
-          </Button>
+        <div className="flex gap-2 items-end">
           <div className="relative flex-1">
-            <Input 
+            <textarea 
               placeholder="Tanya sesuatu ke AI atau minta rangkum catatan..." 
               value={chatInput} 
               onChange={(e) => setChatInput(e.target.value)} 
-              onKeyDown={(e) => { if(e.key === 'Enter') handleSendChat() }}
-              className="w-full bg-white dark:bg-black pr-14 h-12 text-base rounded-xl"
+              onKeyDown={(e) => { 
+                if(e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendChat();
+                }
+              }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+              }}
+              className="w-full bg-white dark:bg-black pr-14 pl-4 py-3 min-h-[48px] max-h-[200px] text-base rounded-xl border border-input resize-none overflow-y-auto focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              rows={1}
             />
-            <div className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs ${chatInput.length > 500 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+            <div className={`absolute right-4 bottom-3 text-xs ${chatInput.length > 500 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
               {chatInput.length}/500
             </div>
           </div>
-          <Button className="h-12 w-12 bg-[#6419c1] hover:bg-[#7735d4] text-white rounded-xl" onClick={handleSendChat} disabled={isChatLoading || chatInput.length > 500 || (!chatInput.trim() && !attachedImage)}>
+          <Button className="h-12 w-12 shrink-0 bg-[#6419c1] hover:bg-[#7735d4] text-white rounded-xl" onClick={handleSendChat} disabled={isChatLoading || chatInput.length > 500 || !chatInput.trim()}>
             <Send className="w-5 h-5" />
           </Button>
         </div>
