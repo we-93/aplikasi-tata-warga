@@ -85,8 +85,7 @@ export function SuratDetailClient({ arsip }: { arsip: any }) {
       const isCapacitor = typeof (window as any).Capacitor !== "undefined" || navigator.userAgent.includes("capacitor");
       if (isCapacitor) {
         const absoluteUrl = new URL(url, window.location.href).href;
-        const { Browser } = await import("@capacitor/browser");
-        await Browser.open({ url: absoluteUrl });
+        window.location.href = absoluteUrl;
       } else {
         window.open(url, "_blank");
       }
@@ -100,6 +99,21 @@ export function SuratDetailClient({ arsip }: { arsip: any }) {
     const isCapacitor = typeof (window as any).Capacitor !== "undefined" || navigator.userAgent.includes("capacitor");
     const downloadUrl = new URL(`/api/surat/${arsip.id}/download`, window.location.href).href;
     
+    if (isCapacitor) {
+      try {
+        const { Share } = await import('@capacitor/share');
+        await Share.share({
+          title: `Surat ${arsip.template?.name}`,
+          text: `Berikut adalah tautan untuk melihat Surat ${arsip.template?.name} atas nama ${arsip.warga?.namaLengkap || 'Warga'}.`,
+          url: downloadUrl,
+          dialogTitle: 'Bagikan Surat'
+        });
+        return;
+      } catch (error) {
+        console.error('Error sharing natively', error);
+      }
+    }
+
     if (navigator.share) {
       try {
         await navigator.share({
