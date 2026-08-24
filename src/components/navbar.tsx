@@ -24,7 +24,7 @@ export function Navbar({ logoUrl, logoUrlDark, menus, session }: { logoUrl?: str
     { name: "Fitur", href: "/#fitur" },
     { name: "Tutorial", href: "https://docs.tatawarga.web.id" },
     { name: "Kontak", href: "/#kontak" },
-    { name: "Unduh .apk", href: "/tata-warga.apk" },
+    { name: "Unduh .apk", href: "/Tata Warga v.2.0.0.apk" },
   ];
 
   return (
