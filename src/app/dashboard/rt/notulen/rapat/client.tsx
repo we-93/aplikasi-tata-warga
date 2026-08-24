@@ -176,7 +176,7 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
   };
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-8 pb-10 w-full overflow-hidden">
       
       {/* 2 COLUMNS LAYOUT */}
       <div className="grid lg:grid-cols-2 gap-6">
@@ -290,7 +290,7 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
               </div>
               
               <Textarea
-                className="flex-1 min-h-[350px] resize-none text-sm font-mono leading-relaxed"
+                className="flex-1 w-full min-h-[350px] resize-none text-sm font-mono leading-relaxed"
                 value={reviewData.fullNotulen}
                 onChange={e => setReviewData({ ...reviewData, fullNotulen: e.target.value })}
               />
@@ -310,10 +310,10 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
       </div>
 
       {/* KOLOM BAWAH: ARSIP NOTULEN */}
-      <div className="bg-card border rounded-2xl p-6 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold flex items-center gap-2">🗂️ Arsip Notulen Rapat</h2>
-          <span className="text-sm bg-muted px-3 py-1 rounded-full font-medium">{notulens.length} Arsip</span>
+      <div className="bg-card border rounded-2xl p-6 shadow-sm w-full overflow-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 className="text-xl font-bold flex items-center gap-2 break-words">🗂️ Arsip Notulen Rapat</h2>
+          <span className="text-sm bg-muted px-3 py-1 rounded-full font-medium shrink-0">{notulens.length} Arsip</span>
         </div>
 
         {currentData.length === 0 ? (
@@ -421,7 +421,7 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
           {selectedNotulen && (
             <>
               <DialogHeader className="mb-4 border-b pb-4">
-                <DialogTitle className="text-2xl">{selectedNotulen.judulRapat}</DialogTitle>
+                <DialogTitle className="text-2xl break-words">{selectedNotulen.judulRapat}</DialogTitle>
                 <div className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   {new Date(selectedNotulen.tanggalRapat).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
