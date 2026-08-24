@@ -353,11 +353,11 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 border-t pt-4">
-            <p className="text-xs text-muted-foreground font-medium">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 border-t pt-4">
+            <p className="text-xs text-muted-foreground font-medium text-center sm:text-left">
               Menampilkan <span className="text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-foreground">{Math.min(currentPage * itemsPerPage, notulens.length)}</span> dari <span className="text-foreground">{notulens.length}</span> arsip
             </p>
-            <div className="flex items-center gap-1 bg-card border border-border p-1 rounded-xl shadow-sm">
+            <div className="flex flex-wrap justify-center items-center gap-1 bg-card border border-border p-1 rounded-xl shadow-sm">
               <Button
                 variant="ghost"
                 size="icon"

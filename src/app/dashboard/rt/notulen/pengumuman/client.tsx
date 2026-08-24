@@ -97,7 +97,7 @@ export function BroadcastClient({ initialPengumuman = [] }: { initialPengumuman?
             <Input placeholder="Contoh: Kerja Bakti Membersihkan Selokan" value={broadcastForm.topic} onChange={e => setBroadcastForm({...broadcastForm, topic: e.target.value})} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Nama Kegiatan (Opsional)</Label>
               <Input placeholder="Kerja Bakti Rutin" value={broadcastForm.kegiatan || ""} onChange={e => setBroadcastForm({...broadcastForm, kegiatan: e.target.value})} />
@@ -108,7 +108,7 @@ export function BroadcastClient({ initialPengumuman = [] }: { initialPengumuman?
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Lokasi (Opsional)</Label>
               <Input placeholder="Fasum RT 01" value={broadcastForm.lokasi || ""} onChange={e => setBroadcastForm({...broadcastForm, lokasi: e.target.value})} />
