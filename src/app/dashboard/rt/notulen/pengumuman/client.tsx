@@ -210,7 +210,7 @@ export function BroadcastClient({ initialPengumuman = [] }: { initialPengumuman?
           <DialogTitle>{viewItem?.title}</DialogTitle>
           <DialogDescription>Diterbitkan pada: {viewItem?.createdAt && new Date(viewItem.createdAt).toLocaleDateString('id-ID')}</DialogDescription>
         </DialogHeader>
-        <div className="mt-4 p-4 bg-muted/30 rounded-lg whitespace-pre-wrap font-mono text-sm max-h-[60vh] overflow-y-auto">
+        <div className="mt-4 p-4 bg-muted/30 rounded-lg whitespace-pre-wrap break-words font-mono text-sm max-h-[60vh] overflow-y-auto">
           {viewItem?.content}
         </div>
         <div className="flex justify-end mt-4">

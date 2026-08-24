@@ -431,7 +431,7 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
               <div className="space-y-6">
                 <div className="bg-muted/30 rounded-xl p-5 border">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">📄 Dokumen Notulen</h3>
-                  <div className="whitespace-pre-wrap text-sm font-mono leading-relaxed selection:bg-primary/20">
+                  <div className="whitespace-pre-wrap break-words text-sm font-mono leading-relaxed selection:bg-primary/20">
                     {selectedNotulen.fullNotulen}
                   </div>
                 </div>
