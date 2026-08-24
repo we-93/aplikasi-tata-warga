@@ -328,13 +328,7 @@ export function RTLayoutShell({ children, logoUrl, logoUrlDark, userName, userEm
             Support
           </a>
           
-          <button 
-            onClick={handleLogout}
-            className="flex justify-center items-center px-4 py-2 text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors w-full gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Keluar Akun
-          </button>
+
         </div>
       </aside>
 
