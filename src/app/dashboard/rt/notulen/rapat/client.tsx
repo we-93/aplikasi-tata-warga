@@ -321,29 +321,28 @@ export function NotulenClient({ initialNotulens = [] }: { initialNotulens?: any[
             <h3 className="font-semibold text-muted-foreground">Arsip masih kosong</h3>
           </div>
         ) : (
-          <div className="grid gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {currentData.map(n => (
-              <div key={n.id} className="bg-background border rounded-xl p-4 hover:border-primary transition-all flex items-center justify-between gap-4 cursor-pointer" onClick={() => setSelectedNotulen(n)}>
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              <div key={n.id} className="bg-background border rounded-xl p-4 hover:border-primary transition-all flex flex-col gap-4 cursor-pointer shadow-sm" onClick={() => setSelectedNotulen(n)}>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-0.5">
                     <FileText className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold truncate">{n.judulRapat}</h3>
-                    <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(n.tanggalRapat).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
-                      </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold line-clamp-2 text-sm sm:text-base leading-tight">{n.judulRapat}</h3>
+                    <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {new Date(n.tanggalRapat).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button variant="ghost" size="icon" className="text-primary hover:text-primary hover:bg-primary/10" onClick={(e) => { e.stopPropagation(); setSelectedNotulen(n); }}>
-                    <Eye className="w-4 h-4" />
+                
+                <div className="flex items-center justify-end gap-2 border-t pt-3 mt-auto">
+                  <Button variant="outline" size="sm" className="flex-1 sm:flex-none h-8 text-xs bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:text-emerald-800" onClick={(e) => { e.stopPropagation(); setSelectedNotulen(n); }}>
+                    <Eye className="w-3.5 h-3.5 mr-1.5" /> Lihat Detail
                   </Button>
-                  <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDelete(n.id); }}>
-                    <Trash2 className="w-4 h-4" />
+                  <Button variant="outline" size="sm" className="flex-1 sm:flex-none h-8 text-xs text-red-600 border-red-200 bg-red-50 hover:bg-red-100 hover:text-red-700" onClick={(e) => { e.stopPropagation(); handleDelete(n.id); }}>
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus
                   </Button>
                 </div>
               </div>
